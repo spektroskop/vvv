@@ -9,16 +9,13 @@ pub type Config {
   Config(static: static.Service)
 }
 
-// TODO: Include instead of exclude?
-// const compressable = ["text/css", "text/javascript", "application/json"]
-// use <- web.gzip(request, only: compressable, above: 1000)
-const already_compressed = ["font/woff", "font/woff2"]
+const compressable = ["text/css", "text/javascript", "application/json"]
 
 pub fn service(config: Config) -> Service(_, _) {
   let Config(static: static) = config
 
   fn(request: Request(_)) -> Response(_) {
-    use <- web.gzip(request, above: 1000, except: already_compressed)
+    use <- web.gzip(request, only: compressable, above: 1000)
 
     case request.path_segments(request) {
       segments ->

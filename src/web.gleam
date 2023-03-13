@@ -46,7 +46,7 @@ pub fn require_method(
 pub fn gzip(
   request: Request(_),
   above limit: Int,
-  except skip: List(String),
+  only compressable: List(String),
   from get_response: fn() -> Response(BitBuilder),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
@@ -56,7 +56,7 @@ pub fn gzip(
   use accepts <- result.then(request.get_header(request, "accept-encoding"))
   use <- lib.when(string.contains(accepts, "gzip"))
   use kind <- result.then(response.get_header(response, "content-type"))
-  use <- lib.when(!list.contains(skip, kind))
+  use <- lib.when(list.contains(compressable, kind))
 
   response
   |> response.map(lib.gzip)
