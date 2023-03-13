@@ -1,12 +1,21 @@
 import gleam/bit_builder.{BitBuilder}
 import gleam/erlang/charlist.{Charlist}
 import gleam/list
+import gleam/result
 
-pub fn unwrap_result(result: Result(a, e), or default: fn(e) -> a) -> a {
+pub fn unwrap_error(result: Result(a, e), or default: fn(e) -> a) -> a {
   case result {
     Ok(ok) -> ok
     Error(error) -> default(error)
   }
+}
+
+pub fn else(value: a, wrap: fn() -> Result(a, e)) -> a {
+  result.unwrap(wrap(), value)
+}
+
+pub fn lazy_else(value: fn(e) -> a, wrap: fn() -> Result(a, e)) -> a {
+  unwrap_error(wrap(), value)
 }
 
 pub fn wrap(wrap: fn(a) -> b, make: fn() -> a) -> b {

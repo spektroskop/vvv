@@ -50,7 +50,7 @@ pub fn gzip(
   from get_response: fn() -> Response(BitBuilder),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
-  use <- lib.wrap(result.unwrap(_, response))
+  use <- lib.else(response)
 
   use <- lib.when(bit_builder.byte_size(body) >= limit)
   use accepts <- result.then(request.get_header(request, "accept-encoding"))

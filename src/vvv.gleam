@@ -23,7 +23,7 @@ pub fn main() {
     |> result.unwrap(["index.html"])
 
   let reloader = {
-    use <- lib.wrap(result.unwrap(_, option.None))
+    use <- lib.else(option.None)
 
     use path <- result.then(
       os.get_env("RELOADER_PATH")
