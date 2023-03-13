@@ -10,7 +10,7 @@ import web/router
 import web/static/actor as static
 
 pub fn main() {
-  let assert Ok(static_path) = os.get_env("STATIC_PATH")
+  let assert Ok(asset_path) = os.get_env("ASSET_PATH")
 
   let index_path =
     os.get_env("INDEX_PATH")
@@ -35,7 +35,7 @@ pub fn main() {
   }
 
   let assert Ok(static_service) =
-    static.service(reloader, from: static_path, fallback: index_path)
+    static.service(reloader, from: asset_path, fallback: index_path)
 
   let routes = router.Config(static: static_service)
   let router = router.service(routes)
