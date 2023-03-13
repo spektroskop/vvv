@@ -13,6 +13,10 @@ import web/static/actor as static
 pub fn main() {
   let assert Ok(asset_path) = os.get_env("ASSET_PATH")
 
+  let assert Ok(port) =
+    os.get_env("PORT")
+    |> result.then(int.parse)
+
   let index_path =
     os.get_env("INDEX_PATH")
     |> result.map(uri.path_segments)
@@ -34,10 +38,6 @@ pub fn main() {
     |> option.Some
     |> Ok
   }
-
-  let assert Ok(port) =
-    os.get_env("PORT")
-    |> result.then(int.parse)
 
   let assert Ok(static_service) =
     static.service(reloader, from: asset_path, fallback: index_path)
