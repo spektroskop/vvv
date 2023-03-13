@@ -19,7 +19,9 @@ pub type Service {
   Service(assets: fn() -> Result(Assets, Report(Error)), router: web.Service)
 }
 
-// TODO: Consider storing small files in memory
+// TODO: Maybe
+//   - store small files in memory, or
+//   - optionally keep all files in memory.
 pub type Asset {
   Asset(content_type: String, hash: String, path: String, size: Int)
 }

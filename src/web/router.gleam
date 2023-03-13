@@ -9,6 +9,9 @@ pub type Config {
   Config(static: static.Service)
 }
 
+// TODO: Include instead of exclude?
+// const compressable = ["text/css", "text/javascript", "application/json"]
+// use <- web.gzip(request, only: compressable, above: 1000)
 const already_compressed = ["font/woff", "font/woff2"]
 
 pub fn service(config: Config) -> Service(_, _) {
