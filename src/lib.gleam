@@ -14,7 +14,7 @@ pub fn else(value: a, wrap: fn() -> Result(a, e)) -> a {
   result.unwrap(wrap(), value)
 }
 
-pub fn lazy_else(value: fn(e) -> a, wrap: fn() -> Result(a, e)) -> a {
+pub fn else_error(value: fn(e) -> a, wrap: fn() -> Result(a, e)) -> a {
   unwrap_error(wrap(), value)
 }
 
