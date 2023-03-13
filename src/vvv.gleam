@@ -30,8 +30,8 @@ pub fn main() {
     )
 
     static.Reloader(method, path)
-    |> option.Some()
-    |> Ok()
+    |> option.Some
+    |> Ok
   }
 
   let assert Ok(static_service) =
