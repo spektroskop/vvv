@@ -8,7 +8,7 @@
 
 ## environment
 
-- `PORT` - server listen port
+- `PORT` - server listen port (required)
 - `ASSET_PATH` - where to look for assets (required)
 - `INDEX_PATH` - fallback for static router (default: index.html)
 - `RELOADER_METHOD` - path to use for asset reload
