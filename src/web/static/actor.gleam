@@ -31,14 +31,14 @@ pub fn start(
   fallback index: List(String),
 ) -> Result(Subject(Message), actor.StartError) {
   actor.start(
-    static.service(base, index),
+    static.service(from: base, fallback: index),
     fn(message, state) -> actor.Next(_) {
       case message {
         Reload(reply) -> {
           Ok(Response(200, [], bit_builder.from_string("ok")))
           |> process.send(reply, _)
 
-          static.service(base, index)
+          static.service(from: base, fallback: index)
           |> actor.Continue()
         }
 
@@ -88,7 +88,7 @@ pub fn service(
 ) -> Result(static.Service, actor.StartError) {
   case reloader {
     option.None ->
-      static.service(base, index)
+      static.service(from: base, fallback: index)
       |> Ok
 
     option.Some(Reloader(method, path)) -> {
