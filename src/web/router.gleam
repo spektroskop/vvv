@@ -11,8 +11,8 @@ pub type Config {
 
 const compressable = ["text/css", "text/javascript", "application/json"]
 
-pub fn service(config: Config) -> Service(_, _) {
-  let Config(static: static) = config
+pub fn service(routes: Config) -> Service(_, _) {
+  let Config(static: static) = routes
 
   fn(request: Request(_)) -> Response(_) {
     use <- web.gzip(request, only: compressable, above: 1000)
