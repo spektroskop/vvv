@@ -16,17 +16,6 @@ pub type Result =
 pub type Service =
   fn(Request(BitString), List(String)) -> Result
 
-pub fn try_(
-  result: gleam.Result(a, b),
-  or alternative: fn() -> Result,
-  then continue: fn(a) -> Result,
-) -> Result {
-  case result {
-    Ok(value) -> continue(value)
-    Error(_) -> alternative()
-  }
-}
-
 pub fn require_method(
   request: Request(_),
   valid: http.Method,
