@@ -12,11 +12,11 @@ import web/static
 import web/static/reloader
 
 pub fn main() {
-  let assert Ok(asset_path) = os.get_env("ASSET_PATH")
-
   let assert Ok(port) =
     os.get_env("PORT")
     |> result.then(int.parse)
+
+  let assert Ok(asset_path) = os.get_env("ASSET_PATH")
 
   let index_path =
     os.get_env("INDEX_PATH")
@@ -50,9 +50,8 @@ pub fn main() {
   }
 
   let routes = router.Config(static: static_service)
-  let router = router.service(routes)
-
-  let assert Ok(_) = mist.run_service(port, router, max_body_limit: 0)
+  let assert Ok(_) =
+    mist.run_service(port, router.service(routes), max_body_limit: 0)
 
   process.sleep_forever()
 }
