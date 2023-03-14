@@ -9,7 +9,9 @@ pub type Config {
   Config(static: static.Service)
 }
 
-const compressable = ["text/css", "text/javascript", "application/json"]
+const compressable = [
+  "text/html", "text/css", "text/javascript", "application/json",
+]
 
 pub fn service(routes: Config) -> Service(_, _) {
   let Config(static: static) = routes
