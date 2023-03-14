@@ -8,7 +8,8 @@ import gleam/uri
 import lib
 import mist
 import web/router
-import web/static/actor as static
+import web/static
+import web/static/reloader
 
 pub fn main() {
   let assert Ok(asset_path) = os.get_env("ASSET_PATH")
@@ -22,7 +23,7 @@ pub fn main() {
     |> result.map(uri.path_segments)
     |> result.unwrap(["index.html"])
 
-  let reloader = {
+  let reloader_config = {
     use <- lib.else(option.None)
 
     use path <- result.then(
@@ -34,13 +35,19 @@ pub fn main() {
       |> result.then(http.parse_method),
     )
 
-    static.Reloader(method, path)
+    reloader.Config(method, path)
     |> option.Some
     |> Ok
   }
 
-  let assert Ok(static_service) =
-    static.service(reloader, from: asset_path, fallback: index_path)
+  let assert Ok(static_service) = case reloader_config {
+    option.Some(config) ->
+      reloader.service(config, from: asset_path, fallback: index_path)
+
+    option.None ->
+      static.service(from: asset_path, fallback: index_path)
+      |> Ok
+  }
 
   let routes = router.Config(static: static_service)
   let router = router.service(routes)
