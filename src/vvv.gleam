@@ -23,7 +23,7 @@ pub fn main() {
     |> result.map(uri.path_segments)
     |> result.unwrap(["index.html"])
 
-  let reloader_config = {
+  let static_reloader = {
     use <- lib.else(option.None)
 
     use path <- result.then(
@@ -40,7 +40,7 @@ pub fn main() {
     |> Ok
   }
 
-  let assert Ok(static_service) = case reloader_config {
+  let assert Ok(static_service) = case static_reloader {
     option.Some(config) ->
       reloader.service(config, from: asset_path, fallback: index_path)
 
