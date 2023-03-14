@@ -28,7 +28,7 @@ pub fn main() {
 
     use path <- result.then(
       os.get_env("RELOADER_PATH")
-      |> result.map(fn(path) { [path] }),
+      |> result.map(uri.path_segments),
     )
     use method <- result.then(
       os.get_env("RELOADER_METHOD")
