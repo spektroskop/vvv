@@ -49,7 +49,14 @@ pub fn main() {
       |> Ok
   }
 
-  let routes = router.Config(static: static_service)
+  let routes =
+    router.Config(
+      static: static_service,
+      gzip_above: 350,
+      gzip_types: [
+        "text/html", "text/css", "text/javascript", "application/json",
+      ],
+    )
   let assert Ok(_) =
     mist.run_service(port, router.service(routes), max_body_limit: 0)
 

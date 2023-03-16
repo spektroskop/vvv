@@ -6,18 +6,14 @@ import web
 import web/static
 
 pub type Config {
-  Config(static: static.Service)
+  Config(static: static.Service, gzip_above: Int, gzip_types: List(String))
 }
 
-const compressable = [
-  "text/html", "text/css", "text/javascript", "application/json",
-]
-
-pub fn service(routes: Config) -> Service(_, _) {
-  let Config(static: static) = routes
+pub fn service(config: Config) -> Service(_, _) {
+  let Config(static: static, ..) = config
 
   fn(request: Request(_)) -> Response(_) {
-    use <- web.gzip(request, only: compressable, above: 1000)
+    use <- web.gzip(request, only: config.gzip_types, above: config.gzip_above)
 
     case request.path_segments(request) {
       segments ->
