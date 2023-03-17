@@ -10,14 +10,12 @@ pub type Config {
 }
 
 pub fn service(config: Config) -> Service(_, _) {
-  let Config(static: static, ..) = config
-
   fn(request: Request(_)) -> Response(_) {
     use <- web.gzip(request, only: config.gzip_types, above: config.gzip_above)
 
     case request.path_segments(request) {
       segments ->
-        case static.router(request, segments) {
+        case config.static.router(request, segments) {
           Ok(response) -> response
 
           Error(_report) ->
