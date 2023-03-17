@@ -1,12 +1,12 @@
 import gleam/erlang/os
 import gleam/erlang/process
 import gleam/http
+import gleam/http/elli
 import gleam/int
 import gleam/option
 import gleam/result
 import gleam/uri
 import lib
-import mist
 import web/router
 import web/static
 import web/static/reloader
@@ -49,16 +49,16 @@ pub fn main() {
       |> Ok
   }
 
-  let routes =
-    router.Config(
+  let router =
+    router.service(router.Config(
       static: static_service,
       gzip_above: 350,
       gzip_types: [
         "text/html", "text/css", "text/javascript", "application/json",
       ],
-    )
-  let assert Ok(_) =
-    mist.run_service(port, router.service(routes), max_body_limit: 0)
+    ))
+
+  let assert Ok(_) = elli.start(router, port)
 
   process.sleep_forever()
 }
