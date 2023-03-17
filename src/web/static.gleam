@@ -1,6 +1,5 @@
 import gleam/base
 import gleam/bit_builder.{BitBuilder}
-import gleam/bit_string
 import gleam/crypto
 import gleam/erlang/file
 import gleam/http
@@ -24,9 +23,8 @@ pub type Asset {
 }
 
 pub type Body {
-  Path(path: String, size: Int)
+  Path(String)
   Data(BitBuilder)
-}
 }
 
 pub type Assets =
@@ -45,7 +43,7 @@ fn router(assets: Assets, index: List(String)) {
     use body <- result.then(case asset.body {
       Data(body) -> Ok(body)
 
-      Path(path, ..) ->
+      Path(path) ->
         file.read_bits(path)
         |> result.map(bit_builder.from_bit_string)
         |> report.map_error(error.FileError)
@@ -120,7 +118,7 @@ fn load(path: String) -> Result(Asset, Nil) {
     //   bit_builder.from_bit_string(data)
     //   |> lib.gzip(),
     // ),
-    body: Path(path: path, size: bit_string.byte_size(data)),
+    body: Path(path),
   )
   |> Ok
 }
