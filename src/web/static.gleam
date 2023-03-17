@@ -19,11 +19,14 @@ pub type Service {
   Service(assets: fn() -> Result(Assets, Report(Error)), router: web.Service)
 }
 
-// TODO: Maybe
-//   - store small files in memory, or
-//   - optionally keep all files in memory.
 pub type Asset {
-  Asset(content_type: String, hash: String, path: String, size: Int)
+  Asset(content_type: String, hash: String, body: Body)
+}
+
+pub type Body {
+  Path(path: String, size: Int)
+  Data(BitString)
+}
 }
 
 pub type Assets =
@@ -39,10 +42,13 @@ fn router(assets: Assets, index: List(String)) {
     use <- web.require_method(request, http.Get)
 
     use asset <- get_asset(request, segments, assets, index)
-    use body <- result.then(
-      file.read_bits(asset.path)
-      |> report.map_error(error.FileError),
-    )
+    use body <- result.then(case asset.body {
+      Data(body) -> Ok(body)
+
+      Path(path, ..) ->
+        file.read_bits(path)
+        |> report.map_error(error.FileError)
+    })
 
     response.new(200)
     |> response.set_body(body)
@@ -78,7 +84,7 @@ fn get_asset(
         Ok(header) if hash == header ->
           response.new(304)
           |> response.prepend_header("etag", hash)
-          |> response.set_body(bit_builder.new())
+          |> response.map(bit_builder.from_string)
           |> Ok
 
         _ -> continue(asset)
@@ -110,8 +116,8 @@ fn load(path: String) -> Result(Asset, Nil) {
     content_type: content_type,
     hash: crypto.hash(crypto.Sha224, data)
     |> base.encode64(False),
-    path: path,
-    size: bit_string.byte_size(data),
+    // body: Data(lib.gzip(data)),
+    body: Path(path: path, size: bit_string.byte_size(data)),
   )
   |> Ok
 }
