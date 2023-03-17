@@ -2,7 +2,7 @@ import gleam/bit_builder
 import gleam/erlang/process.{Subject}
 import gleam/http
 import gleam/http/request.{Request}
-import gleam/http/response.{Response}
+import gleam/http/response
 import gleam/otp/actor
 import gleam/result
 import lib/report.{Report}
@@ -34,7 +34,10 @@ pub fn start(
     fn(message, state) -> actor.Next(_) {
       case message {
         Reload(reply) -> {
-          Ok(Response(200, [], bit_builder.from_string("ok")))
+          response.new(200)
+          |> response.set_body("ok")
+          |> response.map(bit_builder.from_string)
+          |> Ok
           |> process.send(reply, _)
 
           static.service(from: base, fallback: index)
