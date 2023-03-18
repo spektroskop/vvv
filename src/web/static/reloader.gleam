@@ -24,36 +24,29 @@ pub type Config {
   Config(method: http.Method, path: List(String))
 }
 
-pub fn start(
-  from base: String,
-  fallback index: List(String),
-) -> Result(Subject(Message), actor.StartError) {
+pub fn start(reload: fn() -> static.Service) -> Result(Subject(Message), _) {
   actor.start(
-    static.service(from: base, fallback: index),
+    reload(),
     fn(message, state) -> actor.Next(_) {
       case message {
         Reload(reply) -> {
-          response.new(200)
-          |> response.set_body("ok")
-          |> response.map(web.StringBody)
-          |> Ok
-          |> process.send(reply, _)
+          process.send(
+            reply,
+            response.new(200)
+            |> response.set_body(web.StringBody("ok"))
+            |> Ok,
+          )
 
-          static.service(from: base, fallback: index)
-          |> actor.Continue()
+          actor.Continue(reload())
         }
 
         List(reply) -> {
-          state.assets()
-          |> process.send(reply, _)
-
+          process.send(reply, state.assets())
           actor.Continue(state)
         }
 
         Route(request, segments, reply) -> {
-          state.router(request, segments)
-          |> process.send(reply, _)
-
+          process.send(reply, state.router(request, segments))
           actor.Continue(state)
         }
       }
@@ -84,10 +77,9 @@ fn router(actor, method, path) -> web.Service {
 
 pub fn service(
   config: Config,
-  from base: String,
-  fallback index: List(String),
+  reload: fn() -> static.Service,
 ) -> Result(static.Service, actor.StartError) {
-  use actor <- result.then(start(from: base, fallback: index))
+  use actor <- result.then(start(reload))
 
   static.Service(
     assets: assets(actor),

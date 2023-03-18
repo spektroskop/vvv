@@ -42,7 +42,10 @@ pub fn main() {
 
   let assert Ok(static_service) = case static_reloader {
     option.Some(config) ->
-      reloader.service(config, from: asset_path, fallback: index_path)
+      config
+      |> reloader.service(fn() {
+        static.service(from: asset_path, fallback: index_path)
+      })
 
     option.None ->
       static.service(from: asset_path, fallback: index_path)
