@@ -47,7 +47,7 @@ pub fn gzip(
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
 
-  let maybe = fn(data) {
+  let compress = fn(data) {
     use <- lib.else(response.set_body(response, data))
 
     use <- lib.when(bit_builder.byte_size(data) >= limit)
@@ -64,8 +64,8 @@ pub fn gzip(
   }
 
   case body {
-    BytesBody(body) -> maybe(body)
-    StringBody(body) -> maybe(bit_builder.from_string(body))
+    BytesBody(body) -> compress(body)
+    StringBody(body) -> compress(bit_builder.from_string(body))
     EmptyBody -> response.set_body(response, bit_builder.new())
     GzipBody(bytes) ->
       response.set_body(response, bytes)
