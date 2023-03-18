@@ -65,8 +65,29 @@ pub fn gzip(
 
   case body {
     BytesBody(body) -> compress(body)
-    StringBody(body) -> compress(bit_builder.from_string(body))
-    EmptyBody -> response.set_body(response, bit_builder.new())
+    StringBody(body) ->
+      bit_builder.from_string(body)
+      |> compress()
+    EmptyBody ->
+      bit_builder.new()
+      |> response.set_body(response, _)
+    GzipBody(bytes) ->
+      response.set_body(response, bytes)
+      |> response.prepend_header("content-encoding", "gzip")
+  }
+}
+
+pub fn response(get_response: fn() -> Response(Body)) -> Response(BitBuilder) {
+  let Response(body: body, ..) as response = get_response()
+
+  case body {
+    BytesBody(body) -> response.set_body(response, body)
+    StringBody(body) ->
+      bit_builder.from_string(body)
+      |> response.set_body(response, _)
+    EmptyBody ->
+      bit_builder.new()
+      |> response.set_body(response, _)
     GzipBody(bytes) ->
       response.set_body(response, bytes)
       |> response.prepend_header("content-encoding", "gzip")

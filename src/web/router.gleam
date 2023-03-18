@@ -11,6 +11,7 @@ pub type Config {
 
 pub fn service(config: Config) -> Service(_, _) {
   fn(request: Request(_)) -> Response(_) {
+    // use <- web.response()
     use <- web.gzip(request, only: config.gzip_types, above: config.gzip_above)
 
     case request.path_segments(request) {
