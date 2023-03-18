@@ -10,29 +10,15 @@ import lib
 import lib/report.{Report}
 import vvv/error.{Error}
 
+pub type Result =
+  gleam.Result(Response(Body), Report(Error))
+
 pub type Body {
   StringBody(String)
   GzipBody(BitBuilder)
   BytesBody(BitBuilder)
   EmptyBody
 }
-
-pub fn gzip(body: Body) -> Body {
-  case body {
-    StringBody(body) ->
-      GzipBody(
-        bit_builder.from_string(body)
-        |> lib.gzip(),
-      )
-
-    GzipBody(_) -> body
-    BytesBody(body) -> GzipBody(lib.gzip(body))
-    EmptyBody -> body
-  }
-}
-
-pub type Result =
-  gleam.Result(Response(BitBuilder), Report(Error))
 
 pub type Service =
   fn(Request(BitString), List(String)) -> Result
@@ -48,28 +34,46 @@ pub fn require_method(
     _ ->
       response.new(400)
       |> response.set_body("400 Bad Request")
-      |> response.map(bit_builder.from_string)
+      |> response.map(StringBody)
       |> Ok
   }
 }
 
-pub fn gzip_response(
+pub fn gzip(
   request: Request(_),
   above limit: Int,
   only compressable: List(String),
-  from get_response: fn() -> Response(BitBuilder),
+  from get_response: fn() -> Response(Body),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
-  use <- lib.else(response)
 
-  use <- lib.when(bit_builder.byte_size(body) >= limit)
-  use accepts <- result.then(request.get_header(request, "accept-encoding"))
-  use <- lib.when(string.contains(accepts, "gzip"))
-  use kind <- result.then(response.get_header(response, "content-type"))
-  use <- lib.when(list.contains(compressable, kind))
+  let maybe = fn(data) {
+    use <- lib.else(response.set_body(response, data))
 
-  response
-  |> response.map(lib.gzip)
-  |> response.prepend_header("content-encoding", "gzip")
-  |> Ok
+    use <- lib.when(bit_builder.byte_size(data) >= limit)
+    use accepts <- result.then(request.get_header(request, "accept-encoding"))
+    use <- lib.when(string.contains(accepts, "gzip"))
+    use kind <- result.then(response.get_header(response, "content-type"))
+    use <- lib.when(list.contains(compressable, kind))
+
+    response
+    |> response.set_body(data)
+    |> response.map(lib.gzip)
+    |> response.prepend_header("content-encoding", "gzip")
+    |> Ok
+  }
+
+  case body {
+    EmptyBody ->
+      response
+      |> response.set_body(bit_builder.new())
+    BytesBody(bytes) -> maybe(bytes)
+    StringBody(body) ->
+      bit_builder.from_string(body)
+      |> maybe()
+    GzipBody(bytes) ->
+      response
+      |> response.set_body(bytes)
+      |> response.prepend_header("content-encoding", "gzip")
+  }
 }

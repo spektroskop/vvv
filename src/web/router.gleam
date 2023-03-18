@@ -1,4 +1,3 @@
-import gleam/bit_builder
 import gleam/http/request.{Request}
 import gleam/http/response.{Response}
 import gleam/http/service.{Service}
@@ -12,11 +11,7 @@ pub type Config {
 
 pub fn service(config: Config) -> Service(_, _) {
   fn(request: Request(_)) -> Response(_) {
-    use <- web.gzip_response(
-      request,
-      only: config.gzip_types,
-      above: config.gzip_above,
-    )
+    use <- web.gzip(request, only: config.gzip_types, above: config.gzip_above)
 
     case request.path_segments(request) {
       ["api", ..segments] ->
@@ -26,7 +21,7 @@ pub fn service(config: Config) -> Service(_, _) {
           Error(_report) ->
             response.new(500)
             |> response.set_body("500 Internal Server Error")
-            |> response.map(bit_builder.from_string)
+            |> response.map(web.StringBody)
         }
 
       segments ->
@@ -36,7 +31,7 @@ pub fn service(config: Config) -> Service(_, _) {
           Error(_report) ->
             response.new(500)
             |> response.set_body("500 Internal Server Error")
-            |> response.map(bit_builder.from_string)
+            |> response.map(web.StringBody)
         }
     }
   }

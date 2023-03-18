@@ -1,4 +1,3 @@
-import gleam/bit_builder
 import gleam/erlang/process.{Subject}
 import gleam/http
 import gleam/http/request.{Request}
@@ -36,7 +35,7 @@ pub fn start(
         Reload(reply) -> {
           response.new(200)
           |> response.set_body("ok")
-          |> response.map(bit_builder.from_string)
+          |> response.map(web.StringBody)
           |> Ok
           |> process.send(reply, _)
 

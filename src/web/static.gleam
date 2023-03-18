@@ -42,7 +42,7 @@ fn router(assets: Assets, index: List(String)) {
 
     use asset <- get_asset(request, segments, assets, index)
     use body <- result.then(case asset.body {
-      Bytes(body) -> Ok(body)
+      Bytes(body) -> Ok(web.BytesBody(body))
 
       Path(path) -> {
         use data <- result.then(
@@ -51,6 +51,7 @@ fn router(assets: Assets, index: List(String)) {
         )
 
         bit_builder.from_bit_string(data)
+        |> web.BytesBody
         |> Ok
       }
     })
@@ -78,7 +79,7 @@ fn get_asset(
     Error(Nil) ->
       response.new(404)
       |> response.set_body("404 Not Found")
-      |> response.map(bit_builder.from_string)
+      |> response.map(web.StringBody)
       |> Ok
 
     Ok(asset) -> {
@@ -88,7 +89,7 @@ fn get_asset(
         Ok(header) if hash == header ->
           response.new(304)
           |> response.prepend_header("etag", hash)
-          |> response.map(bit_builder.from_string)
+          |> response.set_body(web.EmptyBody)
           |> Ok
 
         _ -> continue(asset)
