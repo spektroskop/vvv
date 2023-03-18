@@ -10,6 +10,27 @@ import lib
 import lib/report.{Report}
 import vvv/error.{Error}
 
+pub type Body {
+  StringBody(String)
+  GzipBody(BitBuilder)
+  BytesBody(BitBuilder)
+  EmptyBody
+}
+
+pub fn gzip(body: Body) -> Body {
+  case body {
+    StringBody(body) ->
+      GzipBody(
+        bit_builder.from_string(body)
+        |> lib.gzip(),
+      )
+
+    GzipBody(_) -> body
+    BytesBody(body) -> GzipBody(lib.gzip(body))
+    EmptyBody -> body
+  }
+}
+
 pub type Result =
   gleam.Result(Response(BitBuilder), Report(Error))
 
@@ -32,7 +53,7 @@ pub fn require_method(
   }
 }
 
-pub fn gzip(
+pub fn gzip_response(
   request: Request(_),
   above limit: Int,
   only compressable: List(String),

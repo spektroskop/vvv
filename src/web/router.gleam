@@ -12,7 +12,11 @@ pub type Config {
 
 pub fn service(config: Config) -> Service(_, _) {
   fn(request: Request(_)) -> Response(_) {
-    use <- web.gzip(request, only: config.gzip_types, above: config.gzip_above)
+    use <- web.gzip_response(
+      request,
+      only: config.gzip_types,
+      above: config.gzip_above,
+    )
 
     case request.path_segments(request) {
       ["api", ..segments] ->
