@@ -41,7 +41,6 @@ fn router(assets: Assets, index: List(String)) {
     use <- web.require_method(request, http.Get)
 
     use asset <- get_asset(request, segments, assets, index)
-
     use body <- result.then(case asset.body {
       Body(body) -> Ok(body)
 
