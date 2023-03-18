@@ -10,6 +10,7 @@ import gleam/map.{Map}
 import gleam/result
 import gleam/uri
 import lib
+import lib/path
 import lib/report.{Report}
 import vvv/error.{Error}
 import web
@@ -93,9 +94,9 @@ fn get_asset(
 
 pub fn collect(base: String) -> Assets {
   map.from_list({
-    use relative_path <- list.filter_map(lib.wildcard(base, "**"))
-    let path = lib.join([base, relative_path])
-    use <- lib.guard(when: lib.is_directory(path), return: Error(Nil))
+    use relative_path <- list.filter_map(path.wildcard(base, "**"))
+    let path = path.join([base, relative_path])
+    use <- lib.guard(when: path.is_directory(path), return: Error(Nil))
 
     use asset <- result.then(load(path))
     let segments = uri.path_segments(relative_path)
@@ -124,7 +125,7 @@ fn load(path: String) -> Result(Asset, Nil) {
 }
 
 fn get_content_type(path: String) -> Result(String, Nil) {
-  case lib.extension(path) {
+  case path.extension(path) {
     ".css" -> Ok("text/css")
     ".html" -> Ok("text/html")
     ".ico" -> Ok("image/x-icon")
