@@ -64,16 +64,11 @@ pub fn gzip(
   }
 
   case body {
-    EmptyBody ->
-      response
-      |> response.set_body(bit_builder.new())
     BytesBody(body) -> maybe(body)
-    StringBody(body) ->
-      bit_builder.from_string(body)
-      |> maybe()
+    StringBody(body) -> maybe(bit_builder.from_string(body))
+    EmptyBody -> response.set_body(response, bit_builder.new())
     GzipBody(bytes) ->
-      response
-      |> response.set_body(bytes)
+      response.set_body(response, bytes)
       |> response.prepend_header("content-encoding", "gzip")
   }
 }
