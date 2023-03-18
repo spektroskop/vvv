@@ -1,5 +1,5 @@
 import gleam/base
-import gleam/bit_builder.{BitBuilder}
+import gleam/bit_builder
 import gleam/crypto
 import gleam/erlang/file
 import gleam/http
@@ -25,7 +25,7 @@ pub type Asset {
 
 pub type Body {
   Path(String)
-  Bytes(BitBuilder)
+  Body(web.Body)
 }
 
 pub type Assets =
@@ -41,8 +41,9 @@ fn router(assets: Assets, index: List(String)) {
     use <- web.require_method(request, http.Get)
 
     use asset <- get_asset(request, segments, assets, index)
+
     use body <- result.then(case asset.body {
-      Bytes(body) -> Ok(web.BytesBody(body))
+      Body(body) -> Ok(body)
 
       Path(path) -> {
         use data <- result.then(
@@ -121,10 +122,12 @@ fn load(path: String) -> Result(Asset, Nil) {
     content_type: content_type,
     hash: crypto.hash(crypto.Sha224, data)
     |> base.encode64(False),
-    // body: Bytes(
+    // TODO: Consider file size and content type
+    // Should share logic with web.gzip
+    // body: Body(web.GzipBody(
     //   bit_builder.from_bit_string(data)
     //   |> lib.gzip(),
-    // ),
+    // )),
     body: Path(path),
   )
   |> Ok

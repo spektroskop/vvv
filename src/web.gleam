@@ -67,7 +67,7 @@ pub fn gzip(
     EmptyBody ->
       response
       |> response.set_body(bit_builder.new())
-    BytesBody(bytes) -> maybe(bytes)
+    BytesBody(body) -> maybe(body)
     StringBody(body) ->
       bit_builder.from_string(body)
       |> maybe()
