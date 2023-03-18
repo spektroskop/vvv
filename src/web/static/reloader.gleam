@@ -61,7 +61,7 @@ fn assets(actor) -> fn() -> Result(Assets, _) {
   }
 }
 
-fn router(actor, method, path) -> web.Service {
+fn router(actor: Actor, method: http.Method, path: List(String)) -> web.Service {
   fn(request: Request(_), segments) -> web.Result {
     case request.method == method && segments == path {
       True ->
