@@ -25,7 +25,7 @@ pub type Asset {
 
 pub type Body {
   Path(String)
-  Data(BitBuilder)
+  Bytes(BitBuilder)
 }
 
 pub type Assets =
@@ -42,12 +42,17 @@ fn router(assets: Assets, index: List(String)) {
 
     use asset <- get_asset(request, segments, assets, index)
     use body <- result.then(case asset.body {
-      Data(body) -> Ok(body)
+      Bytes(body) -> Ok(body)
 
-      Path(path) ->
-        file.read_bits(path)
-        |> result.map(bit_builder.from_bit_string)
-        |> report.map_error(error.FileError)
+      Path(path) -> {
+        use data <- result.then(
+          file.read_bits(path)
+          |> report.map_error(error.FileError),
+        )
+
+        bit_builder.from_bit_string(data)
+        |> Ok
+      }
     })
 
     response.new(200)
@@ -115,7 +120,7 @@ fn load(path: String) -> Result(Asset, Nil) {
     content_type: content_type,
     hash: crypto.hash(crypto.Sha224, data)
     |> base.encode64(False),
-    // body: Data(
+    // body: Bytes(
     //   bit_builder.from_bit_string(data)
     //   |> lib.gzip(),
     // ),
