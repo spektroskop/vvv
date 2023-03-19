@@ -40,22 +40,21 @@ pub fn main() {
     |> Ok
   }
 
-  let assert Ok(static_service) = case static_reloader {
-    option.Some(config) ->
-      config
-      |> reloader.service(fn() {
-        static.service(from: asset_path, fallback: index_path)
-      })
-
-    option.None ->
+  let assert Ok(static_service) = {
+    let make_service = fn() {
       static.service(from: asset_path, fallback: index_path)
-      |> Ok
+    }
+
+    case static_reloader {
+      option.Some(config) -> reloader.service(config, make_service)
+      option.None -> Ok(make_service())
+    }
   }
 
   let router =
     router.service(router.Config(
       static: static_service,
-      gzip_above: 350,
+      gzip_threshold: 350,
       gzip_types: [
         "text/html", "text/css", "text/javascript", "application/json",
       ],

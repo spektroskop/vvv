@@ -20,12 +20,7 @@ pub type Service {
 }
 
 pub type Asset {
-  Asset(content_type: String, hash: String, body: Body)
-}
-
-pub type Body {
-  Path(String)
-  Body(web.Body)
+  Asset(content_type: String, hash: String, path: String)
 }
 
 pub type Assets =
@@ -41,20 +36,11 @@ fn router(assets: Assets, index: List(String)) {
     use <- web.require_method(request, http.Get)
 
     use asset <- get_asset(request, segments, assets, index)
-    use body <- result.then(case asset.body {
-      Body(body) -> Ok(body)
-
-      Path(path) -> {
-        use data <- result.then(
-          file.read_bits(path)
-          |> report.map_error(error.FileError),
-        )
-
-        bit_builder.from_bit_string(data)
-        |> web.BytesBody
-        |> Ok
-      }
-    })
+    use body <- result.then(
+      file.read_bits(asset.path)
+      |> result.map(bit_builder.from_bit_string)
+      |> report.map_error(error.FileError),
+    )
 
     response.new(200)
     |> response.set_body(body)
@@ -79,7 +65,7 @@ fn get_asset(
     Error(Nil) ->
       response.new(404)
       |> response.set_body("404 Not Found")
-      |> response.map(web.StringBody)
+      |> response.map(bit_builder.from_string)
       |> Ok
 
     Ok(asset) -> {
@@ -89,7 +75,7 @@ fn get_asset(
         Ok(header) if hash == header ->
           response.new(304)
           |> response.prepend_header("etag", hash)
-          |> response.set_body(web.EmptyBody)
+          |> response.map(bit_builder.from_string)
           |> Ok
 
         _ -> continue(asset)
@@ -121,13 +107,7 @@ fn load(path: String) -> Result(Asset, Nil) {
     content_type: content_type,
     hash: crypto.hash(crypto.Sha224, data)
     |> base.encode64(False),
-    // TODO: Consider file size and content type
-    // Should share logic with web.gzip
-    // body: Body(web.GzipBody(
-    //   bit_builder.from_bit_string(data)
-    //   |> lib.gzip(),
-    // )),
-    body: Path(path),
+    path: path,
   )
   |> Ok
 }
