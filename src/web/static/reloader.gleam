@@ -43,7 +43,7 @@ pub fn start(reload: fn() -> static.Service) -> Result(Subject(Message), _) {
             let assert Ok(new) = reloaded.assets()
 
             diff(old, new)
-            |> list.map(fn(v) { [#(v.0, json.string(v.1))] })
+            |> list.map(fn(v) { [#(v.0, json.array(v.1, json.string))] })
             |> json.array(json.object)
             |> json.to_string()
           }
@@ -123,14 +123,14 @@ fn diff(old: static.Assets, new: static.Assets) {
     set.filter(old_keys, fn(key) { !set.contains(new_keys, key) })
     |> set.to_list()
 
-  let #(changed_keys, _) =
+  let #(changed, _) =
     set.intersection(old_keys, new_keys)
     |> set.to_list()
     |> list.partition(fn(key) { map.get(old, key) != map.get(new, key) })
 
   list.flatten([
-    list.map(added, fn(key) { #("added", string.join(key, "/")) }),
-    list.map(removed, fn(key) { #("removed", string.join(key, "/")) }),
-    list.map(changed_keys, fn(key) { #("changed", string.join(key, "/")) }),
+    list.map(added, fn(key) { #("added", key) }),
+    list.map(removed, fn(key) { #("removed", key) }),
+    list.map(changed, fn(key) { #("changed", key) }),
   ])
 }
