@@ -5,11 +5,8 @@ import gleam/http/request.{Request}
 import gleam/http/response
 import gleam/json
 import gleam/list
-import gleam/map
 import gleam/otp/actor
 import gleam/result
-import gleam/set
-import gleam/string
 import lib/report.{Report}
 import vvv/error.{Error}
 import web
@@ -42,7 +39,7 @@ pub fn start(reload: fn() -> static.Service) -> Result(Subject(Message), _) {
             let assert Ok(old) = state.assets()
             let assert Ok(new) = reloaded.assets()
 
-            diff(old, new)
+            static.diff(old, new)
             |> list.map(fn(v) { [#(v.0, json.array(v.1, json.string))] })
             |> json.array(json.object)
             |> json.to_string()
@@ -106,31 +103,4 @@ pub fn service(
     router: router(actor, config.method, config.path),
   )
   |> Ok
-}
-
-fn diff(old: static.Assets, new: static.Assets) {
-  let new_keys =
-    map.keys(new)
-    |> set.from_list()
-  let old_keys =
-    map.keys(old)
-    |> set.from_list()
-
-  let added =
-    set.filter(new_keys, fn(key) { !set.contains(old_keys, key) })
-    |> set.to_list()
-  let removed =
-    set.filter(old_keys, fn(key) { !set.contains(new_keys, key) })
-    |> set.to_list()
-
-  let #(changed, _) =
-    set.intersection(old_keys, new_keys)
-    |> set.to_list()
-    |> list.partition(fn(key) { map.get(old, key) != map.get(new, key) })
-
-  list.flatten([
-    list.map(added, fn(key) { #("added", key) }),
-    list.map(removed, fn(key) { #("removed", key) }),
-    list.map(changed, fn(key) { #("changed", key) }),
-  ])
 }

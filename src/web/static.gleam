@@ -8,6 +8,7 @@ import gleam/http/response
 import gleam/list
 import gleam/map.{Map}
 import gleam/result
+import gleam/set
 import gleam/uri
 import lib
 import lib/path
@@ -123,4 +124,31 @@ fn get_content_type(path: String) -> Result(String, Nil) {
     ".png" -> Ok("image/png")
     _unknown -> Error(Nil)
   }
+}
+
+pub fn diff(old: Assets, new: Assets) {
+  let new_keys =
+    map.keys(new)
+    |> set.from_list()
+  let old_keys =
+    map.keys(old)
+    |> set.from_list()
+
+  let added =
+    set.filter(new_keys, fn(key) { !set.contains(old_keys, key) })
+    |> set.to_list()
+  let removed =
+    set.filter(old_keys, fn(key) { !set.contains(new_keys, key) })
+    |> set.to_list()
+
+  let #(changed, _) =
+    set.intersection(old_keys, new_keys)
+    |> set.to_list()
+    |> list.partition(fn(key) { map.get(old, key) != map.get(new, key) })
+
+  list.flatten([
+    list.map(added, fn(key) { #("added", key) }),
+    list.map(removed, fn(key) { #("removed", key) }),
+    list.map(changed, fn(key) { #("changed", key) }),
+  ])
 }
