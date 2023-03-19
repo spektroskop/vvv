@@ -6,6 +6,7 @@ import gleam/http/response
 import gleam/json
 import gleam/list
 import gleam/otp/actor
+import gleam/pair
 import gleam/result
 import lib/report.{Report}
 import vvv/error.{Error}
@@ -35,21 +36,20 @@ pub fn start(reload: fn() -> static.Service) -> Result(Subject(Message), _) {
         Reload(reply) -> {
           let reloaded = reload()
 
-          let body = {
-            let assert Ok(old) = state.assets()
-            let assert Ok(new) = reloaded.assets()
+          let diff = case state.assets(), reloaded.assets() {
+            Ok(old), Ok(new) ->
+              static.diff(old, new)
+              |> list.map(pair.map_second(_, json.array(_, json.string)))
+              |> json.object()
 
-            static.diff(old, new)
-            |> list.map(fn(v) { [#(v.0, json.array(v.1, json.string))] })
-            |> json.array(json.object)
-            |> json.to_string()
+            _, _ -> json.null()
           }
 
           process.send(
             reply,
             response.new(200)
             |> response.prepend_header("content-type", "application/json")
-            |> response.set_body(body)
+            |> response.set_body(json.to_string(diff))
             |> response.map(bit_builder.from_string)
             |> Ok,
           )
