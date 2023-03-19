@@ -7,6 +7,7 @@ import gleam/option
 import gleam/result
 import gleam/uri
 import lib
+import web/api
 import web/router
 import web/static
 import web/static/reloader
@@ -53,6 +54,7 @@ pub fn main() {
 
   let router =
     router.service(router.Config(
+      api: api.router,
       static: static_service,
       gzip_threshold: 350,
       gzip_types: [

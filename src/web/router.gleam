@@ -3,11 +3,15 @@ import gleam/http/request.{Request}
 import gleam/http/response.{Response}
 import gleam/http/service.{Service}
 import web
-import web/api
 import web/static
 
 pub type Config {
-  Config(static: static.Service, gzip_threshold: Int, gzip_types: List(String))
+  Config(
+    api: web.Service,
+    static: static.Service,
+    gzip_threshold: Int,
+    gzip_types: List(String),
+  )
 }
 
 pub fn service(config: Config) -> Service(_, _) {
@@ -20,7 +24,7 @@ pub fn service(config: Config) -> Service(_, _) {
 
     case request.path_segments(request) {
       ["api", ..segments] ->
-        case api.router(request, segments) {
+        case config.api(request, segments) {
           Ok(response) -> response
 
           Error(_report) ->
