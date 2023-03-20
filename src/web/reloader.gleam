@@ -28,47 +28,48 @@ pub type Config {
   Config(method: http.Method, path: List(String))
 }
 
-pub fn start(reload: fn() -> static.Service) -> Result(Subject(Message), _) {
-  actor.start(
-    reload(),
-    fn(message, state) -> actor.Next(_) {
-      case message {
-        Reload(reply) -> {
-          let reloaded = reload()
+pub fn start(service: fn() -> static.Service) -> Result(Subject(Message), _) {
+  actor.start(service(), update(service))
+}
 
-          let diff = case state.assets(), reloaded.assets() {
-            Ok(old), Ok(new) ->
-              static.diff(old, new)
-              |> list.map(pair.map_second(_, json.array(_, json.string)))
-              |> json.object()
+fn update(reload: fn() -> static.Service) {
+  fn(message, state: static.Service) -> actor.Next(static.Service) {
+    case message {
+      Reload(reply) -> {
+        let reloaded = reload()
 
-            _, _ -> json.null()
-          }
+        let diff = case state.assets(), reloaded.assets() {
+          Ok(old), Ok(new) ->
+            static.diff(old, new)
+            |> list.map(pair.map_second(_, json.array(_, json.string)))
+            |> json.object()
 
-          process.send(
-            reply,
-            response.new(200)
-            |> response.prepend_header("content-type", "application/json")
-            |> response.set_body(json.to_string(diff))
-            |> response.map(bit_builder.from_string)
-            |> Ok,
-          )
-
-          actor.Continue(reloaded)
+          _, _ -> json.null()
         }
 
-        List(reply) -> {
-          process.send(reply, state.assets())
-          actor.Continue(state)
-        }
+        process.send(
+          reply,
+          response.new(200)
+          |> response.prepend_header("content-type", "application/json")
+          |> response.set_body(json.to_string(diff))
+          |> response.map(bit_builder.from_string)
+          |> Ok,
+        )
 
-        Route(request, segments, reply) -> {
-          process.send(reply, state.router(request, segments))
-          actor.Continue(state)
-        }
+        actor.Continue(reloaded)
       }
-    },
-  )
+
+      List(reply) -> {
+        process.send(reply, state.assets())
+        actor.Continue(state)
+      }
+
+      Route(request, segments, reply) -> {
+        process.send(reply, state.router(request, segments))
+        actor.Continue(state)
+      }
+    }
+  }
 }
 
 fn assets(actor) -> fn() -> Result(Assets, _) {
