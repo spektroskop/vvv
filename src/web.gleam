@@ -3,6 +3,7 @@ import gleam/bit_builder.{BitBuilder}
 import gleam/http
 import gleam/http/request.{Request}
 import gleam/http/response.{Response}
+import gleam/json.{Json}
 import gleam/list
 import gleam/result
 import gleam/string
@@ -12,6 +13,22 @@ import vvv/error.{Error}
 
 pub type Result =
   gleam.Result(Response(BitBuilder), Report(Error))
+
+pub fn string(code: Int, body: String) -> Result {
+  response.new(code)
+  |> response.set_body(body)
+  |> response.map(bit_builder.from_string)
+  |> Ok
+}
+
+pub fn json(code: Int, body: Json) -> Result {
+  response.new(code)
+  |> response.prepend_header("content-type", "application/json")
+  |> response.set_body(body)
+  |> response.map(json.to_string)
+  |> response.map(bit_builder.from_string)
+  |> Ok
+}
 
 pub type Service =
   fn(Request(BitString), List(String)) -> Result
