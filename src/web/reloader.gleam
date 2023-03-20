@@ -1,6 +1,8 @@
+import gleam/bit_builder
 import gleam/erlang/process.{Subject}
 import gleam/http
 import gleam/http/request.{Request}
+import gleam/http/response
 import gleam/json
 import gleam/list
 import gleam/otp/actor
@@ -40,13 +42,24 @@ fn update(reload: fn() -> static.Service) {
           reply,
           case state.assets(), reloaded.assets() {
             Ok(old), Ok(new) -> {
-              static.diff(old, new)
-              |> list.map(pair.map_second(_, json.array(_, json.string)))
-              |> json.object()
-              |> web.json(200, _)
+              let diff =
+                static.diff(old, new)
+                |> list.map(pair.map_second(_, json.array(_, json.string)))
+                |> json.object()
+
+              response.new(200)
+              |> response.prepend_header("content-type", "application/json")
+              |> response.set_body(diff)
+              |> response.map(json.to_string)
+              |> response.map(bit_builder.from_string)
+              |> Ok
             }
 
-            _, _ -> web.string(500, "500 Internal Server Error")
+            _, _ ->
+              response.new(500)
+              |> response.set_body("500 Internal Server Error")
+              |> response.map(bit_builder.from_string)
+              |> Ok
           },
         )
 
