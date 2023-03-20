@@ -9,7 +9,6 @@ import gleam/list
 import gleam/map.{Map}
 import gleam/result
 import gleam/set
-import gleam/string
 import gleam/uri
 import lib
 import lib/path
@@ -150,8 +149,8 @@ pub fn diff(old: Assets, new: Assets) {
     |> list.partition(fn(key) { map.get(old, key) != map.get(new, key) })
 
   [
-    #("removed", list.map(removed, string.join(_, "/"))),
-    #("added", list.map(added, string.join(_, "/"))),
-    #("changed", list.map(changed, string.join(_, "/"))),
+    #("removed", list.map(removed, path.join)),
+    #("added", list.map(added, path.join)),
+    #("changed", list.map(changed, path.join)),
   ]
 }
