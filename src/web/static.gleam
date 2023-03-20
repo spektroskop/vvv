@@ -36,10 +36,10 @@ fn router(assets: Assets, index: List(String)) {
   fn(request: Request(_), segments: List(String)) -> web.Result {
     use <- web.require_method(request, http.Get)
 
-    use asset <- maybe_asset(
-      map.get(assets, segments)
+    use asset <- get_asset(
+      for: request,
+      from: map.get(assets, segments)
       |> result.or(map.get(assets, index)),
-      request,
     )
 
     use body <- result.then(
@@ -56,10 +56,10 @@ fn router(assets: Assets, index: List(String)) {
   }
 }
 
-fn maybe_asset(
-  asset: Result(Asset, Nil),
-  request: Request(_),
-  continue: fn(Asset) -> web.Result,
+fn get_asset(
+  from asset: Result(Asset, Nil),
+  for request: Request(_),
+  then continue: fn(Asset) -> web.Result,
 ) -> web.Result {
   case asset {
     Error(Nil) ->
