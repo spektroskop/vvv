@@ -36,7 +36,12 @@ fn router(assets: Assets, index: List(String)) {
   fn(request: Request(_), segments: List(String)) -> web.Result {
     use <- web.require_method(request, http.Get)
 
-    use asset <- get_asset(request, segments, assets, index)
+    use asset <- maybe_asset(
+      map.get(assets, segments)
+      |> result.or(map.get(assets, index)),
+      request,
+    )
+
     use body <- result.then(
       file.read_bits(asset.path)
       |> result.map(bit_builder.from_bit_string)
@@ -51,17 +56,11 @@ fn router(assets: Assets, index: List(String)) {
   }
 }
 
-fn get_asset(
+fn maybe_asset(
+  asset: Result(Asset, Nil),
   request: Request(_),
-  segments: List(String),
-  assets: Assets,
-  index: List(String),
   continue: fn(Asset) -> web.Result,
 ) -> web.Result {
-  let asset =
-    map.get(assets, segments)
-    |> result.or(map.get(assets, index))
-
   case asset {
     Error(Nil) ->
       response.new(404)
