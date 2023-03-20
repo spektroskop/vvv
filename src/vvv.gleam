@@ -10,7 +10,7 @@ import lib
 import web/api
 import web/router
 import web/static
-import web/static/reloader
+import web/reloader
 
 pub fn main() {
   let assert Ok(port) =
