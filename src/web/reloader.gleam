@@ -51,7 +51,8 @@ fn update(reload: fn() -> static.Service) {
           reply,
           response.new(200)
           |> response.prepend_header("content-type", "application/json")
-          |> response.set_body(json.to_string(diff))
+          |> response.set_body(diff)
+          |> response.map(json.to_string)
           |> response.map(bit_builder.from_string)
           |> Ok,
         )
