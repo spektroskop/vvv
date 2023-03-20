@@ -14,6 +14,9 @@ import vvv/error.{Error}
 pub type Result =
   gleam.Result(Response(BitBuilder), Report(Error))
 
+pub type Service =
+  fn(Request(BitString), List(String)) -> Result
+
 pub fn string(code: Int, body: String) -> Result {
   response.new(code)
   |> response.set_body(body)
@@ -29,9 +32,6 @@ pub fn json(code: Int, body: Json) -> Result {
   |> response.map(bit_builder.from_string)
   |> Ok
 }
-
-pub type Service =
-  fn(Request(BitString), List(String)) -> Result
 
 pub fn require_method(
   request: Request(_),
