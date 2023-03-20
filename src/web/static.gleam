@@ -88,10 +88,10 @@ fn get_asset(
 pub fn collect(base: String) -> Assets {
   map.from_list({
     use relative_path <- list.filter_map(path.wildcard(base, "**"))
-    let path = path.join([base, relative_path])
-    use <- lib.guard(when: path.is_directory(path), return: Error(Nil))
+    let full_path = path.join([base, relative_path])
+    use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
 
-    use asset <- result.then(load(path))
+    use asset <- result.then(load(full_path))
     let segments = uri.path_segments(relative_path)
     Ok(#(segments, asset))
   })
