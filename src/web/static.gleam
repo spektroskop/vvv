@@ -135,12 +135,12 @@ pub fn diff(old: Assets, new: Assets) {
     map.keys(old)
     |> set.from_list()
 
-  let added =
-    set.filter(new_keys, fn(key) { !set.contains(old_keys, key) })
-    |> set.to_list()
-
   let removed =
     set.filter(old_keys, fn(key) { !set.contains(new_keys, key) })
+    |> set.to_list()
+
+  let added =
+    set.filter(new_keys, fn(key) { !set.contains(old_keys, key) })
     |> set.to_list()
 
   let #(changed, _) =
