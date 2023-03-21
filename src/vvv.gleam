@@ -57,7 +57,7 @@ pub fn main() {
 
   let router =
     router.service(router.Config(
-      api: api.router,
+      api: api.router(api.Config(assets: static_service.assets)),
       static: static_service,
       gzip_threshold: 350,
       gzip_types: [

@@ -5,6 +5,7 @@ import gleam/erlang/file
 import gleam/http
 import gleam/http/request.{Request}
 import gleam/http/response
+import gleam/json.{Json}
 import gleam/list
 import gleam/map.{Map}
 import gleam/result
@@ -111,6 +112,19 @@ fn load_asset(path: String) -> Result(Asset, Nil) {
     path: path,
   )
   |> Ok
+}
+
+pub fn encode_assets(assets: Assets) -> Json {
+  map.fold(
+    over: assets,
+    from: map.new(),
+    with: fn(map, _, asset) {
+      json.string(asset.hash)
+      |> map.insert(map, asset.path, _)
+    },
+  )
+  |> map.to_list()
+  |> json.object()
 }
 
 fn get_content_type(path: String) -> Result(String, Nil) {
