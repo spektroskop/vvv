@@ -55,17 +55,17 @@ pub fn main() {
     }
   }
 
-  let router =
-    router.service(router.Config(
+  let routes =
+    router.Config(
       api: api.router(api.Config(assets: static_service.assets)),
       static: static_service,
       gzip_threshold: 350,
       gzip_types: [
         "text/html", "text/css", "text/javascript", "application/json",
       ],
-    ))
+    )
 
-  let assert Ok(_) = elli.start(router, port)
+  let assert Ok(_) = elli.start(router.service(routes), port)
 
   process.sleep_forever()
 }
