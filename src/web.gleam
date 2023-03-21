@@ -34,19 +34,19 @@ pub fn require_method(
 
 pub fn gzip(
   request: Request(_),
-  above limit: Int,
-  only compressable: List(String),
+  above threshold: Int,
+  only kinds: List(String),
   from get_response: fn() -> Response(BitBuilder),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
 
   use <- lib.else(response)
 
-  use <- lib.when(bit_builder.byte_size(body) >= limit)
+  use <- lib.when(bit_builder.byte_size(body) >= threshold)
   use accepts <- result.then(request.get_header(request, "accept-encoding"))
   use <- lib.when(string.contains(accepts, "gzip"))
   use kind <- result.then(response.get_header(response, "content-type"))
-  use <- lib.when(list.contains(compressable, kind))
+  use <- lib.when(list.contains(kinds, kind))
 
   response
   |> response.set_body(body)

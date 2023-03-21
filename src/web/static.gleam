@@ -125,7 +125,7 @@ fn get_content_type(path: String) -> Result(String, Nil) {
   }
 }
 
-pub fn diff(old: Assets, new: Assets) {
+pub fn changes(from old: Assets, to new: Assets) {
   let new_keys =
     map.keys(new)
     |> set.from_list()

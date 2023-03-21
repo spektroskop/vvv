@@ -42,14 +42,14 @@ fn update(reload: fn() -> static.Service) {
           reply,
           case state.assets(), reloaded.assets() {
             Ok(old), Ok(new) -> {
-              let diff =
-                static.diff(old, new)
+              let changes =
+                static.changes(from: old, to: new)
                 |> list.map(pair.map_second(_, json.array(_, json.string)))
                 |> json.object()
 
               response.new(200)
               |> response.prepend_header("content-type", "application/json")
-              |> response.set_body(diff)
+              |> response.set_body(changes)
               |> response.map(json.to_string)
               |> response.map(bit_builder.from_string)
               |> Ok
