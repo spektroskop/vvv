@@ -46,11 +46,11 @@ fn update(reload: fn() -> static.Service) {
                 static.changes(from: old, to: new)
                 |> list.map(pair.map_second(_, json.array(_, json.string)))
                 |> json.object()
+                |> json.to_string()
 
               response.new(200)
               |> response.prepend_header("content-type", "application/json")
               |> response.set_body(changes)
-              |> response.map(json.to_string)
               |> response.map(bit_builder.from_string)
               |> Ok
             }
