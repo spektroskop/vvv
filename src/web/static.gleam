@@ -28,7 +28,7 @@ pub type Assets =
   Map(List(String), Asset)
 
 pub fn service(from base: String, fallback index: List(String)) -> Service {
-  let assets = collect(base)
+  let assets = collect_assets(base)
   Service(assets: fn() { Ok(assets) }, router: router(assets, index))
 }
 
@@ -84,20 +84,21 @@ fn get_asset(
   }
 }
 
-pub fn collect(base: String) -> Assets {
+pub fn collect_assets(base: String) -> Assets {
   map.from_list({
     use relative_path <- list.filter_map(path.wildcard(base, "**"))
     let full_path = path.join([base, relative_path])
     use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
 
-    use asset <- result.then(load(full_path))
+    use asset <- result.then(load_asset(full_path))
     let segments = uri.path_segments(relative_path)
     Ok(#(segments, asset))
   })
 }
 
-fn load(path: String) -> Result(Asset, Nil) {
+fn load_asset(path: String) -> Result(Asset, Nil) {
   use content_type <- result.then(get_content_type(path))
+
   use data <- result.then(
     file.read_bits(path)
     |> result.nil_error(),
