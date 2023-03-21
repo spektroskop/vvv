@@ -22,7 +22,7 @@ pub type Service {
 }
 
 pub type Asset {
-  Asset(content_type: String, hash: String, path: String)
+  Asset(content_type: String, hash: String, relative_path: String, path: String)
 }
 
 pub type Assets =
@@ -91,13 +91,13 @@ pub fn collect_assets(from base: String) -> Assets {
     let full_path = path.join([base, relative_path])
     use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
 
-    use asset <- result.then(load_asset(full_path))
+    use asset <- result.then(load_asset(relative_path, full_path))
     let segments = uri.path_segments(relative_path)
     Ok(#(segments, asset))
   })
 }
 
-fn load_asset(path: String) -> Result(Asset, Nil) {
+fn load_asset(relative_path: String, path: String) -> Result(Asset, Nil) {
   use content_type <- result.then(get_content_type(path))
 
   use data <- result.then(
@@ -109,6 +109,7 @@ fn load_asset(path: String) -> Result(Asset, Nil) {
     content_type: content_type,
     hash: crypto.hash(crypto.Sha224, data)
     |> base.encode64(False),
+    relative_path: relative_path,
     path: path,
   )
   |> Ok
@@ -120,7 +121,7 @@ pub fn encode_assets(assets: Assets) -> Json {
     from: map.new(),
     with: fn(map, _, asset) {
       json.string(asset.hash)
-      |> map.insert(map, asset.path, _)
+      |> map.insert(map, asset.relative_path, _)
     },
   )
   |> map.to_list()
