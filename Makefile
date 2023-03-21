@@ -11,3 +11,9 @@ docs:
 .PHONY: serve-docs
 serve-docs: docs
 	ASSET_PATH=build/dev/docs/vvv gleam run
+
+.PHONY: watch-docs
+watch-docs:
+	watchexec make serve-docs --restart \
+	--watch gleam.toml \
+	--watch src
