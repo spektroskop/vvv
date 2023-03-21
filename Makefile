@@ -1,3 +1,5 @@
+export PORT ?= 3210
+
 .PHONY: build
 build:
 	gleam export erlang-shipment
