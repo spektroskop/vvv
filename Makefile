@@ -1,3 +1,7 @@
+.PHONY: build
+build:
+	gleam export erlang-shipment
+
 .PHONY: watch
 watch:
 	watchexec gleam run --restart \
