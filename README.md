@@ -12,6 +12,9 @@
     # reload assets
     curl --request PATCH localhost:3210/static
 
+    # browse package documentation
+    PORT=3210 make serve-docs
+
 ## environment
 
 - `PORT` - server listen port (required)
