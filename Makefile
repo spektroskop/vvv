@@ -16,4 +16,5 @@ serve-docs: docs
 watch-docs:
 	watchexec make serve-docs --restart \
 	--watch gleam.toml \
+	--watch README.md \
 	--watch src
