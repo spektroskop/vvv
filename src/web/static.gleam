@@ -84,7 +84,7 @@ fn get_asset(
   }
 }
 
-pub fn collect_assets(base: String) -> Assets {
+pub fn collect_assets(from base: String) -> Assets {
   map.from_list({
     use relative_path <- list.filter_map(path.wildcard(base, "**"))
     let full_path = path.join([base, relative_path])
