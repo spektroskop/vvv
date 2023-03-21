@@ -25,8 +25,8 @@ pub fn require_method(
     method if method == valid -> continue()
 
     _ ->
-      response.new(400)
-      |> response.set_body("400 Bad Request")
+      response.new(405)
+      |> response.set_body("405 Method Not Allowed")
       |> response.map(bit_builder.from_string)
       |> Ok
   }
