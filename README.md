@@ -12,6 +12,9 @@
     # reload assets
     curl --request PATCH localhost:3210/static
 
+    # get asset hashes
+    curl localhost:3210/api/assets
+
     # browse package documentation
     PORT=3210 make watch-docs
 
