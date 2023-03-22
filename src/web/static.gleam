@@ -136,6 +136,7 @@ fn get_content_type(path: String) -> Result(String, Nil) {
     ".woff" -> Ok("font/woff")
     ".woff2" -> Ok("font/woff2")
     ".png" -> Ok("image/png")
+    ".svg" -> Ok("image/svg+xml")
     _unknown -> Error(Nil)
   }
 }
