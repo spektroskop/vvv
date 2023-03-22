@@ -12,8 +12,6 @@ import lib/report.{Report}
 import web.{Error}
 import web/static.{Assets}
 
-const call_timeout = 1000
-
 pub type Actor =
   Subject(Message)
 
@@ -78,22 +76,27 @@ fn update(reload: fn() -> static.Service) {
   }
 }
 
-fn assets(actor) -> fn() -> Result(Assets, _) {
+fn assets(actor: Actor, timeout timeout: Int) -> fn() -> Result(Assets, _) {
   fn() {
-    process.try_call(actor, List, call_timeout)
+    process.try_call(actor, List, timeout)
     |> result.unwrap(report.error(web.CallError))
   }
 }
 
-fn router(actor: Actor, method: http.Method, path: List(String)) -> web.Service {
+fn router(
+  actor: Actor,
+  method: http.Method,
+  path: List(String),
+  timeout timeout: Int,
+) -> web.Service {
   fn(request: Request(_), segments) -> web.Result {
     case request.method == method && segments == path {
       True ->
-        process.try_call(actor, Reload, call_timeout)
+        process.try_call(actor, Reload, timeout)
         |> result.unwrap(report.error(web.CallError))
 
       False ->
-        process.try_call(actor, Route(request, segments, _), call_timeout)
+        process.try_call(actor, Route(request, segments, _), timeout)
         |> result.unwrap(report.error(web.CallError))
     }
   }
@@ -106,8 +109,8 @@ pub fn service(
   use actor <- result.then(start(reload))
 
   static.Service(
-    assets: assets(actor),
-    router: router(actor, config.method, config.path),
+    assets: assets(actor, timeout: 250),
+    router: router(actor, config.method, config.path, timeout: 250),
   )
   |> Ok
 }
