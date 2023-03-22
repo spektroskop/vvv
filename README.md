@@ -1,6 +1,6 @@
 # vvv
 
-This is a playground, example, and a template for serving web assets with Gleam. Assets are loaded from the path specified in `ASSET_PATH`, falling back to the path specified in `INDEX_PATH` (or `index.html` by default) if the requested file is not found. 
+This is a playground, example, and a template for serving web assets with [Gleam](https://gleam.run). Assets are loaded from the path specified in `ASSET_PATH`, falling back to the path specified in `INDEX_PATH` (or `index.html` by default) if the requested file is not found. 
 
 Assets are cataloged on startup so that we don't need to check the file system for unknown paths. If the `RELOADER_METHOD` and `RELOADER_PATH` variables are defined, assets can be reloaded with an HTTP request to the server. This can be useful in development by adding a notification step to your bundler process. 
 
