@@ -18,6 +18,9 @@
     # browse package documentation
     PORT=3210 make watch-docs
 
+    # serve example
+    PORT=3210 make example
+
 ## environment
 
 - `PORT` - server listen port (required)

@@ -4,6 +4,14 @@ export PORT ?= 3210
 build:
 	gleam export erlang-shipment
 
+.PHONY: example
+example:
+	ASSET_PATH=example \
+	watchexec gleam run --restart \
+	--watch gleam.toml \
+	--watch example \
+	--watch src
+
 .PHONY: watch
 watch:
 	watchexec gleam run --restart \
