@@ -9,8 +9,7 @@ import gleam/otp/actor
 import gleam/pair
 import gleam/result
 import lib/report.{Report}
-import vvv/error.{Error}
-import web
+import web.{Error}
 import web/static.{Assets}
 
 const call_timeout = 1000
@@ -82,7 +81,7 @@ fn update(reload: fn() -> static.Service) {
 fn assets(actor) -> fn() -> Result(Assets, _) {
   fn() {
     process.try_call(actor, List, call_timeout)
-    |> result.unwrap(report.error(error.CallError))
+    |> result.unwrap(report.error(web.CallError))
   }
 }
 
@@ -91,11 +90,11 @@ fn router(actor: Actor, method: http.Method, path: List(String)) -> web.Service 
     case request.method == method && segments == path {
       True ->
         process.try_call(actor, Reload, call_timeout)
-        |> result.unwrap(report.error(error.CallError))
+        |> result.unwrap(report.error(web.CallError))
 
       False ->
         process.try_call(actor, Route(request, segments, _), call_timeout)
-        |> result.unwrap(report.error(error.CallError))
+        |> result.unwrap(report.error(web.CallError))
     }
   }
 }

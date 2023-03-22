@@ -5,8 +5,7 @@ import gleam/http/response
 import gleam/json
 import gleam/result
 import lib/report.{Report}
-import vvv/error.{Error}
-import web
+import web.{Error}
 import web/static
 
 pub type Config {

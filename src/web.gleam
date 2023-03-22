@@ -1,5 +1,6 @@
 import gleam
 import gleam/bit_builder.{BitBuilder}
+import gleam/erlang/file
 import gleam/http
 import gleam/http/request.{Request}
 import gleam/http/response.{Response}
@@ -8,7 +9,11 @@ import gleam/result
 import gleam/string
 import lib
 import lib/report.{Report}
-import vvv/error.{Error}
+
+pub type Error {
+  CallError
+  FileError(file.Reason)
+}
 
 pub type Result =
   gleam.Result(Response(BitBuilder), Report(Error))

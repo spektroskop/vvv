@@ -14,8 +14,7 @@ import gleam/uri
 import lib
 import lib/path
 import lib/report.{Report}
-import vvv/error.{Error}
-import web
+import web.{Error}
 
 pub type Service {
   Service(assets: fn() -> Result(Assets, Report(Error)), router: web.Service)
@@ -46,7 +45,7 @@ fn router(assets: Assets, index: List(String)) {
     use body <- result.then(
       file.read_bits(asset.path)
       |> result.map(bit_builder.from_bit_string)
-      |> report.map_error(error.FileError),
+      |> report.map_error(web.FileError),
     )
 
     response.new(200)
