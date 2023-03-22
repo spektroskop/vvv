@@ -108,9 +108,8 @@ pub fn service(
 ) -> Result(static.Service, actor.StartError) {
   use actor <- result.then(start(reload))
 
-  static.Service(
+  Ok(static.Service(
     assets: assets(actor, timeout: 250),
     router: router(actor, config.method, config.path, timeout: 250),
-  )
-  |> Ok
+  ))
 }

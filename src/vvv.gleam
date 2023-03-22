@@ -48,10 +48,7 @@ pub fn main() {
 
     case static_reloader {
       option.Some(config) -> reloader.service(config, service)
-
-      option.None ->
-        service()
-        |> Ok
+      option.None -> Ok(service())
     }
   }
 
