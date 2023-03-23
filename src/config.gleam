@@ -7,6 +7,7 @@ import gleam/map.{Map}
 import gleam/option.{Option}
 import gleam/result
 import gleam/string
+import gleam/uri
 import lib/decode
 
 pub type Error {
@@ -19,7 +20,7 @@ pub type Error {
 pub type Config {
   Config(
     server: Server,
-    assets: Assets,
+    static: Static,
     gzip: Gzip,
     types: Types,
     reloader: Option(Reloader),
@@ -30,8 +31,8 @@ pub type Server {
   Server(port: Int)
 }
 
-pub type Assets {
-  Assets(base_path: String, index_path: List(String))
+pub type Static {
+  Static(base: String, index: List(String))
 }
 
 pub type Gzip {
@@ -84,9 +85,14 @@ fn config_decoder(env: List(String), data: Dynamic) {
     section(config_map, "server"),
   ))
 
+  use static <- result.then(static_decoder(
+    ["STATIC", ..env],
+    section(config_map, "static"),
+  ))
+
   Ok(Config(
     server: server,
-    assets: todo,
+    static: static,
     gzip: todo,
     types: todo,
     reloader: todo,
@@ -94,7 +100,7 @@ fn config_decoder(env: List(String), data: Dynamic) {
 }
 
 fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Nil) {
-  use server_map <- result.then(
+  use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
     |> result.nil_error(),
@@ -104,7 +110,7 @@ fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Nil) {
     Ok(value) -> int.parse(value)
 
     Error(Nil) ->
-      case map.get(server_map, "port") {
+      case map.get(map, "port") {
         Ok(value) ->
           dynamic.int(value)
           |> result.nil_error()
@@ -113,5 +119,51 @@ fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Nil) {
       }
   })
 
-  Ok(Server(port: port))
+  Server(port: port)
+  |> Ok
+}
+
+fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Nil) {
+  use map <- result.then(
+    data
+    |> decode.shallow_map(dynamic.string)
+    |> result.nil_error(),
+  )
+
+  use base <- result.then(case get_env(["BASE", ..env]) {
+    Ok(value) -> Ok(value)
+
+    Error(Nil) ->
+      case map.get(map, "base") {
+        Ok(value) ->
+          dynamic.string(value)
+          |> result.nil_error()
+
+        Error(Nil) -> Error(Nil)
+      }
+  })
+
+  use index <- result.then(case get_env(["INDEX", ..env]) {
+    Ok(value) ->
+      uri.path_segments(value)
+      |> Ok
+
+    Error(Nil) ->
+      case map.get(map, "index") {
+        Ok(value) -> {
+          use path <- result.then(
+            dynamic.string(value)
+            |> result.nil_error(),
+          )
+
+          uri.path_segments(path)
+          |> Ok
+        }
+
+        Error(Nil) -> Error(Nil)
+      }
+  })
+
+  Static(base: base, index: index)
+  |> Ok
 }

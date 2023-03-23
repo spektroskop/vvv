@@ -1,9 +1,9 @@
 [server]
 port = 3210
 
-[assets]
-base_path = "some/path"
-index_path = "index.html"
+[static]
+base = "some/path"
+index = "index.html"
 
 [gzip]
 threshold = 350
