@@ -6,6 +6,7 @@ import gleam/list
 import gleam/map.{Map}
 import gleam/option.{Option}
 import gleam/result
+import gleam/set.{Set}
 import gleam/string
 import gleam/uri
 import lib/decode
@@ -41,7 +42,7 @@ pub type Reloader {
 }
 
 pub type Gzip {
-  Gzip(threshold: Int, types: List(String))
+  Gzip(threshold: Int, types: Set(String))
 }
 
 pub fn read(env: List(String), path: String) -> Result(Config, Error) {
@@ -72,7 +73,7 @@ fn get_env(path: List(String)) -> Result(String, Nil) {
 }
 
 fn config_decoder(env: List(String), data: Dynamic) -> Result(Config, Error) {
-  use config_map <- result.then(
+  use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
     |> result.replace_error(DecodeError),
@@ -80,15 +81,17 @@ fn config_decoder(env: List(String), data: Dynamic) -> Result(Config, Error) {
 
   use server <- result.then(server_decoder(
     ["SERVER", ..env],
-    section(config_map, "server"),
+    section(map, "server"),
   ))
 
   use static <- result.then(static_decoder(
     ["STATIC", ..env],
-    section(config_map, "static"),
+    section(map, "static"),
   ))
 
-  Ok(Config(server: server, static: static, gzip: todo))
+  use gzip <- result.then(gzip_decoder(["GZIP", ..env], section(map, "gzip")))
+
+  Ok(Config(server: server, static: static, gzip: gzip))
 }
 
 fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Error) {
@@ -155,4 +158,51 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
   })
 
   Ok(Static(base: base, index: index, types: todo, reloader: todo))
+}
+
+fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
+  use map <- result.then(
+    data
+    |> decode.shallow_map(dynamic.string)
+    |> result.replace_error(BadSection("gzip")),
+  )
+
+  use threshold <- result.then(case get_env(["THRESHOLD", ..env]) {
+    Ok(value) ->
+      int.parse(value)
+      |> result.replace_error(BadConfig("threshold"))
+
+    Error(Nil) ->
+      case map.get(map, "port") {
+        Ok(value) ->
+          dynamic.int(value)
+          |> result.replace_error(BadConfig("threshold"))
+
+        Error(Nil) -> Ok(1000)
+      }
+  })
+
+  use types <- result.then(case get_env(["TYPES", ..env]) {
+    Ok(value) ->
+      string.split(value, ",")
+      |> set.from_list()
+      |> Ok
+
+    Error(Nil) ->
+      case map.get(map, "types") {
+        Ok(value) -> {
+          use types <- result.then(
+            value
+            |> dynamic.list(dynamic.string)
+            |> result.replace_error(BadConfig("types")),
+          )
+
+          Ok(set.from_list(types))
+        }
+
+        Error(Nil) -> Ok(set.new())
+      }
+  })
+
+  Ok(Gzip(threshold: threshold, types: types))
 }
