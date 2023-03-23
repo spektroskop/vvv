@@ -11,10 +11,12 @@ import gleam/uri
 import lib/decode
 
 pub type Error {
+  FileError(file.Reason)
+  DecodeError
   UnknownKeys(List(String))
   BadSection(String)
-  BadProperty(String)
-  MissingProperty(String)
+  MissingConfig(String)
+  BadConfig(String)
 }
 
 pub type Config {
@@ -42,15 +44,15 @@ pub type Gzip {
   Gzip(threshold: Int, types: List(String))
 }
 
-pub fn read(env: List(String), path: String) -> Result(Config, Nil) {
+pub fn read(env: List(String), path: String) -> Result(Config, Error) {
   use data <- result.then(
     file.read(path)
-    |> result.nil_error(),
+    |> result.map_error(FileError),
   )
 
   use decoded <- result.then(
     decode.toml(data)
-    |> result.nil_error(),
+    |> result.replace_error(DecodeError),
   )
 
   config_decoder(env, decoded)
@@ -69,11 +71,11 @@ fn get_env(path: List(String)) -> Result(String, Nil) {
   |> os.get_env()
 }
 
-fn config_decoder(env: List(String), data: Dynamic) {
+fn config_decoder(env: List(String), data: Dynamic) -> Result(Config, Error) {
   use config_map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.nil_error(),
+    |> result.replace_error(DecodeError),
   )
 
   use server <- result.then(server_decoder(
@@ -89,34 +91,36 @@ fn config_decoder(env: List(String), data: Dynamic) {
   Ok(Config(server: server, static: static, gzip: todo))
 }
 
-fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Nil) {
+fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Error) {
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.nil_error(),
+    |> result.replace_error(BadSection("server")),
   )
 
   use port <- result.then(case get_env(["PORT", ..env]) {
-    Ok(value) -> int.parse(value)
+    Ok(value) ->
+      int.parse(value)
+      |> result.replace_error(BadConfig("port"))
 
     Error(Nil) ->
       case map.get(map, "port") {
         Ok(value) ->
           dynamic.int(value)
-          |> result.nil_error()
+          |> result.replace_error(BadConfig("port"))
 
-        Error(Nil) -> Error(Nil)
+        Error(Nil) -> Error(MissingConfig("port"))
       }
   })
 
   Ok(Server(port: port))
 }
 
-fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Nil) {
+fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.nil_error(),
+    |> result.replace_error(BadSection("server")),
   )
 
   use base <- result.then(case get_env(["BASE", ..env]) {
@@ -126,9 +130,9 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Nil) {
       case map.get(map, "base") {
         Ok(value) ->
           dynamic.string(value)
-          |> result.nil_error()
+          |> result.replace_error(BadConfig("base"))
 
-        Error(Nil) -> Error(Nil)
+        Error(Nil) -> Error(MissingConfig("base"))
       }
   })
 
@@ -140,13 +144,13 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Nil) {
         Ok(value) -> {
           use path <- result.then(
             dynamic.string(value)
-            |> result.nil_error(),
+            |> result.replace_error(BadConfig("base")),
           )
 
           Ok(uri.path_segments(path))
         }
 
-        Error(Nil) -> Error(Nil)
+        Error(Nil) -> Ok(["index.html"])
       }
   })
 
