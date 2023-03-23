@@ -18,13 +18,7 @@ pub type Error {
 }
 
 pub type Config {
-  Config(
-    server: Server,
-    static: Static,
-    gzip: Gzip,
-    types: Types,
-    reloader: Option(Reloader),
-  )
+  Config(server: Server, static: Static, gzip: Gzip)
 }
 
 pub type Server {
@@ -32,18 +26,20 @@ pub type Server {
 }
 
 pub type Static {
-  Static(base: String, index: List(String))
+  Static(
+    base: String,
+    index: List(String),
+    types: Map(String, String),
+    reloader: Option(Reloader),
+  )
+}
+
+pub type Reloader {
+  Reloader(method: String, path: List(String))
 }
 
 pub type Gzip {
   Gzip(threshold: Int, types: List(String))
-}
-
-pub type Types =
-  Map(String, String)
-
-pub type Reloader {
-  Reloader(method: String, path: List(String))
 }
 
 pub fn read(env: List(String), path: String) -> Result(Config, Nil) {
@@ -90,13 +86,7 @@ fn config_decoder(env: List(String), data: Dynamic) {
     section(config_map, "static"),
   ))
 
-  Ok(Config(
-    server: server,
-    static: static,
-    gzip: todo,
-    types: todo,
-    reloader: todo,
-  ))
+  Ok(Config(server: server, static: static, gzip: todo))
 }
 
 fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Nil) {
@@ -119,8 +109,7 @@ fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Nil) {
       }
   })
 
-  Server(port: port)
-  |> Ok
+  Ok(Server(port: port))
 }
 
 fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Nil) {
@@ -144,9 +133,7 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Nil) {
   })
 
   use index <- result.then(case get_env(["INDEX", ..env]) {
-    Ok(value) ->
-      uri.path_segments(value)
-      |> Ok
+    Ok(value) -> Ok(uri.path_segments(value))
 
     Error(Nil) ->
       case map.get(map, "index") {
@@ -156,14 +143,12 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Nil) {
             |> result.nil_error(),
           )
 
-          uri.path_segments(path)
-          |> Ok
+          Ok(uri.path_segments(path))
         }
 
         Error(Nil) -> Error(Nil)
       }
   })
 
-  Static(base: base, index: index)
-  |> Ok
+  Ok(Static(base: base, index: index, types: todo, reloader: todo))
 }
