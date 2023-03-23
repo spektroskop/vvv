@@ -1,0 +1,30 @@
+[server]
+port = 3210
+
+[assets]
+base_path = "some/path"
+index_path = "index.html"
+
+[gzip]
+threshold = 350
+types = [
+  "text/html",
+  "text/css",
+  "text/javascript",
+  "application/json"
+]
+
+[types]
+"css" = "text/css"
+"html" = "text/html"
+"ico" = "image/x-icon"
+"js" = "text/javascript"
+"woff" = "font/woff"
+"woff2" = "font/woff2"
+"png" = "image/png"
+"svg" = "image/svg+xml"
+
+[reloader]
+method = "PATCH"
+path = "static"
+
