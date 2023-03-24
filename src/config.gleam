@@ -182,7 +182,7 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
       }
   })
 
-  Ok(Static(base: base, index: index, types: types, reloader: todo))
+  Ok(Static(base: base, index: index, types: types, reloader: option.None))
 }
 
 fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
