@@ -59,13 +59,6 @@ pub fn read(env: List(String), path: String) -> Result(Config, Error) {
   config_decoder(env, decoded)
 }
 
-fn section(map: Map(String, Dynamic), name: String) -> Dynamic {
-  case map.get(map, name) {
-    Error(Nil) -> dynamic.from(map.new())
-    Ok(value) -> value
-  }
-}
-
 fn get_env(path: List(String)) -> Result(String, Nil) {
   list.reverse(path)
   |> string.join("_")
@@ -81,15 +74,21 @@ fn config_decoder(env: List(String), data: Dynamic) -> Result(Config, Error) {
 
   use server <- result.then(server_decoder(
     ["SERVER", ..env],
-    section(map, "server"),
+    map.get(map, "server")
+    |> result.unwrap(dynamic.from(map.new())),
   ))
 
   use static <- result.then(static_decoder(
     ["STATIC", ..env],
-    section(map, "static"),
+    map.get(map, "static")
+    |> result.unwrap(dynamic.from(map.new())),
   ))
 
-  use gzip <- result.then(gzip_decoder(["GZIP", ..env], section(map, "gzip")))
+  use gzip <- result.then(gzip_decoder(
+    ["GZIP", ..env],
+    map.get(map, "gzip")
+    |> result.unwrap(dynamic.from(map.new())),
+  ))
 
   Ok(Config(server: server, static: static, gzip: gzip))
 }
