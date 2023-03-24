@@ -8,9 +8,9 @@ import gleam/result
 import gleam/uri
 import lib
 import web/api
+import web/reloader
 import web/router
 import web/static
-import web/reloader
 
 pub fn main() {
   let assert Ok(port) =
