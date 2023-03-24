@@ -179,7 +179,7 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
           |> dynamic.map(dynamic.string, dynamic.string)
           |> result.replace_error(BadConfig("types"))
 
-        Error(Nil) -> Error(MissingConfig("types"))
+        Error(Nil) -> Ok(map.new())
       }
   })
 
