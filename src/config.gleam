@@ -157,7 +157,33 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
       }
   })
 
-  Ok(Static(base: base, index: index, types: todo, reloader: todo))
+  use types <- result.then(case get_env(["TYPES", ..env]) {
+    Ok(value) -> {
+      use args <- result.then(
+        string.split(value, ",")
+        |> list.try_map(fn(arg) {
+          case string.split(arg, ":") {
+            [ext, kind] -> Ok(#(ext, kind))
+            _else -> Error(BadConfig("types"))
+          }
+        }),
+      )
+
+      Ok(map.from_list(args))
+    }
+
+    Error(Nil) ->
+      case map.get(map, "types") {
+        Ok(value) ->
+          value
+          |> dynamic.map(dynamic.string, dynamic.string)
+          |> result.replace_error(BadConfig("types"))
+
+        Error(Nil) -> Error(MissingConfig("types"))
+      }
+  })
+
+  Ok(Static(base: base, index: index, types: types, reloader: todo))
 }
 
 fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
