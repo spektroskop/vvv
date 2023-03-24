@@ -1,3 +1,12 @@
+# SERVER_PORT=3210
+# STATIC_BASE=some/path
+# STATIC_INDEX=index.html
+# STATIC_TYPES=css:text/css,html:text/html,ico:image/x-icon,js:text/javascript,woff:font/woff,woff2:font/woff2,png:image/png,svg:image/svg+xml
+# STATIC_RELOADER_METHOD=PATCH
+# STATIC_RELOADER_PATH=static
+# GZIP_THRESHOLD=350
+# GZIP_TYPES=text/html,text/css,text/javascript,application/json 
+
 [server]
 port = 3210
 
@@ -27,4 +36,3 @@ types = [
   "text/javascript",
   "application/json"
 ]
-
