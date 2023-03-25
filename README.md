@@ -1,6 +1,6 @@
 # vvv
 
-This is a template application for serving web assets with [gleam](https://gleam.run).
+This is a template application for serving web assets with [Gleam](https://gleam.run).
 
 Configuration is provided either through a config file or the environment. See `vvv.example.toml` for
 all the configuration options, their defaults, and corresponding environment variable names.
