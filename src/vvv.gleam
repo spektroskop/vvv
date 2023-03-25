@@ -13,7 +13,7 @@ pub fn main() {
   let #(config_file, env_prefix) = case erlang.start_arguments() {
     [] -> #(option.None, [])
     [env_prefix] -> #(option.None, string.split(env_prefix, "_"))
-    [path, env_prefix] -> #(option.Some(path), string.split(env_prefix, "_"))
+    [env_prefix, path] -> #(option.Some(path), string.split(env_prefix, "_"))
   }
 
   let assert Ok(config) =
