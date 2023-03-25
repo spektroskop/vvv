@@ -21,10 +21,6 @@ pub type Message {
   Route(Request(BitString), List(String), Subject(web.Result))
 }
 
-pub type Config {
-  Config(method: http.Method, path: List(String))
-}
-
 pub fn start(service: fn() -> static.Service) -> Result(Subject(Message), _) {
   actor.start(service(), update(service))
 }
@@ -103,13 +99,14 @@ fn router(
 }
 
 pub fn service(
-  config: Config,
+  method: http.Method,
+  path: List(String),
   reload: fn() -> static.Service,
 ) -> Result(static.Service, actor.StartError) {
   use actor <- result.then(start(reload))
 
   Ok(static.Service(
     assets: assets(actor, timeout: 250),
-    router: router(actor, config.method, config.path, timeout: 250),
+    router: router(actor, method, path, timeout: 250),
   ))
 }

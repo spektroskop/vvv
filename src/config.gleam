@@ -46,7 +46,10 @@ pub type Gzip {
   Gzip(threshold: Int, types: Set(String))
 }
 
-pub fn read(env: List(String), path: String) -> Result(Config, Error) {
+pub fn read(
+  env_prefix env: List(String),
+  from path: String,
+) -> Result(Config, Error) {
   use data <- result.then(
     file.read(path)
     |> result.map_error(FileError),
