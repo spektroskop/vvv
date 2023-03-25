@@ -1,12 +1,9 @@
 [server]
-# Server listen port (required) (env: SERVER_PORT)
-port = 3210
+port = 3210 # Server listen port (required) (env: SERVER_PORT)
 
 [static]
-# Where to look for assets (required) (env: STATIC_BASE)
-base = "some/path"
-# Fallback path if the requested asset is not found (env: STATIC_INDEX)
-index = "index.html"
+base = "some/path" # Where to look for assets (required) (env: STATIC_BASE)
+index = "index.html" # Fallback path if the requested asset is not found (env: STATIC_INDEX)
 
 # A map from file extensions to content types (env: STATIC_TYPES=css:text/css,...)
 [static.types]
@@ -19,16 +16,14 @@ index = "index.html"
 "png" = "image/png"
 "svg" = "image/svg+xml"
 
-# Runs the asset handler in an actor and makes it possible to reload assets with an HTTP request to the server
+# If this section is defined, assets can be reloaded with an HTTP request to the server
 [static.reloader]
-# HTTP method used to trigger reload (env: STATIC_RELOADER_METHOD)
-method = "PATCH"
-# Reload trigger path (env: STATIC_RELOADER_PATH)
-path = "static"
+method = "PATCH" # HTTP method used to trigger reload (env: STATIC_RELOADER_METHOD)
+path = "static" # Reload trigger path (env: STATIC_RELOADER_PATH)
 
 [gzip]
-# Gzip assets that have a byte size above this threshold (env: GZIP_THRESHOLD)
-threshold = 350
+threshold = 350 # Gzip assets that have a byte size above this threshold (env: GZIP_THRESHOLD)
+
 # Content types to gzip (env: GZIP_TYPES=text/html,...)
 types = [
   "text/html",
