@@ -1,11 +1,4 @@
-[server]
-port = 3210 # SERVER_PORT
-
-[static]
-base = "some/path" # STATIC_BASE
-index = "index.html" # STATIC_INDEX
-
-[static.types] # STATIC_TYPES=css:text/css,...
+[static.types]
 "css" = "text/css"
 "html" = "text/html"
 "ico" = "image/x-icon"
@@ -15,16 +8,13 @@ index = "index.html" # STATIC_INDEX
 "png" = "image/png"
 "svg" = "image/svg+xml"
 
-[static.reloader]
-method = "PATCH" # STATIC_RELOADER_METHOD
-path = "static" # STATIC_RELOADER_PATH
-
 [gzip]
-threshold = 350 # GZIP_THRESHOLD
-types = [ # GZIP_TYPES=text/html,...
+threshold = 350
+types = [
   "text/html",
   "text/css",
   "text/javascript",
   "application/json",
   "image/svg+xml"
 ]
+
