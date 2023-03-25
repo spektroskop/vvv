@@ -10,6 +10,7 @@ import gleam/list
 import gleam/map.{Map}
 import gleam/result
 import gleam/set
+import gleam/string
 import gleam/uri
 import lib
 import lib/path
@@ -127,15 +128,15 @@ pub fn encode_assets(assets: Assets) -> Json {
 }
 
 fn get_content_type(path: String) -> Result(String, Nil) {
-  case path.extension(path) {
-    ".css" -> Ok("text/css")
-    ".html" -> Ok("text/html")
-    ".ico" -> Ok("image/x-icon")
-    ".js" -> Ok("text/javascript")
-    ".woff" -> Ok("font/woff")
-    ".woff2" -> Ok("font/woff2")
-    ".png" -> Ok("image/png")
-    ".svg" -> Ok("image/svg+xml")
+  case string.drop_left(path.extension(path), 1) {
+    "css" -> Ok("text/css")
+    "html" -> Ok("text/html")
+    "ico" -> Ok("image/x-icon")
+    "js" -> Ok("text/javascript")
+    "woff" -> Ok("font/woff")
+    "woff2" -> Ok("font/woff2")
+    "png" -> Ok("image/png")
+    "svg" -> Ok("image/svg+xml")
     _unknown -> Error(Nil)
   }
 }
