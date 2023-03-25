@@ -3,9 +3,11 @@ import gleam/erlang/file
 import gleam/erlang/os
 import gleam/http
 import gleam/int
+import gleam/json.{Json}
 import gleam/list
 import gleam/map.{Map}
 import gleam/option.{Option}
+import gleam/pair
 import gleam/result
 import gleam/set.{Set}
 import gleam/string
@@ -297,4 +299,52 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
   })
 
   Ok(Gzip(threshold: threshold, types: types))
+}
+
+pub fn encode(config: Config) -> Json {
+  json.object([
+    #("server", encode_server(config.server)),
+    #("static", encode_static(config.static)),
+    #("gzip", encode_gzip(config.gzip)),
+  ])
+}
+
+fn encode_server(server: Server) -> Json {
+  json.object([#("port", json.int(server.port))])
+}
+
+fn encode_static(static: Static) -> Json {
+  json.object([
+    #("base", json.string(static.base)),
+    #("index", json.array(static.index, json.string)),
+    #(
+      "types",
+      map.to_list(static.types)
+      |> list.map(pair.map_second(_, json.string))
+      |> json.object(),
+    ),
+    #("reloader", json.nullable(static.reloader, encode_reloader)),
+  ])
+}
+
+fn encode_reloader(reloader: Reloader) -> Json {
+  json.object([
+    #(
+      "method",
+      http.method_to_string(reloader.method)
+      |> json.string(),
+    ),
+    #("path", json.array(reloader.path, json.string)),
+  ])
+}
+
+fn encode_gzip(gzip: Gzip) -> Json {
+  json.object([
+    #("threshold", json.int(gzip.threshold)),
+    #(
+      "types",
+      set.to_list(gzip.types)
+      |> json.array(json.string),
+    ),
+  ])
 }

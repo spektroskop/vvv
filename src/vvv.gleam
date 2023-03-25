@@ -2,6 +2,8 @@ import config
 import gleam/erlang
 import gleam/erlang/process
 import gleam/http/elli
+import gleam/io
+import gleam/json
 import gleam/option
 import gleam/string
 import web/api
@@ -16,8 +18,10 @@ pub fn main() {
     [env_prefix, path] -> #(option.Some(path), string.split(env_prefix, "_"))
   }
 
-  let assert Ok(config) =
-    config.read(from: config_file, env_prefix: env_prefix)
+  let assert Ok(config) = config.read(from: config_file, env_prefix: env_prefix)
+
+  json.to_string(config.encode(config))
+  |> io.println()
 
   let assert Ok(static_service) = {
     let service = fn() {
