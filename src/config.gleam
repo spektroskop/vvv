@@ -247,6 +247,7 @@ fn reloader_decoder(
       Ok(option.Some(Reloader(method: method, path: path)))
     option.None, option.Some(_) -> Error(MissingConfig("method"))
     option.Some(_), option.None -> Error(MissingConfig("path"))
+    option.None, option.None -> Ok(option.None)
   }
 }
 
