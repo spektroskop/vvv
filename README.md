@@ -13,7 +13,7 @@ either in the supplied config file or in the environment:
 
     # [$PREFIX]_SERVER_PORT=.. [$PREFIX]_STATIC_BASE=.. gleam run [$PREFIX] [$CONFIG]
 
-    VVV_SERVER_PORT=3210 VVV_STATIC_PATH=some/path gleam run VVV
+    VVV_SERVER_PORT=3210 VVV_STATIC_PATH=some/path gleam run VVV vvv.toml
 
 ## activate reloader
 
