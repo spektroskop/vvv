@@ -48,19 +48,27 @@ pub type Gzip {
 
 pub fn read(
   env_prefix env: List(String),
-  from path: String,
+  from path: Option(String),
 ) -> Result(Config, Error) {
-  use data <- result.then(
-    file.read(path)
-    |> result.map_error(FileError),
-  )
+  use data <- result.then(case path {
+    option.None -> Ok(dynamic.from(map.new()))
 
-  use decoded <- result.then(
-    decode.toml(data)
-    |> result.replace_error(DecodeError),
-  )
+    option.Some(path) -> {
+      use data <- result.then(
+        file.read(path)
+        |> result.map_error(FileError),
+      )
 
-  config_decoder(env, decoded)
+      use decoded <- result.then(
+        decode.toml(data)
+        |> result.replace_error(DecodeError),
+      )
+
+      Ok(decoded)
+    }
+  })
+
+  config_decoder(env, data)
 }
 
 fn get_env(path: List(String)) -> Result(String, Nil) {

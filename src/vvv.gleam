@@ -1,4 +1,5 @@
 import config
+import gleam/erlang
 import gleam/erlang/process
 import gleam/http/elli
 import gleam/option
@@ -8,7 +9,13 @@ import web/router
 import web/static
 
 pub fn main() {
-  let assert Ok(config) = config.read(from: "vvv.toml", env_prefix: ["VVV"])
+  let config_file = case erlang.start_arguments() {
+    [] -> option.None
+    [path] -> option.Some(path)
+  }
+
+  let assert Ok(config) =
+    config.read(from: config_file, env_prefix: ["VVV"])
 
   let assert Ok(static_service) = {
     let service = fn() {
