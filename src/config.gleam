@@ -1,6 +1,7 @@
 import gleam/dynamic.{Dynamic}
 import gleam/erlang/file
 import gleam/erlang/os
+import gleam/http
 import gleam/int
 import gleam/list
 import gleam/map.{Map}
@@ -38,7 +39,7 @@ pub type Static {
 }
 
 pub type Reloader {
-  Reloader(method: String, path: List(String))
+  Reloader(method: http.Method, path: List(String))
 }
 
 pub type Gzip {
