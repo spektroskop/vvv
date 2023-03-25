@@ -6,8 +6,9 @@ build:
 
 .PHONY: example
 example:
+	VVV_SERVER_PORT=3210 \
 	VVV_STATIC_BASE=example \
-	watchexec gleam run --restart \
+	watchexec gleam run VVV vvv.toml --restart \
 	--watch gleam.toml \
 	--watch example \
 	--watch src
