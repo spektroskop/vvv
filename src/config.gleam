@@ -143,14 +143,10 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
 
     Error(Nil) ->
       case map.get(map, "index") {
-        Ok(value) -> {
-          use path <- result.then(
-            dynamic.string(value)
-            |> result.replace_error(BadConfig("base")),
-          )
-
-          Ok(uri.path_segments(path))
-        }
+        Ok(value) ->
+          dynamic.string(value)
+          |> result.replace_error(BadConfig("index"))
+          |> result.map(uri.path_segments)
 
         Error(Nil) -> Ok(["index.html"])
       }
