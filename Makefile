@@ -16,6 +16,7 @@ example:
 watch:
 	watchexec gleam run --restart \
 	--watch gleam.toml \
+	--watch vvv.toml \
 	--watch src
 
 .PHONY: docs
