@@ -26,7 +26,9 @@ pub fn service(config: Config) -> Service(_, _) {
     case request.path_segments(request) {
       ["api", ..segments] ->
         case config.api(request, segments) {
-          Ok(response) -> response
+          Ok(response) ->
+            response
+            |> response.prepend_header("cache-control", "no-cache")
 
           Error(_report) ->
             response.new(500)
@@ -36,7 +38,9 @@ pub fn service(config: Config) -> Service(_, _) {
 
       segments ->
         case config.static.router(request, segments) {
-          Ok(response) -> response
+          Ok(response) ->
+            response
+            |> response.prepend_header("cache-control", "no-cache")
 
           Error(_report) ->
             response.new(500)
