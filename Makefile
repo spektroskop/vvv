@@ -6,7 +6,7 @@ build:
 
 .PHONY: example
 example:
-	STATIC_BASE=example \
+	VVV_STATIC_BASE=example \
 	watchexec gleam run --restart \
 	--watch gleam.toml \
 	--watch example \
@@ -25,7 +25,7 @@ docs:
 
 .PHONY: serve-docs
 serve-docs: docs
-	STATIC_BASE=build/dev/docs/vvv gleam run
+	VVV_STATIC_BASE=build/dev/docs/vvv gleam run
 
 .PHONY: watch-docs
 watch-docs:
