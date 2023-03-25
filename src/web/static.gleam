@@ -28,8 +28,12 @@ pub type Asset {
 pub type Assets =
   Map(List(String), Asset)
 
-pub fn service(from base: String, fallback index: List(String)) -> Service {
-  let assets = collect_assets(base)
+pub fn service(
+  from base: String,
+  fallback index: List(String),
+  types types: Map(String, String),
+) -> Service {
+  let assets = collect_assets(base, types)
   Service(assets: fn() { Ok(assets) }, router: router(assets, index))
 }
 
@@ -85,21 +89,31 @@ fn get_asset(
   }
 }
 
-pub fn collect_assets(from base: String) -> Assets {
+pub fn collect_assets(
+  from base: String,
+  types types: Map(String, String),
+) -> Assets {
   map.from_list({
     use relative_path <- list.filter_map(path.wildcard(base, "**"))
     let full_path = path.join([base, relative_path])
     use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
 
-    use asset <- result.then(load_asset(relative_path, full_path))
+    use content_type <- result.then(
+      string.drop_left(path.extension(full_path), 1)
+      |> map.get(types, _),
+    )
+    use asset <- result.then(load_asset(relative_path, full_path, content_type))
     let segments = uri.path_segments(relative_path)
+
     Ok(#(segments, asset))
   })
 }
 
-fn load_asset(relative_path: String, path: String) -> Result(Asset, Nil) {
-  use content_type <- result.then(get_content_type(path))
-
+fn load_asset(
+  relative_path: String,
+  path: String,
+  content_type: String,
+) -> Result(Asset, Nil) {
   use data <- result.then(
     file.read_bits(path)
     |> result.nil_error(),
@@ -125,20 +139,6 @@ pub fn encode_assets(assets: Assets) -> Json {
   )
   |> map.to_list()
   |> json.object()
-}
-
-fn get_content_type(path: String) -> Result(String, Nil) {
-  case string.drop_left(path.extension(path), 1) {
-    "css" -> Ok("text/css")
-    "html" -> Ok("text/html")
-    "ico" -> Ok("image/x-icon")
-    "js" -> Ok("text/javascript")
-    "woff" -> Ok("font/woff")
-    "woff2" -> Ok("font/woff2")
-    "png" -> Ok("image/png")
-    "svg" -> Ok("image/svg+xml")
-    _unknown -> Error(Nil)
-  }
 }
 
 pub fn changes(from old: Assets, to new: Assets) {
