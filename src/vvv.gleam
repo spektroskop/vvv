@@ -35,6 +35,7 @@ pub fn main() {
       option.None -> Ok(service())
     }
   }
+
   let routes =
     router.Config(
       api: api.router(api.Config(assets: static_service.assets)),
