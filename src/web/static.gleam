@@ -99,7 +99,8 @@ pub fn collect_assets(
     use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
 
     use content_type <- result.then(
-      string.drop_left(path.extension(full_path), 1)
+      path.extension(full_path)
+      |> string.drop_left(1)
       |> map.get(types, _),
     )
     use asset <- result.then(load_asset(relative_path, full_path, content_type))
