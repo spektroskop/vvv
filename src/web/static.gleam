@@ -22,7 +22,12 @@ pub type Service {
 }
 
 pub type Asset {
-  Asset(content_type: String, hash: String, relative_path: String, path: String)
+  Asset(
+    content_type: String,
+    hash: String,
+    relative_path: String,
+    full_path: String,
+  )
 }
 
 pub type Assets =
@@ -48,7 +53,7 @@ fn router(assets: Assets, index: List(String)) {
     )
 
     use body <- result.then(
-      file.read_bits(asset.path)
+      file.read_bits(asset.full_path)
       |> result.map(bit_builder.from_bit_string)
       |> report.map_error(web.FileError),
     )
@@ -103,30 +108,23 @@ pub fn collect_assets(
       |> string.drop_left(1)
       |> map.get(types, _),
     )
-    use asset <- result.then(load_asset(relative_path, full_path, content_type))
-    let segments = uri.path_segments(relative_path)
 
+    use data <- result.then(
+      file.read_bits(full_path)
+      |> result.nil_error(),
+    )
+
+    let asset =
+      Asset(
+        content_type: content_type,
+        hash: crypto.hash(crypto.Sha224, data)
+        |> base.encode64(False),
+        relative_path: relative_path,
+        full_path: full_path,
+      )
+    let segments = uri.path_segments(relative_path)
     Ok(#(segments, asset))
   })
-}
-
-fn load_asset(
-  relative_path: String,
-  path: String,
-  content_type: String,
-) -> Result(Asset, Nil) {
-  use data <- result.then(
-    file.read_bits(path)
-    |> result.nil_error(),
-  )
-
-  Ok(Asset(
-    content_type: content_type,
-    hash: crypto.hash(crypto.Sha224, data)
-    |> base.encode64(False),
-    relative_path: relative_path,
-    path: path,
-  ))
 }
 
 pub fn encode_assets(assets: Assets) -> Json {
