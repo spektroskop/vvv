@@ -7,7 +7,7 @@ all the configuration options, their defaults, and corresponding environment var
 
 # quick start
 
-If you want to use an environment prefix and a config file they must be passed as arguments.
+If you want to use an environment prefix or a config file they must be passed as arguments.
 `SERVER_PORT` and `STATIC_BASE` are the only required configuration and must be defined
 either in the supplied config file or in the environment:
 
