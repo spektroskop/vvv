@@ -59,12 +59,8 @@ pub fn read(
         |> result.map_error(FileError),
       )
 
-      use decoded <- result.then(
-        decode.toml(data)
-        |> result.replace_error(DecodeError),
-      )
-
-      Ok(decoded)
+      decode.toml(data)
+      |> result.replace_error(DecodeError)
     }
   })
 
