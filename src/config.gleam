@@ -212,15 +212,11 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
 
     Error(Nil) ->
       case map.get(map, "types") {
-        Ok(value) -> {
-          use types <- result.then(
-            value
-            |> dynamic.list(dynamic.string)
-            |> result.replace_error(BadConfig("types")),
-          )
-
-          Ok(set.from_list(types))
-        }
+        Ok(value) ->
+          value
+          |> dynamic.list(dynamic.string)
+          |> result.replace_error(BadConfig("types"))
+          |> result.map(set.from_list)
 
         Error(Nil) -> Ok(set.new())
       }
