@@ -251,11 +251,12 @@ fn reloader_decoder(
   })
 
   case method, path {
+    option.None, option.None -> Ok(option.None)
     option.Some(method), option.Some(path) ->
       Ok(option.Some(Reloader(method: method, path: path)))
+
     option.None, option.Some(_) -> Error(MissingConfig("method"))
     option.Some(_), option.None -> Error(MissingConfig("path"))
-    option.None, option.None -> Ok(option.None)
   }
 }
 
