@@ -4,8 +4,8 @@ import gleam/erlang/file
 import gleam/http
 import gleam/http/request.{Request}
 import gleam/http/response.{Response}
-import gleam/list
 import gleam/result
+import gleam/set.{Set}
 import gleam/string
 import lib
 import lib/report.{Report}
@@ -40,7 +40,7 @@ pub fn require_method(
 pub fn gzip(
   request: Request(_),
   above threshold: Int,
-  only kinds: List(String),
+  only kinds: Set(String),
   from get_response: fn() -> Response(BitBuilder),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
@@ -51,7 +51,7 @@ pub fn gzip(
   use accepts <- result.then(request.get_header(request, "accept-encoding"))
   use <- lib.when(string.contains(accepts, "gzip"))
   use kind <- result.then(response.get_header(response, "content-type"))
-  use <- lib.when(list.contains(kinds, kind))
+  use <- lib.when(set.contains(kinds, kind))
 
   response
   |> response.set_body(body)
