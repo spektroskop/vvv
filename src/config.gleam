@@ -231,7 +231,7 @@ fn reloader_decoder(
       case map.get(map, "path") {
         Ok(value) ->
           dynamic.string(value)
-          |> result.replace_error(BadConfig("method"))
+          |> result.replace_error(BadConfig("path"))
           |> result.map(uri.path_segments)
           |> result.map(option.Some)
 
