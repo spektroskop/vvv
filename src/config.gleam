@@ -179,7 +179,72 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
       }
   })
 
-  Ok(Static(base: base, index: index, types: types, reloader: option.None))
+  use reloader <- result.then(reloader_decoder(
+    ["RELOADER", ..env],
+    map.get(map, "reloader")
+    |> result.unwrap(dynamic.from(map.new())),
+  ))
+
+  Ok(Static(base: base, index: index, types: types, reloader: reloader))
+}
+
+fn reloader_decoder(
+  env: List(String),
+  data: Dynamic,
+) -> Result(Option(Reloader), Error) {
+  use map <- result.then(
+    data
+    |> decode.shallow_map(dynamic.string)
+    |> result.replace_error(BadSection("reloader")),
+  )
+
+  use method <- result.then(case get_env(["METHOD", ..env]) {
+    Ok(value) ->
+      http.parse_method(value)
+      |> result.replace_error(BadConfig("method"))
+      |> result.map(option.Some)
+
+    Error(Nil) ->
+      case map.get(map, "method") {
+        Ok(value) -> {
+          use method <- result.then(
+            dynamic.string(value)
+            |> result.replace_error(BadConfig("method")),
+          )
+
+          http.parse_method(method)
+          |> result.replace_error(BadConfig("method"))
+          |> result.map(option.Some)
+        }
+
+        Error(Nil) -> Ok(option.None)
+      }
+  })
+
+  use path <- result.then(case get_env(["PATH", ..env]) {
+    Ok(value) ->
+      uri.path_segments(value)
+      |> option.Some
+      |> Ok
+
+    Error(Nil) ->
+      case map.get(map, "path") {
+        Ok(value) ->
+          dynamic.string(value)
+          |> result.replace_error(BadConfig("method"))
+          |> result.map(uri.path_segments)
+          |> result.map(option.Some)
+
+        Error(Nil) -> Ok(option.None)
+      }
+  })
+
+  case method, path {
+    option.Some(method), option.Some(path) ->
+      Ok(option.Some(Reloader(method: method, path: path)))
+    option.None, option.Some(_) -> Error(MissingConfig("method"))
+    option.Some(_), option.None -> Error(MissingConfig("path"))
+  }
 }
 
 fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
