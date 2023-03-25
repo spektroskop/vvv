@@ -1,20 +1,11 @@
-# SERVER_PORT=3210
-# STATIC_BASE=some/path
-# STATIC_INDEX=index.html
-# STATIC_TYPES=css:text/css,html:text/html,ico:image/x-icon,js:text/javascript,woff:font/woff,woff2:font/woff2,png:image/png,svg:image/svg+xml
-# STATIC_RELOADER_METHOD=PATCH
-# STATIC_RELOADER_PATH=static
-# GZIP_THRESHOLD=350
-# GZIP_TYPES=text/html,text/css,text/javascript,application/json 
-
 [server]
-port = 3210
+port = 3210 # SERVER_PORT
 
 [static]
-base = "some/path"
-index = "index.html"
+base = "some/path" # STATIC_BASE
+index = "index.html" # STATIC_INDEX
 
-[static.types]
+[static.types] # STATIC_TYPES=css:text/css,...
 "css" = "text/css"
 "html" = "text/html"
 "ico" = "image/x-icon"
@@ -25,14 +16,15 @@ index = "index.html"
 "svg" = "image/svg+xml"
 
 [static.reloader]
-method = "PATCH"
-path = "static"
+method = "PATCH" # STATIC_RELOADER_METHOD
+path = "static" # STATIC_RELOADER_PATH
 
 [gzip]
-threshold = 350
-types = [
+threshold = 350 # GZIP_THRESHOLD
+types = [ # GZIP_TYPES=text/html,...
   "text/html",
   "text/css",
   "text/javascript",
-  "application/json"
+  "application/json",
+  "image/svg+xml"
 ]
