@@ -10,6 +10,7 @@ import gleam/list
 import gleam/map.{Map}
 import gleam/result
 import gleam/set
+import gleam/string
 import gleam/uri
 import lib
 import lib/path
@@ -21,14 +22,23 @@ pub type Service {
 }
 
 pub type Asset {
-  Asset(content_type: String, hash: String, relative_path: String, path: String)
+  Asset(
+    content_type: String,
+    hash: String,
+    relative_path: String,
+    full_path: String,
+  )
 }
 
 pub type Assets =
   Map(List(String), Asset)
 
-pub fn service(from base: String, fallback index: List(String)) -> Service {
-  let assets = collect_assets(base)
+pub fn service(
+  from base: String,
+  fallback index: List(String),
+  types types: Map(String, String),
+) -> Service {
+  let assets = collect_assets(base, types)
   Service(assets: fn() { Ok(assets) }, router: router(assets, index))
 }
 
@@ -43,7 +53,7 @@ fn router(assets: Assets, index: List(String)) {
     )
 
     use body <- result.then(
-      file.read_bits(asset.path)
+      file.read_bits(asset.full_path)
       |> result.map(bit_builder.from_bit_string)
       |> report.map_error(web.FileError),
     )
@@ -84,33 +94,37 @@ fn get_asset(
   }
 }
 
-pub fn collect_assets(from base: String) -> Assets {
+pub fn collect_assets(
+  from base: String,
+  types types: Map(String, String),
+) -> Assets {
   map.from_list({
     use relative_path <- list.filter_map(path.wildcard(base, "**"))
     let full_path = path.join([base, relative_path])
     use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
 
-    use asset <- result.then(load_asset(relative_path, full_path))
+    use content_type <- result.then(
+      path.extension(full_path)
+      |> string.drop_left(1)
+      |> map.get(types, _),
+    )
+
+    use data <- result.then(
+      file.read_bits(full_path)
+      |> result.nil_error(),
+    )
+
+    let asset =
+      Asset(
+        content_type: content_type,
+        hash: crypto.hash(crypto.Sha224, data)
+        |> base.encode64(False),
+        relative_path: relative_path,
+        full_path: full_path,
+      )
     let segments = uri.path_segments(relative_path)
     Ok(#(segments, asset))
   })
-}
-
-fn load_asset(relative_path: String, path: String) -> Result(Asset, Nil) {
-  use content_type <- result.then(get_content_type(path))
-
-  use data <- result.then(
-    file.read_bits(path)
-    |> result.nil_error(),
-  )
-
-  Ok(Asset(
-    content_type: content_type,
-    hash: crypto.hash(crypto.Sha224, data)
-    |> base.encode64(False),
-    relative_path: relative_path,
-    path: path,
-  ))
 }
 
 pub fn encode_assets(assets: Assets) -> Json {
@@ -124,20 +138,6 @@ pub fn encode_assets(assets: Assets) -> Json {
   )
   |> map.to_list()
   |> json.object()
-}
-
-fn get_content_type(path: String) -> Result(String, Nil) {
-  case path.extension(path) {
-    ".css" -> Ok("text/css")
-    ".html" -> Ok("text/html")
-    ".ico" -> Ok("image/x-icon")
-    ".js" -> Ok("text/javascript")
-    ".woff" -> Ok("font/woff")
-    ".woff2" -> Ok("font/woff2")
-    ".png" -> Ok("image/png")
-    ".svg" -> Ok("image/svg+xml")
-    _unknown -> Error(Nil)
-  }
 }
 
 pub fn changes(from old: Assets, to new: Assets) {

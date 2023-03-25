@@ -2,6 +2,7 @@ import gleam/bit_builder
 import gleam/http/request.{Request}
 import gleam/http/response.{Response}
 import gleam/http/service.{Service}
+import gleam/set.{Set}
 import web
 import web/static
 
@@ -10,7 +11,7 @@ pub type Config {
     api: web.Service,
     static: static.Service,
     gzip_threshold: Int,
-    gzip_types: List(String),
+    gzip_types: Set(String),
   )
 }
 

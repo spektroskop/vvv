@@ -1,38 +1,39 @@
 # vvv
 
-This is a template application for serving web assets with [Gleam](https://gleam.run). Assets are loaded from the path specified in `ASSET_PATH`, falling back to the path specified in `INDEX_PATH` (or `index.html` by default) if the requested file is not found. 
+This is a template application for serving web assets with [Gleam](https://gleam.run).
 
-Assets are cataloged on startup so that we don't need to check the file system for unknown paths. If the `RELOADER_METHOD` and `RELOADER_PATH` variables are defined, assets can be reloaded with an HTTP request to the server. This can be useful in development by adding a notification step to your bundler process. 
-
-The asset system also provides a mechanism for reading the current asset hashes, via `GET /api/assets`. This can be used in a frontend app to check if the backend has been updated and might generate a notification that lets the user reload the page, or do so automatically in development.
+Configuration is provided either through a config file or the environment. See `vvv.example.toml` for
+all the configuration options, their defaults, and corresponding environment variable names.
 
 # quick start
 
-    # start server
-    PORT=3210 ASSET_PATH=some/path RELOADER_METHOD=PATCH RELOADER_PATH=static gleam run
+If you want to use an environment prefix or a config file they must be passed as arguments.
+`SERVER_PORT` and `STATIC_BASE` are the only required configuration and must be defined
+either in the supplied config file or in the environment.
 
-    # watch server
-    PORT=3210 ASSET_PATH=some/path RELOADER_METHOD=PATCH RELOADER_PATH=static make watch
+    [$PREFIX]_SERVER_PORT=.. [$PREFIX]_STATIC_BASE=.. gleam run [$PREFIX] [$CONFIG]
 
-    # reloader is optional
-    PORT=3210 ASSET_PATH=some/path gleam run
-    
-    # reload assets
+## start the server
+
+    VVV_SERVER_PORT=3210 VVV_STATIC_PATH=some/path gleam run VVV
+
+## activate reloader
+
+    VVV_SERVER_PORT=3210 VVV_STATIC_BASE=some/path VVV_STATIC_RELOADER_METHOD=PATCH VVV_STATIC_RELOADER_PATH=static gleam run VVV
+
+## reload assets
+
     curl --request PATCH localhost:3210/static
 
-    # get asset hashes
+## get current asset hashes
+
     curl localhost:3210/api/assets
 
-    # browse package documentation
-    PORT=3210 make watch-docs
+## browse package documentation
 
-    # serve example
-    PORT=3210 make example
+    gleam docs build
+    VVV_SERVER_PORT=3210 VVV_STATIC_BASE=build/dev/docs/vvv gleam run VVV vvv.toml
 
-# environment
+## example assets
 
-- `PORT` - server listen port (required)
-- `ASSET_PATH` - where to look for assets (required)
-- `INDEX_PATH` - fallback for static router (default: `index.html`)
-- `RELOADER_METHOD` - method to use for asset reload
-- `RELOADER_PATH` - path to use for asset reload
+    VVV_SERVER_PORT=3210 VVV_STATIC_BASE=example gleam run VVV vvv.toml

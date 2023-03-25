@@ -1,53 +1,41 @@
-import gleam/erlang/os
+import config
+import gleam/erlang
 import gleam/erlang/process
-import gleam/http
 import gleam/http/elli
-import gleam/int
+import gleam/io
+import gleam/json
 import gleam/option
-import gleam/result
-import gleam/uri
-import lib
+import gleam/string
 import web/api
+import web/reloader
 import web/router
 import web/static
-import web/reloader
 
 pub fn main() {
-  let assert Ok(port) =
-    os.get_env("PORT")
-    |> result.then(int.parse)
-
-  let assert Ok(asset_path) = os.get_env("ASSET_PATH")
-
-  let index_path =
-    os.get_env("INDEX_PATH")
-    |> result.map(uri.path_segments)
-    |> result.unwrap(["index.html"])
-
-  let static_reloader = {
-    use <- lib.else(option.None)
-
-    use path <- result.then(
-      os.get_env("RELOADER_PATH")
-      |> result.map(uri.path_segments),
-    )
-    use method <- result.then(
-      os.get_env("RELOADER_METHOD")
-      |> result.then(http.parse_method),
-    )
-
-    reloader.Config(method, path)
-    |> option.Some
-    |> Ok
+  let #(config_file, env_prefix) = case erlang.start_arguments() {
+    [] -> #(option.None, [])
+    [env_prefix] -> #(option.None, string.split(env_prefix, "_"))
+    [env_prefix, path] -> #(option.Some(path), string.split(env_prefix, "_"))
   }
+
+  let assert Ok(config) = config.read(from: config_file, env_prefix: env_prefix)
+
+  json.to_string(config.encode(config))
+  |> io.println()
 
   let assert Ok(static_service) = {
     let service = fn() {
-      static.service(from: asset_path, fallback: index_path)
+      static.service(
+        from: config.static.base,
+        fallback: config.static.index,
+        types: config.static.types,
+      )
     }
 
-    case static_reloader {
-      option.Some(config) -> reloader.service(config, service)
+    case config.static.reloader {
+      option.Some(config.Reloader(method, path)) ->
+        reloader.service(method, path, service)
+
       option.None -> Ok(service())
     }
   }
@@ -56,13 +44,11 @@ pub fn main() {
     router.Config(
       api: api.router(api.Config(assets: static_service.assets)),
       static: static_service,
-      gzip_threshold: 350,
-      gzip_types: [
-        "text/html", "text/css", "text/javascript", "application/json",
-      ],
+      gzip_threshold: config.gzip.threshold,
+      gzip_types: config.gzip.types,
     )
 
-  let assert Ok(_) = elli.start(router.service(routes), port)
+  let assert Ok(_) = elli.start(router.service(routes), config.server.port)
 
   process.sleep_forever()
 }

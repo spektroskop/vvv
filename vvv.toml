@@ -1,0 +1,20 @@
+[static.types]
+"css" = "text/css"
+"html" = "text/html"
+"ico" = "image/x-icon"
+"js" = "text/javascript"
+"woff" = "font/woff"
+"woff2" = "font/woff2"
+"png" = "image/png"
+"svg" = "image/svg+xml"
+
+[gzip]
+threshold = 350
+types = [
+  "text/html",
+  "text/css",
+  "text/javascript",
+  "application/json",
+  "image/svg+xml"
+]
+
