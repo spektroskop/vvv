@@ -74,6 +74,11 @@ fn get_env(path: List(String)) -> Result(String, Nil) {
   |> os.get_env()
 }
 
+fn section(map: Map(String, Dynamic), name: String) -> Dynamic {
+  map.get(map, name)
+  |> result.unwrap(dynamic.from(map.new()))
+}
+
 const config_keys = ["server", "static", "gzip"]
 
 pub type Config {
@@ -92,29 +97,17 @@ fn config_decoder(
   )
 
   use server <- result.then({
-    let map =
-      map.get(map, "server")
-      |> result.unwrap(dynamic.from(map.new()))
-
-    server_decoder(["SERVER", ..env], map)
+    server_decoder(["SERVER", ..env], section(map, "server"))
     |> report.error_context(BadSection("server"))
   })
 
   use static <- result.then({
-    let map =
-      map.get(map, "static")
-      |> result.unwrap(dynamic.from(map.new()))
-
-    static_decoder(["STATIC", ..env], map)
+    static_decoder(["STATIC", ..env], section(map, "static"))
     |> report.error_context(BadSection("static"))
   })
 
   use gzip <- result.then({
-    let map =
-      map.get(map, "gzip")
-      |> result.unwrap(dynamic.from(map.new()))
-
-    gzip_decoder(["GZIP", ..env], map)
+    gzip_decoder(["GZIP", ..env], section(map, "gzip"))
     |> report.error_context(BadSection("gzip"))
   })
 
@@ -251,11 +244,7 @@ fn static_decoder(
   })
 
   use reloader <- result.then({
-    let map =
-      map.get(map, "reloader")
-      |> result.unwrap(dynamic.from(map.new()))
-
-    reloader_decoder(["RELOADER", ..env], map)
+    reloader_decoder(["RELOADER", ..env], section(map, "reloader"))
     |> report.error_context(BadSection("reloader"))
   })
 
