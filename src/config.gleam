@@ -148,19 +148,21 @@ fn server_decoder(
     |> result.then(check_unknown_keys(_, [server_keys])),
   )
 
-  use port <- result.then(case get_env(["PORT", ..env]) {
-    Ok(value) ->
-      int.parse(value)
-      |> report.replace_error(BadConfig("port"))
+  use port <- result.then({
+    case get_env(["PORT", ..env]) {
+      Ok(value) ->
+        int.parse(value)
+        |> report.replace_error(BadConfig("port"))
 
-    Error(Nil) ->
-      case map.get(map, "port") {
-        Ok(value) ->
-          dynamic.int(value)
-          |> report.replace_error(BadConfig("port"))
+      Error(Nil) ->
+        case map.get(map, "port") {
+          Ok(value) ->
+            dynamic.int(value)
+            |> report.replace_error(BadConfig("port"))
 
-        Error(Nil) -> report.error(MissingConfig("port"))
-      }
+          Error(Nil) -> report.error(MissingConfig("port"))
+        }
+    }
   })
 
   Ok(Server(port: port))
@@ -177,57 +179,63 @@ fn static_decoder(
     |> result.then(check_unknown_keys(_, [static_keys])),
   )
 
-  use base <- result.then(case get_env(["BASE", ..env]) {
-    Ok(value) -> Ok(value)
+  use base <- result.then({
+    case get_env(["BASE", ..env]) {
+      Ok(value) -> Ok(value)
 
-    Error(Nil) ->
-      case map.get(map, "base") {
-        Ok(value) ->
-          dynamic.string(value)
-          |> report.replace_error(BadConfig("base"))
+      Error(Nil) ->
+        case map.get(map, "base") {
+          Ok(value) ->
+            dynamic.string(value)
+            |> report.replace_error(BadConfig("base"))
 
-        Error(Nil) -> report.error(MissingConfig("base"))
-      }
-  })
-
-  use index <- result.then(case get_env(["INDEX", ..env]) {
-    Ok(value) -> Ok(uri.path_segments(value))
-
-    Error(Nil) ->
-      case map.get(map, "index") {
-        Ok(value) ->
-          dynamic.string(value)
-          |> report.replace_error(BadConfig("index"))
-          |> result.map(uri.path_segments)
-
-        Error(Nil) -> Ok(["index.html"])
-      }
-  })
-
-  use types <- result.then(case get_env(["TYPES", ..env]) {
-    Ok(value) -> {
-      use args <- result.then(
-        string.split(value, ",")
-        |> list.try_map(fn(arg) {
-          case string.split(arg, ":") {
-            [ext, kind] -> Ok(#(ext, kind))
-            _else -> report.error(BadConfig("types"))
-          }
-        }),
-      )
-
-      Ok(map.from_list(args))
+          Error(Nil) -> report.error(MissingConfig("base"))
+        }
     }
+  })
 
-    Error(Nil) ->
-      case map.get(map, "types") {
-        Ok(value) ->
-          value
-          |> dynamic.map(dynamic.string, dynamic.string)
-          |> report.replace_error(BadConfig("types"))
+  use index <- result.then({
+    case get_env(["INDEX", ..env]) {
+      Ok(value) -> Ok(uri.path_segments(value))
 
-        Error(Nil) -> Ok(map.new())
+      Error(Nil) ->
+        case map.get(map, "index") {
+          Ok(value) ->
+            dynamic.string(value)
+            |> report.replace_error(BadConfig("index"))
+            |> result.map(uri.path_segments)
+
+          Error(Nil) -> Ok(["index.html"])
+        }
+    }
+  })
+
+  use types <- result.then({
+    case get_env(["TYPES", ..env]) {
+      Ok(value) -> {
+        use args <- result.then(
+          string.split(value, ",")
+          |> list.try_map(fn(arg) {
+            case string.split(arg, ":") {
+              [ext, kind] -> Ok(#(ext, kind))
+              _else -> report.error(BadConfig("types"))
+            }
+          }),
+        )
+
+        Ok(map.from_list(args))
       }
+
+      Error(Nil) ->
+        case map.get(map, "types") {
+          Ok(value) ->
+            value
+            |> dynamic.map(dynamic.string, dynamic.string)
+            |> report.replace_error(BadConfig("types"))
+
+          Error(Nil) -> Ok(map.new())
+        }
+    }
   })
 
   use reloader <- result.then(
@@ -253,45 +261,49 @@ fn reloader_decoder(
     |> result.then(check_unknown_keys(_, [reloader_keys])),
   )
 
-  use method <- result.then(case get_env(["METHOD", ..env]) {
-    Ok(value) ->
-      http.parse_method(value)
-      |> report.replace_error(BadConfig("method"))
-      |> result.map(option.Some)
+  use method <- result.then({
+    case get_env(["METHOD", ..env]) {
+      Ok(value) ->
+        http.parse_method(value)
+        |> report.replace_error(BadConfig("method"))
+        |> result.map(option.Some)
 
-    Error(Nil) ->
-      case map.get(map, "method") {
-        Ok(value) -> {
-          use method <- result.then(
-            dynamic.string(value)
-            |> report.replace_error(BadConfig("method")),
-          )
+      Error(Nil) ->
+        case map.get(map, "method") {
+          Ok(value) -> {
+            use method <- result.then(
+              dynamic.string(value)
+              |> report.replace_error(BadConfig("method")),
+            )
 
-          http.parse_method(method)
-          |> report.replace_error(BadConfig("method"))
-          |> result.map(option.Some)
+            http.parse_method(method)
+            |> report.replace_error(BadConfig("method"))
+            |> result.map(option.Some)
+          }
+
+          Error(Nil) -> Ok(option.None)
         }
-
-        Error(Nil) -> Ok(option.None)
-      }
+    }
   })
 
-  use path <- result.then(case get_env(["PATH", ..env]) {
-    Ok(value) ->
-      uri.path_segments(value)
-      |> option.Some
-      |> Ok
+  use path <- result.then({
+    case get_env(["PATH", ..env]) {
+      Ok(value) ->
+        uri.path_segments(value)
+        |> option.Some
+        |> Ok
 
-    Error(Nil) ->
-      case map.get(map, "path") {
-        Ok(value) ->
-          dynamic.string(value)
-          |> report.replace_error(BadConfig("path"))
-          |> result.map(uri.path_segments)
-          |> result.map(option.Some)
+      Error(Nil) ->
+        case map.get(map, "path") {
+          Ok(value) ->
+            dynamic.string(value)
+            |> report.replace_error(BadConfig("path"))
+            |> result.map(uri.path_segments)
+            |> result.map(option.Some)
 
-        Error(Nil) -> Ok(option.None)
-      }
+          Error(Nil) -> Ok(option.None)
+        }
+    }
   })
 
   case method, path {
@@ -312,37 +324,41 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
     |> result.then(check_unknown_keys(_, [gzip_keys])),
   )
 
-  use threshold <- result.then(case get_env(["THRESHOLD", ..env]) {
-    Ok(value) ->
-      int.parse(value)
-      |> report.replace_error(BadConfig("threshold"))
+  use threshold <- result.then({
+    case get_env(["THRESHOLD", ..env]) {
+      Ok(value) ->
+        int.parse(value)
+        |> report.replace_error(BadConfig("threshold"))
 
-    Error(Nil) ->
-      case map.get(map, "port") {
-        Ok(value) ->
-          dynamic.int(value)
-          |> report.replace_error(BadConfig("threshold"))
+      Error(Nil) ->
+        case map.get(map, "port") {
+          Ok(value) ->
+            dynamic.int(value)
+            |> report.replace_error(BadConfig("threshold"))
 
-        Error(Nil) -> Ok(1000)
-      }
+          Error(Nil) -> Ok(1000)
+        }
+    }
   })
 
-  use types <- result.then(case get_env(["TYPES", ..env]) {
-    Ok(value) ->
-      string.split(value, ",")
-      |> set.from_list()
-      |> Ok
+  use types <- result.then({
+    case get_env(["TYPES", ..env]) {
+      Ok(value) ->
+        string.split(value, ",")
+        |> set.from_list()
+        |> Ok
 
-    Error(Nil) ->
-      case map.get(map, "types") {
-        Ok(value) ->
-          value
-          |> dynamic.list(dynamic.string)
-          |> report.replace_error(BadConfig("types"))
-          |> result.map(set.from_list)
+      Error(Nil) ->
+        case map.get(map, "types") {
+          Ok(value) ->
+            value
+            |> dynamic.list(dynamic.string)
+            |> report.replace_error(BadConfig("types"))
+            |> result.map(set.from_list)
 
-        Error(Nil) -> Ok(set.new())
-      }
+          Error(Nil) -> Ok(set.new())
+        }
+    }
   })
 
   Ok(Gzip(threshold: threshold, types: types))
