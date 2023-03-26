@@ -337,7 +337,7 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
             dynamic.int(value)
             |> report.replace_error(BadConfig("threshold"))
 
-          Error(Nil) -> Ok(1000)
+          Error(Nil) -> Ok(350)
         }
     }
   })
