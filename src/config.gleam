@@ -60,7 +60,10 @@ fn check_unknown_keys(
 
   case unknown_keys {
     [] -> Ok(map)
-    keys -> report.error(UnknownKeys(keys))
+
+    keys ->
+      UnknownKeys(keys)
+      |> report.error()
   }
 }
 
@@ -88,21 +91,30 @@ fn config_decoder(
   )
 
   use server <- result.then({
-    use <- report.use_error_context(BadSection("server"))
-    let map = result.unwrap(map.get(map, "server"), dynamic.from(map.new()))
+    let map =
+      map.get(map, "server")
+      |> result.unwrap(dynamic.from(map.new()))
+
     server_decoder(["SERVER", ..env], map)
+    |> report.error_context(BadSection("server"))
   })
 
   use static <- result.then({
-    use <- report.use_error_context(BadSection("static"))
-    let map = result.unwrap(map.get(map, "static"), dynamic.from(map.new()))
+    let map =
+      map.get(map, "static")
+      |> result.unwrap(dynamic.from(map.new()))
+
     static_decoder(["STATIC", ..env], map)
+    |> report.error_context(BadSection("static"))
   })
 
   use gzip <- result.then({
-    use <- report.use_error_context(BadSection("gzip"))
-    let map = result.unwrap(map.get(map, "gzip"), dynamic.from(map.new()))
+    let map =
+      map.get(map, "gzip")
+      |> result.unwrap(dynamic.from(map.new()))
+
     gzip_decoder(["GZIP", ..env], map)
+    |> report.error_context(BadSection("gzip"))
   })
 
   Ok(Config(server: server, static: static, gzip: gzip))
@@ -214,7 +226,10 @@ fn static_decoder(
           |> list.try_map(fn(arg) {
             case string.split(arg, ":") {
               [ext, kind] -> Ok(#(ext, kind))
-              _else -> report.error(BadConfig("types"))
+
+              _ ->
+                BadConfig("types")
+                |> report.error()
             }
           }),
         )
@@ -235,9 +250,12 @@ fn static_decoder(
   })
 
   use reloader <- result.then({
-    use <- report.use_error_context(BadSection("reloader"))
-    let map = result.unwrap(map.get(map, "reloader"), dynamic.from(map.new()))
+    let map =
+      map.get(map, "reloader")
+      |> result.unwrap(dynamic.from(map.new()))
+
     reloader_decoder(["RELOADER", ..env], map)
+    |> report.error_context(BadSection("reloader"))
   })
 
   Ok(Static(base: base, index: index, types: types, reloader: reloader))
@@ -393,6 +411,10 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
   Ok(Gzip(threshold: threshold, types: types))
 }
 
+fn field(key: String, value: a) -> #(String, a) {
+  #(key, value)
+}
+
 pub fn encode(config: Config) -> Json {
   json.object([
     #("server", encode_server(config.server)),
@@ -409,23 +431,19 @@ fn encode_static(static: Static) -> Json {
   json.object([
     #("base", json.string(static.base)),
     #("index", json.array(static.index, json.string)),
-    #(
-      "types",
-      map.to_list(static.types)
-      |> list.map(pair.map_second(_, json.string))
-      |> json.object(),
-    ),
+    map.to_list(static.types)
+    |> list.map(pair.map_second(_, json.string))
+    |> json.object()
+    |> field("types", _),
     #("reloader", json.nullable(static.reloader, encode_reloader)),
   ])
 }
 
 fn encode_reloader(reloader: Reloader) -> Json {
   json.object([
-    #(
-      "method",
-      http.method_to_string(reloader.method)
-      |> json.string(),
-    ),
+    http.method_to_string(reloader.method)
+    |> json.string()
+    |> field("method", _),
     #("path", json.array(reloader.path, json.string)),
   ])
 }
@@ -433,10 +451,8 @@ fn encode_reloader(reloader: Reloader) -> Json {
 fn encode_gzip(gzip: Gzip) -> Json {
   json.object([
     #("threshold", json.int(gzip.threshold)),
-    #(
-      "types",
-      set.to_list(gzip.types)
-      |> json.array(json.string),
-    ),
+    set.to_list(gzip.types)
+    |> json.array(json.string)
+    |> field("types", _),
   ])
 }
