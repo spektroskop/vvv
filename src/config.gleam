@@ -238,14 +238,11 @@ fn static_decoder(
     }
   })
 
-  use reloader <- result.then(
-    reloader_decoder(
-      ["RELOADER", ..env],
-      map.get(map, "reloader")
-      |> result.unwrap(dynamic.from(map.new())),
-    )
-    |> report.error_context(BadSection("reloader")),
-  )
+  use reloader <- result.then({
+    use <- report.use_error_context(BadSection("reloader"))
+    let map = result.unwrap(map.get(map, "reloader"), dynamic.from(map.new()))
+    reloader_decoder(["RELOADER", ..env], map)
+  })
 
   Ok(Static(base: base, index: index, types: types, reloader: reloader))
 }
