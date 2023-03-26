@@ -49,16 +49,16 @@ fn check_unknown_keys(
   map: Map(String, _),
   keys: List(List(String)),
 ) -> Result(Map(String, _), Report(Error)) {
-  let set =
+  let keys =
     list.map(keys, set.from_list)
     |> list.fold(from: set.new(), with: set.union)
 
-  let unknown_keys =
+  let unknown =
     set.from_list(map.keys(map))
-    |> set.filter(fn(key) { !set.contains(set, key) })
+    |> set.filter(fn(key) { !set.contains(keys, key) })
     |> set.to_list()
 
-  case unknown_keys {
+  case unknown {
     [] -> Ok(map)
 
     keys ->
