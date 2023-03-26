@@ -116,23 +116,26 @@ fn config_decoder(
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
 
-  use server <- result.then({
-    use <- report.use_error_context(BadSection("server"))
-    let map = result.unwrap(map.get(map, "server"), dynamic.from(map.new()))
-    server_decoder(["SERVER", ..env], map)
-  })
+  use server <- result.then(
+    map.get(map, "server")
+    |> result.unwrap(dynamic.from(map.new()))
+    |> server_decoder(["SERVER", ..env], _)
+    |> report.error_context(BadSection("server")),
+  )
 
-  use static <- result.then({
-    use <- report.use_error_context(BadSection("static"))
-    let map = result.unwrap(map.get(map, "static"), dynamic.from(map.new()))
-    static_decoder(["STATIC", ..env], map)
-  })
+  use static <- result.then(
+    map.get(map, "static")
+    |> result.unwrap(dynamic.from(map.new()))
+    |> static_decoder(["STATIC", ..env], _)
+    |> report.error_context(BadSection("static")),
+  )
 
-  use gzip <- result.then({
-    use <- report.use_error_context(BadSection("gzip"))
-    let map = result.unwrap(map.get(map, "gzip"), dynamic.from(map.new()))
-    gzip_decoder(["GZIP", ..env], map)
-  })
+  use gzip <- result.then(
+    map.get(map, "gzip")
+    |> result.unwrap(dynamic.from(map.new()))
+    |> gzip_decoder(["GZIP", ..env], _)
+    |> report.error_context(BadSection("gzip")),
+  )
 
   Ok(Config(server: server, static: static, gzip: gzip))
 }
@@ -239,9 +242,10 @@ fn static_decoder(
   })
 
   use reloader <- result.then({
-    use <- report.use_error_context(BadSection("reloader"))
-    let map = result.unwrap(map.get(map, "reloader"), dynamic.from(map.new()))
-    reloader_decoder(["RELOADER", ..env], map)
+    map.get(map, "reloader")
+    |> result.unwrap(dynamic.from(map.new()))
+    |> reloader_decoder(["RELOADER", ..env], _)
+    |> report.error_context(BadSection("reloader"))
   })
 
   Ok(Static(base: base, index: index, types: types, reloader: reloader))
