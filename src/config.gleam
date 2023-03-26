@@ -116,32 +116,23 @@ fn config_decoder(
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
 
-  use server <- result.then(
-    server_decoder(
-      ["SERVER", ..env],
-      map.get(map, "server")
-      |> result.unwrap(dynamic.from(map.new())),
-    )
-    |> report.error_context(BadSection("server")),
-  )
+  use server <- result.then({
+    use <- report.use_error_context(BadSection("server"))
+    let map = result.unwrap(map.get(map, "server"), dynamic.from(map.new()))
+    server_decoder(["SERVER", ..env], map)
+  })
 
-  use static <- result.then(
-    static_decoder(
-      ["STATIC", ..env],
-      map.get(map, "static")
-      |> result.unwrap(dynamic.from(map.new())),
-    )
-    |> report.error_context(BadSection("static")),
-  )
+  use static <- result.then({
+    use <- report.use_error_context(BadSection("static"))
+    let map = result.unwrap(map.get(map, "static"), dynamic.from(map.new()))
+    static_decoder(["STATIC", ..env], map)
+  })
 
-  use gzip <- result.then(
-    gzip_decoder(
-      ["GZIP", ..env],
-      map.get(map, "gzip")
-      |> result.unwrap(dynamic.from(map.new())),
-    )
-    |> report.error_context(BadSection("gzip")),
-  )
+  use gzip <- result.then({
+    use <- report.use_error_context(BadSection("gzip"))
+    let map = result.unwrap(map.get(map, "gzip"), dynamic.from(map.new()))
+    gzip_decoder(["GZIP", ..env], map)
+  })
 
   Ok(Config(server: server, static: static, gzip: gzip))
 }

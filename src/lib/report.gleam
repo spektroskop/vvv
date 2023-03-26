@@ -49,3 +49,16 @@ pub fn error_context(
       |> Error
   }
 }
+
+pub fn use_error_context(
+  issue: issue,
+  result: fn() -> Result(value, Report(issue)),
+) -> Result(value, Report(issue)) {
+  case result() {
+    Ok(value) -> Ok(value)
+
+    Error(report) ->
+      context(report, issue)
+      |> Error
+  }
+}
