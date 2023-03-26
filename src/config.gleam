@@ -28,17 +28,19 @@ pub fn read(
   env_prefix env: List(String),
   from path: Option(String),
 ) -> Result(Config, Report(Error)) {
-  use data <- result.then(case path {
-    option.None -> Ok(dynamic.from(map.new()))
+  use data <- result.then({
+    case path {
+      option.None -> Ok(dynamic.from(map.new()))
 
-    option.Some(path) -> {
-      use data <- result.then(
-        file.read(path)
-        |> report.map_error(FileError),
-      )
+      option.Some(path) -> {
+        use data <- result.then(
+          file.read(path)
+          |> report.map_error(FileError),
+        )
 
-      decode.toml(data)
-      |> report.replace_error(DecodeError)
+        decode.toml(data)
+        |> report.replace_error(DecodeError)
+      }
     }
   })
 
