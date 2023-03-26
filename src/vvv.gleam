@@ -24,11 +24,11 @@ pub fn main() {
 
   let assert Ok(static_service) = {
     let service = fn() {
-      static.service(
-        from: config.static.base,
-        fallback: config.static.index,
+      static.service(static.Config(
         types: config.static.types,
-      )
+        base: config.static.base,
+        index: config.static.index,
+      ))
     }
 
     case config.static.reloader {

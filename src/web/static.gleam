@@ -17,6 +17,10 @@ import lib/path
 import lib/report.{Report}
 import web.{Error}
 
+pub type Config {
+  Config(base: String, index: List(String), types: Map(String, String))
+}
+
 pub type Service {
   Service(assets: fn() -> Result(Assets, Report(Error)), router: web.Service)
 }
@@ -33,13 +37,9 @@ pub type Asset {
 pub type Assets =
   Map(List(String), Asset)
 
-pub fn service(
-  from base: String,
-  fallback index: List(String),
-  types types: Map(String, String),
-) -> Service {
-  let assets = collect_assets(base, types)
-  Service(assets: fn() { Ok(assets) }, router: router(assets, index))
+pub fn service(config: Config) -> Service {
+  let assets = collect_assets(config.base, config.types)
+  Service(assets: fn() { Ok(assets) }, router: router(assets, config.index))
 }
 
 fn router(assets: Assets, index: List(String)) {
