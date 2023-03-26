@@ -16,12 +16,12 @@ import lib/decode
 import lib/report.{Report}
 
 pub type Error {
-  FileError(file.Reason)
+  FileError(reason: file.Reason)
   DecodeError
-  UnknownKeys(List(String))
-  BadSection(String)
-  MissingConfig(String)
-  BadConfig(String, dynamic.DecodeErrors)
+  UnknownKeys(keys: List(String))
+  BadSection(name: String)
+  MissingConfig(name: String)
+  BadConfig(name: String, errors: dynamic.DecodeErrors)
 }
 
 pub fn read(
