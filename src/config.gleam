@@ -13,6 +13,7 @@ import gleam/set.{Set}
 import gleam/string
 import gleam/uri
 import lib/decode
+import lib/report.{Report}
 
 pub type Error {
   FileError(file.Reason)
@@ -23,13 +24,19 @@ pub type Error {
   BadConfig(String)
 }
 
+const config_keys = ["server", "static", "gzip"]
+
 pub type Config {
   Config(server: Server, static: Static, gzip: Gzip)
 }
 
+const server_keys = ["port"]
+
 pub type Server {
   Server(port: Int)
 }
+
+const static_keys = ["base", "index", "types", "reloader"]
 
 pub type Static {
   Static(
@@ -40,9 +47,13 @@ pub type Static {
   )
 }
 
+const reloader_keys = ["method", "path"]
+
 pub type Reloader {
   Reloader(method: http.Method, path: List(String))
 }
+
+const gzip_keys = ["threshold", "types"]
 
 pub type Gzip {
   Gzip(threshold: Int, types: Set(String))
@@ -51,22 +62,41 @@ pub type Gzip {
 pub fn read(
   env_prefix env: List(String),
   from path: Option(String),
-) -> Result(Config, Error) {
+) -> Result(Config, Report(Error)) {
   use data <- result.then(case path {
     option.None -> Ok(dynamic.from(map.new()))
 
     option.Some(path) -> {
       use data <- result.then(
         file.read(path)
-        |> result.map_error(FileError),
+        |> report.map_error(FileError),
       )
 
       decode.toml(data)
-      |> result.replace_error(DecodeError)
+      |> report.replace_error(DecodeError)
     }
   })
 
   config_decoder(env, data)
+}
+
+fn check_unknown_keys(
+  map: Map(String, _),
+  keys: List(List(String)),
+) -> Result(Map(String, _), Report(Error)) {
+  let set =
+    list.map(keys, set.from_list)
+    |> list.fold(from: set.new(), with: set.union)
+
+  let unknown_keys =
+    set.from_list(map.keys(map))
+    |> set.filter(fn(key) { !set.contains(set, key) })
+    |> set.to_list()
+
+  case unknown_keys {
+    [] -> Ok(map)
+    keys -> report.error(UnknownKeys(keys))
+  }
 }
 
 fn get_env(path: List(String)) -> Result(String, Nil) {
@@ -75,64 +105,85 @@ fn get_env(path: List(String)) -> Result(String, Nil) {
   |> os.get_env()
 }
 
-fn config_decoder(env: List(String), data: Dynamic) -> Result(Config, Error) {
+fn config_decoder(
+  env: List(String),
+  data: Dynamic,
+) -> Result(Config, Report(Error)) {
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.replace_error(DecodeError),
+    |> report.replace_error(DecodeError)
+    |> result.then(check_unknown_keys(_, [config_keys])),
   )
 
-  use server <- result.then(server_decoder(
-    ["SERVER", ..env],
-    map.get(map, "server")
-    |> result.unwrap(dynamic.from(map.new())),
-  ))
+  use server <- result.then(
+    server_decoder(
+      ["SERVER", ..env],
+      map.get(map, "server")
+      |> result.unwrap(dynamic.from(map.new())),
+    )
+    |> report.error_context(BadSection("server")),
+  )
 
-  use static <- result.then(static_decoder(
-    ["STATIC", ..env],
-    map.get(map, "static")
-    |> result.unwrap(dynamic.from(map.new())),
-  ))
+  use static <- result.then(
+    static_decoder(
+      ["STATIC", ..env],
+      map.get(map, "static")
+      |> result.unwrap(dynamic.from(map.new())),
+    )
+    |> report.error_context(BadSection("static")),
+  )
 
-  use gzip <- result.then(gzip_decoder(
-    ["GZIP", ..env],
-    map.get(map, "gzip")
-    |> result.unwrap(dynamic.from(map.new())),
-  ))
+  use gzip <- result.then(
+    gzip_decoder(
+      ["GZIP", ..env],
+      map.get(map, "gzip")
+      |> result.unwrap(dynamic.from(map.new())),
+    )
+    |> report.error_context(BadSection("gzip")),
+  )
 
   Ok(Config(server: server, static: static, gzip: gzip))
 }
 
-fn server_decoder(env: List(String), data: Dynamic) -> Result(Server, Error) {
+fn server_decoder(
+  env: List(String),
+  data: Dynamic,
+) -> Result(Server, Report(Error)) {
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.replace_error(BadSection("server")),
+    |> report.replace_error(BadConfig("server"))
+    |> result.then(check_unknown_keys(_, [server_keys])),
   )
 
   use port <- result.then(case get_env(["PORT", ..env]) {
     Ok(value) ->
       int.parse(value)
-      |> result.replace_error(BadConfig("port"))
+      |> report.replace_error(BadConfig("port"))
 
     Error(Nil) ->
       case map.get(map, "port") {
         Ok(value) ->
           dynamic.int(value)
-          |> result.replace_error(BadConfig("port"))
+          |> report.replace_error(BadConfig("port"))
 
-        Error(Nil) -> Error(MissingConfig("port"))
+        Error(Nil) -> report.error(MissingConfig("port"))
       }
   })
 
   Ok(Server(port: port))
 }
 
-fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
+fn static_decoder(
+  env: List(String),
+  data: Dynamic,
+) -> Result(Static, Report(Error)) {
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.replace_error(BadSection("server")),
+    |> report.replace_error(BadConfig("static"))
+    |> result.then(check_unknown_keys(_, [static_keys])),
   )
 
   use base <- result.then(case get_env(["BASE", ..env]) {
@@ -142,9 +193,9 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
       case map.get(map, "base") {
         Ok(value) ->
           dynamic.string(value)
-          |> result.replace_error(BadConfig("base"))
+          |> report.replace_error(BadConfig("base"))
 
-        Error(Nil) -> Error(MissingConfig("base"))
+        Error(Nil) -> report.error(MissingConfig("base"))
       }
   })
 
@@ -155,7 +206,7 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
       case map.get(map, "index") {
         Ok(value) ->
           dynamic.string(value)
-          |> result.replace_error(BadConfig("index"))
+          |> report.replace_error(BadConfig("index"))
           |> result.map(uri.path_segments)
 
         Error(Nil) -> Ok(["index.html"])
@@ -169,7 +220,7 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
         |> list.try_map(fn(arg) {
           case string.split(arg, ":") {
             [ext, kind] -> Ok(#(ext, kind))
-            _else -> Error(BadConfig("types"))
+            _else -> report.error(BadConfig("types"))
           }
         }),
       )
@@ -182,17 +233,20 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
         Ok(value) ->
           value
           |> dynamic.map(dynamic.string, dynamic.string)
-          |> result.replace_error(BadConfig("types"))
+          |> report.replace_error(BadConfig("types"))
 
         Error(Nil) -> Ok(map.new())
       }
   })
 
-  use reloader <- result.then(reloader_decoder(
-    ["RELOADER", ..env],
-    map.get(map, "reloader")
-    |> result.unwrap(dynamic.from(map.new())),
-  ))
+  use reloader <- result.then(
+    reloader_decoder(
+      ["RELOADER", ..env],
+      map.get(map, "reloader")
+      |> result.unwrap(dynamic.from(map.new())),
+    )
+    |> report.error_context(BadSection("reloader")),
+  )
 
   Ok(Static(base: base, index: index, types: types, reloader: reloader))
 }
@@ -200,17 +254,18 @@ fn static_decoder(env: List(String), data: Dynamic) -> Result(Static, Error) {
 fn reloader_decoder(
   env: List(String),
   data: Dynamic,
-) -> Result(Option(Reloader), Error) {
+) -> Result(Option(Reloader), Report(Error)) {
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.replace_error(BadSection("reloader")),
+    |> report.replace_error(BadConfig("reloader"))
+    |> result.then(check_unknown_keys(_, [reloader_keys])),
   )
 
   use method <- result.then(case get_env(["METHOD", ..env]) {
     Ok(value) ->
       http.parse_method(value)
-      |> result.replace_error(BadConfig("method"))
+      |> report.replace_error(BadConfig("method"))
       |> result.map(option.Some)
 
     Error(Nil) ->
@@ -218,11 +273,11 @@ fn reloader_decoder(
         Ok(value) -> {
           use method <- result.then(
             dynamic.string(value)
-            |> result.replace_error(BadConfig("method")),
+            |> report.replace_error(BadConfig("method")),
           )
 
           http.parse_method(method)
-          |> result.replace_error(BadConfig("method"))
+          |> report.replace_error(BadConfig("method"))
           |> result.map(option.Some)
         }
 
@@ -240,7 +295,7 @@ fn reloader_decoder(
       case map.get(map, "path") {
         Ok(value) ->
           dynamic.string(value)
-          |> result.replace_error(BadConfig("path"))
+          |> report.replace_error(BadConfig("path"))
           |> result.map(uri.path_segments)
           |> result.map(option.Some)
 
@@ -253,28 +308,29 @@ fn reloader_decoder(
     option.Some(method), option.Some(path) ->
       Ok(option.Some(Reloader(method: method, path: path)))
 
-    option.None, option.Some(_) -> Error(MissingConfig("method"))
-    option.Some(_), option.None -> Error(MissingConfig("path"))
+    option.None, option.Some(_) -> report.error(MissingConfig("method"))
+    option.Some(_), option.None -> report.error(MissingConfig("path"))
   }
 }
 
-fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
+fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error)) {
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> result.replace_error(BadSection("gzip")),
+    |> report.replace_error(BadConfig("gzip"))
+    |> result.then(check_unknown_keys(_, [gzip_keys])),
   )
 
   use threshold <- result.then(case get_env(["THRESHOLD", ..env]) {
     Ok(value) ->
       int.parse(value)
-      |> result.replace_error(BadConfig("threshold"))
+      |> report.replace_error(BadConfig("threshold"))
 
     Error(Nil) ->
       case map.get(map, "port") {
         Ok(value) ->
           dynamic.int(value)
-          |> result.replace_error(BadConfig("threshold"))
+          |> report.replace_error(BadConfig("threshold"))
 
         Error(Nil) -> Ok(1000)
       }
@@ -291,7 +347,7 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Error) {
         Ok(value) ->
           value
           |> dynamic.list(dynamic.string)
-          |> result.replace_error(BadConfig("types"))
+          |> report.replace_error(BadConfig("types"))
           |> result.map(set.from_list)
 
         Error(Nil) -> Ok(set.new())
