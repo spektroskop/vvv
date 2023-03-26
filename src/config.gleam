@@ -21,7 +21,7 @@ pub type Error {
   UnknownKeys(List(String))
   BadSection(String)
   MissingConfig(String)
-  BadConfig(String)
+  BadConfig(String, dynamic.DecodeErrors)
 }
 
 pub fn read(
@@ -134,7 +134,7 @@ fn server_decoder(
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> report.replace_error(BadConfig("server"))
+    |> report.map_error(BadConfig("server", _))
     |> result.then(check_unknown_keys(_, [server_keys])),
   )
 
@@ -142,7 +142,7 @@ fn server_decoder(
     case get_env(["PORT", ..env]) {
       Ok(value) ->
         int.parse(value)
-        |> report.replace_error(BadConfig("port"))
+        |> report.replace_error(BadConfig("port", []))
 
       Error(Nil) ->
         case map.get(map, "port") {
@@ -152,7 +152,7 @@ fn server_decoder(
 
           Ok(value) ->
             dynamic.int(value)
-            |> report.replace_error(BadConfig("port"))
+            |> report.map_error(BadConfig("port", _))
         }
     }
   })
@@ -178,7 +178,7 @@ fn static_decoder(
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> report.replace_error(BadConfig("static"))
+    |> report.map_error(BadConfig("static", _))
     |> result.then(check_unknown_keys(_, [static_keys])),
   )
 
@@ -194,7 +194,7 @@ fn static_decoder(
 
           Ok(value) ->
             dynamic.string(value)
-            |> report.replace_error(BadConfig("base"))
+            |> report.map_error(BadConfig("base", _))
         }
     }
   })
@@ -210,7 +210,7 @@ fn static_decoder(
           Ok(value) -> {
             use index <- result.then(
               dynamic.string(value)
-              |> report.replace_error(BadConfig("index")),
+              |> report.map_error(BadConfig("index", _)),
             )
 
             Ok(uri.path_segments(index))
@@ -229,7 +229,7 @@ fn static_decoder(
               [ext, kind] -> Ok(#(ext, kind))
 
               _ ->
-                BadConfig("types")
+                BadConfig("types", [])
                 |> report.error()
             }
           }),
@@ -245,7 +245,7 @@ fn static_decoder(
           Ok(value) ->
             value
             |> dynamic.map(dynamic.string, dynamic.string)
-            |> report.replace_error(BadConfig("types"))
+            |> report.map_error(BadConfig("types", _))
         }
     }
   })
@@ -275,7 +275,7 @@ fn reloader_decoder(
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> report.replace_error(BadConfig("reloader"))
+    |> report.map_error(BadConfig("reloader", _))
     |> result.then(check_unknown_keys(_, [reloader_keys])),
   )
 
@@ -284,7 +284,7 @@ fn reloader_decoder(
       Ok(value) -> {
         use method <- result.then(
           http.parse_method(value)
-          |> report.replace_error(BadConfig("method")),
+          |> report.replace_error(BadConfig("method", [])),
         )
 
         Ok(option.Some(method))
@@ -297,12 +297,12 @@ fn reloader_decoder(
           Ok(value) -> {
             use string <- result.then(
               dynamic.string(value)
-              |> report.replace_error(BadConfig("method")),
+              |> report.map_error(BadConfig("method", _)),
             )
 
             use method <- result.then(
               http.parse_method(string)
-              |> report.replace_error(BadConfig("method")),
+              |> report.replace_error(BadConfig("method", [])),
             )
 
             Ok(option.Some(method))
@@ -325,7 +325,7 @@ fn reloader_decoder(
           Ok(value) -> {
             use value <- result.then(
               dynamic.string(value)
-              |> report.replace_error(BadConfig("path")),
+              |> report.map_error(BadConfig("path", _)),
             )
 
             uri.path_segments(value)
@@ -364,7 +364,7 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> report.replace_error(BadConfig("gzip"))
+    |> report.map_error(BadConfig("gzip", _))
     |> result.then(check_unknown_keys(_, [gzip_keys])),
   )
 
@@ -372,7 +372,7 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
     case get_env(["THRESHOLD", ..env]) {
       Ok(value) ->
         int.parse(value)
-        |> report.replace_error(BadConfig("threshold"))
+        |> report.replace_error(BadConfig("threshold", []))
 
       Error(Nil) ->
         case map.get(map, "port") {
@@ -380,7 +380,7 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
 
           Ok(value) ->
             dynamic.int(value)
-            |> report.replace_error(BadConfig("threshold"))
+            |> report.map_error(BadConfig("threshold", _))
         }
     }
   })
@@ -400,7 +400,7 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
             use types <- result.then(
               value
               |> dynamic.list(dynamic.string)
-              |> report.replace_error(BadConfig("types")),
+              |> report.map_error(BadConfig("types", _)),
             )
 
             Ok(set.from_list(types))
