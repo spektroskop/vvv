@@ -12,13 +12,12 @@ import web/router
 import web/static
 
 pub fn main() {
-  let #(config_file, env_prefix) = case erlang.start_arguments() {
-    [] -> #(option.None, [])
-    [env_prefix] -> #(option.None, string.split(env_prefix, "_"))
-    [env_prefix, path] -> #(option.Some(path), string.split(env_prefix, "_"))
+  let env = case erlang.start_arguments() {
+    [] -> []
+    [env, ..] -> string.split(env, "_")
   }
 
-  let assert Ok(config) = config.read(from: config_file, env_prefix: env_prefix)
+  let assert Ok(config) = config.read(env)
 
   json.to_string(config.encode(config))
   |> io.println()

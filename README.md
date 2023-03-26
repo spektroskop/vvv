@@ -6,23 +6,34 @@ Configuration is provided either through a config file or the environment. See `
 
 # running
 
-If you want to use an environment prefix or a config file they must be passed as arguments. `SERVER_PORT` and `STATIC_BASE` are the only required configuration and must be defined either in the supplied config file or in the environment.
+If you want to use an environment prefix it must be passed as an argument to the application. 
+
+The `CONFIG` variable sets the path to the config file to use. 
+
+`SERVER_PORT` and `STATIC_BASE` must be defined.
 
 ## general syntax
 
-    [$PREFIX]_SERVER_PORT=$PORT [$PREFIX]_STATIC_BASE=$PATH \
-    gleam run [$PREFIX [$CONFIG]]
+    [$PREFIX]_SERVER_PORT=$PORT \
+    [$PREFIX]_STATIC_BASE=$PATH \
+    [$PREFIX]_CONFIG=$PATH \
+    gleam run [$PREFIX]
 
 ## start the server
 
-    VVV_SERVER_PORT=3210 VVV_STATIC_PATH=some/path \
-    gleam run VVV
+    SERVER_PORT=3210 \
+    STATIC_PATH=some/path \
+    CONFIG=config.toml \
+    gleam run
 
 ## activate reloader
 
-    VVV_SERVER_PORT=3210 VVV_STATIC_BASE=some/path \
-    VVV_STATIC_RELOADER_METHOD=PATCH VVV_STATIC_RELOADER_PATH=static \
-    gleam run VVV
+    SERVER_PORT=3210 \
+    STATIC_BASE=some/path \
+    STATIC_RELOADER_METHOD=PATCH \
+    STATIC_RELOADER_PATH=static \
+    CONFIG=config.toml \
+    gleam run
 
 ## reload assets
 
@@ -36,10 +47,14 @@ If you want to use an environment prefix or a config file they must be passed as
 
     gleam docs build
     
-    VVV_SERVER_PORT=3210 VVV_STATIC_BASE=build/dev/docs/vvv \
-    gleam run VVV vvv.toml
+    SERVER_PORT=3210 \
+    STATIC_BASE=build/dev/docs/vvv \
+    CONFIG=vvv.toml \
+    gleam run
 
 ## example assets
 
-    VVV_SERVER_PORT=3210 VVV_STATIC_BASE=example \
-    gleam run VVV vvv.toml
+    SERVER_PORT=3210 \
+    STATIC_BASE=example \
+    CONFIG=vvv.toml \
+    gleam run

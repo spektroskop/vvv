@@ -24,15 +24,12 @@ pub type Error {
   BadConfig(name: String, errors: dynamic.DecodeErrors)
 }
 
-pub fn read(
-  env_prefix env: List(String),
-  from path: Option(String),
-) -> Result(Config, Report(Error)) {
+pub fn read(env: List(String)) -> Result(Config, Report(Error)) {
   use data <- result.then({
-    case path {
-      option.None -> Ok(dynamic.from(map.new()))
+    case get_env(["CONFIG", ..env]) {
+      Error(Nil) -> Ok(dynamic.from(map.new()))
 
-      option.Some(path) -> {
+      Ok(path) -> {
         use data <- result.then(
           file.read(path)
           |> report.map_error(FileError),
