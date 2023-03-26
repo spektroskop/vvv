@@ -24,41 +24,6 @@ pub type Error {
   BadConfig(String)
 }
 
-const config_keys = ["server", "static", "gzip"]
-
-pub type Config {
-  Config(server: Server, static: Static, gzip: Gzip)
-}
-
-const server_keys = ["port"]
-
-pub type Server {
-  Server(port: Int)
-}
-
-const static_keys = ["base", "index", "types", "reloader"]
-
-pub type Static {
-  Static(
-    base: String,
-    index: List(String),
-    types: Map(String, String),
-    reloader: Option(Reloader),
-  )
-}
-
-const reloader_keys = ["method", "path"]
-
-pub type Reloader {
-  Reloader(method: http.Method, path: List(String))
-}
-
-const gzip_keys = ["threshold", "types"]
-
-pub type Gzip {
-  Gzip(threshold: Int, types: Set(String))
-}
-
 pub fn read(
   env_prefix env: List(String),
   from path: Option(String),
@@ -105,6 +70,12 @@ fn get_env(path: List(String)) -> Result(String, Nil) {
   |> os.get_env()
 }
 
+const config_keys = ["server", "static", "gzip"]
+
+pub type Config {
+  Config(server: Server, static: Static, gzip: Gzip)
+}
+
 fn config_decoder(
   env: List(String),
   data: Dynamic,
@@ -135,6 +106,12 @@ fn config_decoder(
   })
 
   Ok(Config(server: server, static: static, gzip: gzip))
+}
+
+const server_keys = ["port"]
+
+pub type Server {
+  Server(port: Int)
 }
 
 fn server_decoder(
@@ -168,6 +145,17 @@ fn server_decoder(
   })
 
   Ok(Server(port: port))
+}
+
+const static_keys = ["base", "index", "types", "reloader"]
+
+pub type Static {
+  Static(
+    base: String,
+    index: List(String),
+    types: Map(String, String),
+    reloader: Option(Reloader),
+  )
 }
 
 fn static_decoder(
@@ -255,6 +243,12 @@ fn static_decoder(
   Ok(Static(base: base, index: index, types: types, reloader: reloader))
 }
 
+const reloader_keys = ["method", "path"]
+
+pub type Reloader {
+  Reloader(method: http.Method, path: List(String))
+}
+
 fn reloader_decoder(
   env: List(String),
   data: Dynamic,
@@ -339,6 +333,12 @@ fn reloader_decoder(
       MissingConfig("path")
       |> report.error()
   }
+}
+
+const gzip_keys = ["threshold", "types"]
+
+pub type Gzip {
+  Gzip(threshold: Int, types: Set(String))
 }
 
 fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error)) {
