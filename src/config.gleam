@@ -412,11 +412,11 @@ pub fn encode(config: Config) -> Json {
   ])
 }
 
-fn encode_server(server: Server) -> Json {
+pub fn encode_server(server: Server) -> Json {
   json.object([#("port", json.int(server.port))])
 }
 
-fn encode_static(static: Static) -> Json {
+pub fn encode_static(static: Static) -> Json {
   json.object([
     #("base", json.string(static.base)),
     #("index", json.array(static.index, json.string)),
@@ -428,7 +428,7 @@ fn encode_static(static: Static) -> Json {
   ])
 }
 
-fn encode_reloader(reloader: Reloader) -> Json {
+pub fn encode_reloader(reloader: Reloader) -> Json {
   json.object([
     http.method_to_string(reloader.method)
     |> json.string()
@@ -437,7 +437,7 @@ fn encode_reloader(reloader: Reloader) -> Json {
   ])
 }
 
-fn encode_gzip(gzip: Gzip) -> Json {
+pub fn encode_gzip(gzip: Gzip) -> Json {
   json.object([
     #("threshold", json.int(gzip.threshold)),
     set.to_list(gzip.types)

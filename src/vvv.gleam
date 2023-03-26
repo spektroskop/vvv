@@ -2,10 +2,10 @@ import config
 import gleam/erlang
 import gleam/erlang/process
 import gleam/http/elli
-import gleam/io
 import gleam/json
 import gleam/option
 import gleam/string
+import lib/log
 import web/api
 import web/reloader
 import web/router
@@ -19,8 +19,31 @@ pub fn main() {
 
   let assert Ok(config) = config.read(env)
 
-  json.to_string(config.encode(config))
-  |> io.println()
+  log.message(
+    "starting",
+    [
+      log.string("config", string.inspect(config_file)),
+      log.string("prefix", string.inspect(env_prefix)),
+    ],
+  )
+
+  log.message(
+    "static",
+    [
+      config.encode_static(config.static)
+      |> json.to_string()
+      |> log.string("config", _),
+    ],
+  )
+
+  log.message(
+    "gzip",
+    [
+      config.encode_gzip(config.gzip)
+      |> json.to_string()
+      |> log.string("config", _),
+    ],
+  )
 
   let assert Ok(static_service) = {
     let service = fn() {
@@ -49,5 +72,6 @@ pub fn main() {
 
   let assert Ok(_) = elli.start(router.service(routes), config.server.port)
 
+  log.message("server listening", [log.int("port", config.server.port)])
   process.sleep_forever()
 }
