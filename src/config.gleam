@@ -116,26 +116,23 @@ fn config_decoder(
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
 
-  use server <- result.then(
-    map.get(map, "server")
-    |> result.unwrap(dynamic.from(map.new()))
-    |> server_decoder(["SERVER", ..env], _)
-    |> report.error_context(BadSection("server")),
-  )
+  use server <- result.then({
+    use <- report.use_error_context(BadSection("server"))
+    let map = result.unwrap(map.get(map, "server"), dynamic.from(map.new()))
+    server_decoder(["SERVER", ..env], map)
+  })
 
-  use static <- result.then(
-    map.get(map, "static")
-    |> result.unwrap(dynamic.from(map.new()))
-    |> static_decoder(["STATIC", ..env], _)
-    |> report.error_context(BadSection("static")),
-  )
+  use static <- result.then({
+    use <- report.use_error_context(BadSection("static"))
+    let map = result.unwrap(map.get(map, "static"), dynamic.from(map.new()))
+    static_decoder(["STATIC", ..env], map)
+  })
 
-  use gzip <- result.then(
-    map.get(map, "gzip")
-    |> result.unwrap(dynamic.from(map.new()))
-    |> gzip_decoder(["GZIP", ..env], _)
-    |> report.error_context(BadSection("gzip")),
-  )
+  use gzip <- result.then({
+    use <- report.use_error_context(BadSection("gzip"))
+    let map = result.unwrap(map.get(map, "gzip"), dynamic.from(map.new()))
+    gzip_decoder(["GZIP", ..env], map)
+  })
 
   Ok(Config(server: server, static: static, gzip: gzip))
 }
@@ -159,11 +156,13 @@ fn server_decoder(
 
       Error(Nil) ->
         case map.get(map, "port") {
+          Error(Nil) ->
+            MissingConfig("port")
+            |> report.error()
+
           Ok(value) ->
             dynamic.int(value)
             |> report.replace_error(BadConfig("port"))
-
-          Error(Nil) -> report.error(MissingConfig("port"))
         }
     }
   })
@@ -188,11 +187,13 @@ fn static_decoder(
 
       Error(Nil) ->
         case map.get(map, "base") {
+          Error(Nil) ->
+            MissingConfig("base")
+            |> report.error()
+
           Ok(value) ->
             dynamic.string(value)
             |> report.replace_error(BadConfig("base"))
-
-          Error(Nil) -> report.error(MissingConfig("base"))
         }
     }
   })
@@ -203,12 +204,16 @@ fn static_decoder(
 
       Error(Nil) ->
         case map.get(map, "index") {
-          Ok(value) ->
-            dynamic.string(value)
-            |> report.replace_error(BadConfig("index"))
-            |> result.map(uri.path_segments)
-
           Error(Nil) -> Ok(["index.html"])
+
+          Ok(value) -> {
+            use index <- result.then(
+              dynamic.string(value)
+              |> report.replace_error(BadConfig("index")),
+            )
+
+            Ok(uri.path_segments(index))
+          }
         }
     }
   })
@@ -231,21 +236,20 @@ fn static_decoder(
 
       Error(Nil) ->
         case map.get(map, "types") {
+          Error(Nil) -> Ok(map.new())
+
           Ok(value) ->
             value
             |> dynamic.map(dynamic.string, dynamic.string)
             |> report.replace_error(BadConfig("types"))
-
-          Error(Nil) -> Ok(map.new())
         }
     }
   })
 
   use reloader <- result.then({
-    map.get(map, "reloader")
-    |> result.unwrap(dynamic.from(map.new()))
-    |> reloader_decoder(["RELOADER", ..env], _)
-    |> report.error_context(BadSection("reloader"))
+    use <- report.use_error_context(BadSection("reloader"))
+    let map = result.unwrap(map.get(map, "reloader"), dynamic.from(map.new()))
+    reloader_decoder(["RELOADER", ..env], map)
   })
 
   Ok(Static(base: base, index: index, types: types, reloader: reloader))
@@ -264,25 +268,32 @@ fn reloader_decoder(
 
   use method <- result.then({
     case get_env(["METHOD", ..env]) {
-      Ok(value) ->
-        http.parse_method(value)
-        |> report.replace_error(BadConfig("method"))
-        |> result.map(option.Some)
+      Ok(value) -> {
+        use method <- result.then(
+          http.parse_method(value)
+          |> report.replace_error(BadConfig("method")),
+        )
+
+        Ok(option.Some(method))
+      }
 
       Error(Nil) ->
         case map.get(map, "method") {
+          Error(Nil) -> Ok(option.None)
+
           Ok(value) -> {
-            use method <- result.then(
+            use string <- result.then(
               dynamic.string(value)
               |> report.replace_error(BadConfig("method")),
             )
 
-            http.parse_method(method)
-            |> report.replace_error(BadConfig("method"))
-            |> result.map(option.Some)
-          }
+            use method <- result.then(
+              http.parse_method(string)
+              |> report.replace_error(BadConfig("method")),
+            )
 
-          Error(Nil) -> Ok(option.None)
+            Ok(option.Some(method))
+          }
         }
     }
   })
@@ -296,24 +307,37 @@ fn reloader_decoder(
 
       Error(Nil) ->
         case map.get(map, "path") {
-          Ok(value) ->
-            dynamic.string(value)
-            |> report.replace_error(BadConfig("path"))
-            |> result.map(uri.path_segments)
-            |> result.map(option.Some)
-
           Error(Nil) -> Ok(option.None)
+
+          Ok(value) -> {
+            use value <- result.then(
+              dynamic.string(value)
+              |> report.replace_error(BadConfig("path")),
+            )
+
+            uri.path_segments(value)
+            |> option.Some
+            |> Ok
+          }
         }
     }
   })
 
   case method, path {
     option.None, option.None -> Ok(option.None)
-    option.Some(method), option.Some(path) ->
-      Ok(option.Some(Reloader(method: method, path: path)))
 
-    option.None, option.Some(_) -> report.error(MissingConfig("method"))
-    option.Some(_), option.None -> report.error(MissingConfig("path"))
+    option.Some(method), option.Some(path) ->
+      Reloader(method: method, path: path)
+      |> option.Some()
+      |> Ok
+
+    option.None, option.Some(_) ->
+      MissingConfig("method")
+      |> report.error()
+
+    option.Some(_), option.None ->
+      MissingConfig("path")
+      |> report.error()
   }
 }
 
@@ -333,11 +357,11 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
 
       Error(Nil) ->
         case map.get(map, "port") {
+          Error(Nil) -> Ok(350)
+
           Ok(value) ->
             dynamic.int(value)
             |> report.replace_error(BadConfig("threshold"))
-
-          Error(Nil) -> Ok(350)
         }
     }
   })
@@ -351,13 +375,17 @@ fn gzip_decoder(env: List(String), data: Dynamic) -> Result(Gzip, Report(Error))
 
       Error(Nil) ->
         case map.get(map, "types") {
-          Ok(value) ->
-            value
-            |> dynamic.list(dynamic.string)
-            |> report.replace_error(BadConfig("types"))
-            |> result.map(set.from_list)
-
           Error(Nil) -> Ok(set.new())
+
+          Ok(value) -> {
+            use types <- result.then(
+              value
+              |> dynamic.list(dynamic.string)
+              |> report.replace_error(BadConfig("types")),
+            )
+
+            Ok(set.from_list(types))
+          }
         }
     }
   })
