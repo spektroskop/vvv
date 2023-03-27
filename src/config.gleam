@@ -206,7 +206,7 @@ fn static_decoder(
   use types <- result.then({
     case get_env(["TYPES", ..prefix]), map.get(map, "types") {
       Ok(value), _ -> {
-        use args <- result.then({
+        use types <- result.then({
           use arg <- list.try_map(string.split(value, ","))
 
           case string.split(arg, ":") {
@@ -218,7 +218,7 @@ fn static_decoder(
           }
         })
 
-        Ok(map.from_list(args))
+        Ok(map.from_list(types))
       }
 
       Error(Nil), Ok(value) ->
