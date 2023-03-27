@@ -33,7 +33,12 @@ pub fn main() {
 
     case config.static.reloader {
       option.Some(config.Reloader(method, path)) ->
-        reloader.service(method, path, service)
+        reloader.service(reloader.Config(
+          method: method,
+          path: path,
+          service: service,
+          timeout: 250,
+        ))
 
       option.None -> Ok(service())
     }
