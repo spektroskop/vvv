@@ -12,7 +12,7 @@ pub type Config {
   Config(assets: fn() -> Result(static.Assets, Report(Error)))
 }
 
-pub fn router(config: Config) -> web.Service {
+pub fn service(config: Config) -> web.Service {
   fn(request: Request(_), segments: List(String)) -> web.Result {
     case request.method, segments {
       http.Get, ["assets"] -> {

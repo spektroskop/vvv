@@ -39,15 +39,16 @@ pub fn main() {
     }
   }
 
-  let routes =
-    router.Config(
-      api: api.router(api.Config(assets: static_service.assets)),
-      static: static_service,
-      gzip_threshold: config.gzip.threshold,
-      gzip_types: config.gzip.types,
+  let assert Ok(_) =
+    elli.start(
+      router.service(router.Config(
+        api: api.service(api.Config(assets: static_service.assets)),
+        static: static_service,
+        gzip_threshold: config.gzip.threshold,
+        gzip_types: config.gzip.types,
+      )),
+      config.server.port,
     )
-
-  let assert Ok(_) = elli.start(router.service(routes), config.server.port)
 
   process.sleep_forever()
 }
