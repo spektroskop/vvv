@@ -400,10 +400,6 @@ fn gzip_decoder(
   Ok(Gzip(threshold: threshold, types: types))
 }
 
-fn field(key: String, value: a) -> #(String, a) {
-  #(key, value)
-}
-
 pub fn encode(config: Config) -> Json {
   json.object([
     #("server", encode_server(config.server)),
@@ -420,19 +416,23 @@ fn encode_static(static: Static) -> Json {
   json.object([
     #("base", json.string(static.base)),
     #("index", json.array(static.index, json.string)),
-    map.to_list(static.types)
-    |> list.map(pair.map_second(_, json.string))
-    |> json.object()
-    |> field("types", _),
+    #(
+      "types",
+      map.to_list(static.types)
+      |> list.map(pair.map_second(_, json.string))
+      |> json.object(),
+    ),
     #("reloader", json.nullable(static.reloader, encode_reloader)),
   ])
 }
 
 fn encode_reloader(reloader: Reloader) -> Json {
   json.object([
-    http.method_to_string(reloader.method)
-    |> json.string()
-    |> field("method", _),
+    #(
+      "method",
+      http.method_to_string(reloader.method)
+      |> json.string(),
+    ),
     #("path", json.array(reloader.path, json.string)),
   ])
 }
@@ -440,8 +440,10 @@ fn encode_reloader(reloader: Reloader) -> Json {
 fn encode_gzip(gzip: Gzip) -> Json {
   json.object([
     #("threshold", json.int(gzip.threshold)),
-    set.to_list(gzip.types)
-    |> json.array(json.string)
-    |> field("types", _),
+    #(
+      "types",
+      set.to_list(gzip.types)
+      |> json.array(json.string),
+    ),
   ])
 }
