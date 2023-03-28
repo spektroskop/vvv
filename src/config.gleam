@@ -133,11 +133,11 @@ fn server_decoder(
 
   use port <- result.then({
     case get_env(["PORT", ..prefix]), map.get(map, "port") {
-      Ok(value), _ ->
+      Ok(value), _map ->
         int.parse(value)
         |> report.replace_error(BadEnvironment("port"))
 
-      Error(Nil), Ok(value) ->
+      _env, Ok(value) ->
         dynamic.int(value)
         |> report.map_error(BadConfig("port", _))
 
@@ -174,9 +174,9 @@ fn static_decoder(
 
   use base <- result.then({
     case get_env(["BASE", ..prefix]), map.get(map, "base") {
-      Ok(value), _ -> Ok(value)
+      Ok(value), _map -> Ok(value)
 
-      Error(Nil), Ok(value) ->
+      _env, Ok(value) ->
         dynamic.string(value)
         |> report.map_error(BadConfig("base", _))
 
@@ -188,9 +188,9 @@ fn static_decoder(
 
   use index <- result.then({
     case get_env(["INDEX", ..prefix]), map.get(map, "index") {
-      Ok(value), _ -> Ok(uri.path_segments(value))
+      Ok(value), _map -> Ok(uri.path_segments(value))
 
-      Error(Nil), Ok(value) -> {
+      _env, Ok(value) -> {
         use index <- result.then(
           dynamic.string(value)
           |> report.map_error(BadConfig("index", _)),
@@ -205,8 +205,8 @@ fn static_decoder(
 
   use types <- result.then({
     case get_env(["TYPES", ..prefix]), map.get(map, "types") {
-      Ok(value), _ -> {
-        use types <- result.then({
+      Ok(value), _map -> {
+        use args <- result.then({
           use arg <- list.try_map(string.split(value, ","))
 
           case string.split(arg, ":") {
@@ -218,10 +218,10 @@ fn static_decoder(
           }
         })
 
-        Ok(map.from_list(types))
+        Ok(map.from_list(args))
       }
 
-      Error(Nil), Ok(value) ->
+      _env, Ok(value) ->
         value
         |> dynamic.map(dynamic.string, dynamic.string)
         |> report.map_error(BadConfig("types", _))
@@ -257,7 +257,7 @@ fn reloader_decoder(
 
   use method <- result.then({
     case get_env(["METHOD", ..prefix]), map.get(map, "method") {
-      Ok(value), _ -> {
+      Ok(value), _map -> {
         use method <- result.then(
           http.parse_method(value)
           |> report.replace_error(BadEnvironment("method")),
@@ -266,7 +266,7 @@ fn reloader_decoder(
         Ok(option.Some(method))
       }
 
-      Error(Nil), Ok(value) -> {
+      _env, Ok(value) -> {
         use string <- result.then(
           dynamic.string(value)
           |> report.map_error(BadConfig("method", _)),
@@ -286,12 +286,12 @@ fn reloader_decoder(
 
   use path <- result.then({
     case get_env(["PATH", ..prefix]), map.get(map, "path") {
-      Ok(value), _ ->
+      Ok(value), _map ->
         uri.path_segments(value)
         |> option.Some
         |> Ok
 
-      Error(Nil), Ok(value) -> {
+      _env, Ok(value) -> {
         use value <- result.then(
           dynamic.string(value)
           |> report.map_error(BadConfig("path", _)),
@@ -343,11 +343,11 @@ fn gzip_decoder(
 
   use threshold <- result.then({
     case get_env(["THRESHOLD", ..prefix]), map.get(map, "threshold") {
-      Ok(value), _ ->
+      Ok(value), _map ->
         int.parse(value)
         |> report.replace_error(BadEnvironment("threshold"))
 
-      Error(Nil), Ok(value) ->
+      _env, Ok(value) ->
         dynamic.int(value)
         |> report.map_error(BadConfig("threshold", _))
 
@@ -357,12 +357,12 @@ fn gzip_decoder(
 
   use types <- result.then({
     case get_env(["TYPES", ..prefix]), map.get(map, "types") {
-      Ok(value), _ ->
+      Ok(value), _map ->
         string.split(value, ",")
         |> set.from_list()
         |> Ok
 
-      Error(Nil), Ok(value) -> {
+      _env, Ok(value) -> {
         use types <- result.then(
           value
           |> dynamic.list(dynamic.string)
