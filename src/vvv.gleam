@@ -16,17 +16,18 @@ pub fn main() {
   let prefix = case erlang.start_arguments() {
     [] -> []
 
-    [prefix, ..] -> {
-      use part <- list.filter(string.split(prefix, "_"))
-      !string.is_empty(string.trim(part))
-    }
+    [prefix, ..] ->
+      string.split(prefix, "_")
+      |> list.map(string.trim)
+      |> list.filter(fn(part) { !string.is_empty(part) })
   }
 
   let assert Ok(config) = config.read(prefix)
 
-  config.encode(config)
-  |> json.to_string()
-  |> io.println()
+  io.println(
+    config.encode(config)
+    |> json.to_string(),
+  )
 
   let assert Ok(static_service) = {
     let service = fn() {
