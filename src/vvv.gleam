@@ -16,9 +16,10 @@ pub fn main() {
   let prefix = case erlang.start_arguments() {
     [] -> []
 
-    [prefix, ..] ->
-      string.split(prefix, "_")
-      |> list.filter(fn(part) { !string.is_empty(part) })
+    [prefix, ..] -> {
+      use part <- list.filter(string.split(prefix, "_"))
+      !string.is_empty(string.trim(part))
+    }
   }
 
   let assert Ok(config) = config.read(prefix)
