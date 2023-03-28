@@ -24,7 +24,8 @@ pub fn main() {
 
   let assert Ok(config) = config.read(prefix)
 
-  json.to_string(config.encode(config))
+  config.encode(config)
+  |> json.to_string()
   |> io.println()
 
   let assert Ok(static_service) = {
