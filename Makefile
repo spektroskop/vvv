@@ -2,7 +2,11 @@
 
 watch := watchexec --restart --watch gleam.toml --watch vvv.toml --watch src
 run := gleam run
+check := gleam check
 config := SERVER_PORT=3210
+
+check:
+	$(watch) $(check)
 
 run:
 	$(config) $(run) 
