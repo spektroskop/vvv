@@ -103,28 +103,35 @@ pub fn collect_assets(
     let full_path = path.join([base, relative_path])
     use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
 
-    use content_type <- result.then(
-      path.extension(full_path)
-      |> string.drop_left(1)
-      |> map.get(types, _),
-    )
-
-    use data <- result.then(
-      file.read_bits(full_path)
-      |> result.nil_error(),
-    )
-
-    let asset =
-      Asset(
-        content_type: content_type,
-        hash: crypto.hash(crypto.Sha224, data)
-        |> base.encode64(False),
-        relative_path: relative_path,
-        full_path: full_path,
-      )
+    use asset <- result.then(load_asset(relative_path, full_path, types))
     let segments = uri.path_segments(relative_path)
     Ok(#(segments, asset))
   })
+}
+
+fn load_asset(
+  relative_path: String,
+  full_path: String,
+  types: Map(String, String),
+) -> Result(Asset, Nil) {
+  use content_type <- result.then(
+    path.extension(full_path)
+    |> string.drop_left(1)
+    |> map.get(types, _),
+  )
+
+  use data <- result.then(
+    file.read_bits(full_path)
+    |> result.nil_error(),
+  )
+
+  Ok(Asset(
+    content_type: content_type,
+    hash: crypto.hash(crypto.Sha224, data)
+    |> base.encode64(False),
+    relative_path: relative_path,
+    full_path: full_path,
+  ))
 }
 
 pub fn encode_assets(assets: Assets) -> Json {
