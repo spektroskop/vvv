@@ -226,7 +226,17 @@ fn static_decoder(
         |> dynamic.map(dynamic.string, dynamic.string)
         |> report.map_error(BadConfig("types", _))
 
-      _env, _map -> Ok(map.new())
+      _env, _map ->
+        Ok(map.from_list([
+          #("css", "text/css"),
+          #("html", "text/html"),
+          #("ico", "image/x-icon"),
+          #("js", "text/javascript"),
+          #("woff", "font/woff"),
+          #("woff2", "font/woff2"),
+          #("png", "image/png"),
+          #("svg", "image/svg+xml"),
+        ]))
     }
   })
 
@@ -372,7 +382,11 @@ fn gzip_decoder(
         Ok(set.from_list(types))
       }
 
-      _env, _map -> Ok(set.new())
+      _env, _map ->
+        Ok(set.from_list([
+          "text/html", "text/css", "text/javascript", "application/json",
+          "image/svg+xml",
+        ]))
     }
   })
 
