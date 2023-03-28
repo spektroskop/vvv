@@ -36,13 +36,14 @@ const default_gzip_types = [
 ]
 
 pub type Error {
-  FileError(reason: file.Reason)
-  DecodeError
-  UnknownKeys(keys: List(String))
   BadCategory(name: String)
-  MissingConfig(name: String)
   BadConfig(name: String, errors: dynamic.DecodeErrors)
   BadEnvironment(name: String)
+  BadFormat(errors: dynamic.DecodeErrors)
+  BadToml(error: Dynamic)
+  FileError(reason: file.Reason)
+  MissingConfig(name: String)
+  UnknownKeys(keys: List(String))
 }
 
 pub fn read(prefix: List(String)) -> Result(Config, Report(Error)) {
@@ -57,7 +58,7 @@ pub fn read(prefix: List(String)) -> Result(Config, Report(Error)) {
         )
 
         decode.toml(data)
-        |> report.replace_error(DecodeError)
+        |> report.map_error(BadToml)
       }
     }
   })
@@ -112,7 +113,7 @@ fn config_decoder(
   use map <- result.then(
     data
     |> decode.shallow_map(dynamic.string)
-    |> report.replace_error(DecodeError)
+    |> report.map_error(BadFormat)
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
 
