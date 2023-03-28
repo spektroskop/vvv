@@ -4,6 +4,7 @@ import gleam/erlang/process
 import gleam/http/elli
 import gleam/io
 import gleam/json
+import gleam/list
 import gleam/option
 import gleam/string
 import web/api
@@ -14,7 +15,10 @@ import web/static
 pub fn main() {
   let prefix = case erlang.start_arguments() {
     [] -> []
-    [prefix, ..] -> string.split(prefix, "_")
+
+    [prefix, ..] ->
+      string.split(prefix, "_")
+      |> list.filter(fn(part) { !string.is_empty(part) })
   }
 
   let assert Ok(config) = config.read(prefix)
