@@ -212,12 +212,12 @@ fn static_decoder(
       Ok(value), _map -> Ok(uri.path_segments(value))
 
       _env, Ok(value) -> {
-        use index <- result.then(
+        use string <- result.then(
           dynamic.string(value)
           |> report.map_error(BadConfig("index", _)),
         )
 
-        Ok(uri.path_segments(index))
+        Ok(uri.path_segments(string))
       }
 
       _env, _map -> Ok(default_static_index)
@@ -313,12 +313,12 @@ fn reloader_decoder(
         |> Ok
 
       _env, Ok(value) -> {
-        use value <- result.then(
+        use string <- result.then(
           dynamic.string(value)
           |> report.map_error(BadConfig("path", _)),
         )
 
-        uri.path_segments(value)
+        uri.path_segments(string)
         |> option.Some
         |> Ok
       }
@@ -384,13 +384,13 @@ fn gzip_decoder(
         |> Ok
 
       _env, Ok(value) -> {
-        use types <- result.then(
+        use list <- result.then(
           value
           |> dynamic.list(dynamic.string)
           |> report.map_error(BadConfig("types", _)),
         )
 
-        Ok(set.from_list(types))
+        Ok(set.from_list(list))
       }
 
       _env, _map -> Ok(set.from_list(default_gzip_types))

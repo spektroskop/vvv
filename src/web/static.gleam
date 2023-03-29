@@ -115,8 +115,7 @@ fn load_asset(
   types: Map(String, String),
 ) -> Result(Asset, Nil) {
   use content_type <- result.then(
-    path.extension(full_path)
-    |> string.drop_left(1)
+    string.drop_left(path.extension(full_path), 1)
     |> map.get(types, _),
   )
 
@@ -135,16 +134,12 @@ fn load_asset(
 }
 
 pub fn encode_assets(assets: Assets) -> Json {
-  map.fold(
-    over: assets,
-    from: map.new(),
-    with: fn(map, _, asset) {
-      json.string(asset.hash)
-      |> map.insert(map, asset.relative_path, _)
-    },
-  )
-  |> map.to_list()
-  |> json.object()
+  json.object({
+    map.to_list({
+      use map, _, asset <- map.fold(over: assets, from: map.new())
+      map.insert(map, asset.relative_path, json.string(asset.hash))
+    })
+  })
 }
 
 pub fn changes(from old: Assets, to new: Assets) {
@@ -157,17 +152,25 @@ pub fn changes(from old: Assets, to new: Assets) {
     |> set.from_list()
 
   let removed =
-    set.filter(old_keys, fn(key) { !set.contains(new_keys, key) })
-    |> set.to_list()
+    set.to_list({
+      use key <- set.filter(old_keys)
+      !set.contains(new_keys, key)
+    })
 
   let added =
-    set.filter(new_keys, fn(key) { !set.contains(old_keys, key) })
-    |> set.to_list()
+    set.to_list({
+      use key <- set.filter(new_keys)
+      !set.contains(old_keys, key)
+    })
 
-  let #(changed, _) =
-    set.intersection(old_keys, new_keys)
-    |> set.to_list()
-    |> list.partition(fn(key) { map.get(old, key) != map.get(new, key) })
+  let #(changed, _) = {
+    use key <- list.partition(
+      set.intersection(old_keys, new_keys)
+      |> set.to_list(),
+    )
+
+    map.get(old, key) != map.get(new, key)
+  }
 
   [
     #("removed", list.map(removed, path.join)),
