@@ -23,7 +23,6 @@ The `CONFIG` variable sets the path to the config file to use.
 
     SERVER_PORT=3210 \
     STATIC_PATH=some/path \
-    CONFIG=config.toml \
     gleam run
 
 ## activate reloader
@@ -32,7 +31,6 @@ The `CONFIG` variable sets the path to the config file to use.
     STATIC_BASE=some/path \
     STATIC_RELOADER_METHOD=PATCH \
     STATIC_RELOADER_PATH=static \
-    CONFIG=config.toml \
     gleam run
 
 ## reload assets
@@ -49,12 +47,10 @@ The `CONFIG` variable sets the path to the config file to use.
     
     SERVER_PORT=3210 \
     STATIC_BASE=build/dev/docs/vvv \
-    CONFIG=vvv.toml \
     gleam run
 
 ## example assets
 
     SERVER_PORT=3210 \
     STATIC_BASE=example \
-    CONFIG=vvv.toml \
     gleam run
