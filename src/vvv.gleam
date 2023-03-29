@@ -17,9 +17,11 @@ pub fn main() {
     config.read({
       case erlang.start_arguments() {
         [] -> []
+
         [prefix] ->
           string.split(string.trim(prefix), "_")
           |> list.filter(fn(part) { !string.is_empty(part) })
+
         _args -> panic
       }
     })
