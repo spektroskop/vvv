@@ -8,15 +8,13 @@ import lib/report.{Report}
 import web.{Error}
 import web/static
 
-pub type Config {
-  Config(assets: fn() -> Result(static.Assets, Report(Error)))
-}
-
-pub fn service(config: Config) -> web.Service {
+pub fn service(
+  assets get_assets: fn() -> Result(static.Assets, Report(Error)),
+) -> web.Service {
   fn(request: Request(_), segments: List(String)) -> web.Result {
     case request.method, segments {
       http.Get, ["assets"] -> {
-        use assets <- result.then(config.assets())
+        use assets <- result.then(get_assets())
 
         let body =
           static.encode_assets(assets)

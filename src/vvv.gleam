@@ -31,21 +31,21 @@ pub fn main() {
 
   let assert Ok(static_service) = {
     let service = fn() {
-      static.service(static.Config(
+      static.service(
         types: config.static.types,
         base: config.static.base,
         index: config.static.index,
-      ))
+      )
     }
 
     case config.static.reloader {
       option.Some(config.Reloader(method, path)) ->
-        reloader.service(reloader.Config(
+        reloader.service(
           method: method,
           path: path,
-          service: service,
           timeout: 250,
-        ))
+          service: service,
+        )
 
       option.None -> Ok(service())
     }
@@ -53,12 +53,12 @@ pub fn main() {
 
   let assert Ok(_) =
     elli.start(
-      router.service(router.Config(
-        api: api.service(api.Config(assets: static_service.assets)),
+      router.service(
+        api: api.service(assets: static_service.assets),
         static: static_service,
-        gzip_threshold: config.gzip.threshold,
         gzip_types: config.gzip.types,
-      )),
+        gzip_threshold: config.gzip.threshold,
+      ),
       config.server.port,
     )
 

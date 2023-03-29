@@ -12,15 +12,6 @@ import lib/report.{Report}
 import web.{Error}
 import web/static.{Assets}
 
-pub type Config {
-  Config(
-    method: http.Method,
-    path: List(String),
-    service: fn() -> static.Service,
-    timeout: Int,
-  )
-}
-
 pub type Actor =
   Subject(Message)
 
@@ -81,32 +72,42 @@ fn update(reload: fn() -> static.Service) {
   }
 }
 
-fn assets(actor: Actor, config: Config) -> fn() -> Result(Assets, _) {
+fn assets(actor: Actor, timeout: Int) -> fn() -> Result(Assets, _) {
   fn() {
-    process.try_call(actor, List, config.timeout)
+    process.try_call(actor, List, timeout)
     |> result.unwrap(report.error(web.CallError))
   }
 }
 
-fn router(actor: Actor, config: Config) -> web.Service {
+fn router(
+  actor: Actor,
+  method: http.Method,
+  path: List(String),
+  timeout: Int,
+) -> web.Service {
   fn(request: Request(_), segments) -> web.Result {
-    case request.method == config.method && segments == config.path {
+    case request.method == method && segments == path {
       True ->
-        process.try_call(actor, Reload, config.timeout)
+        process.try_call(actor, Reload, timeout)
         |> result.unwrap(report.error(web.CallError))
 
       False ->
-        process.try_call(actor, Route(request, segments, _), config.timeout)
+        process.try_call(actor, Route(request, segments, _), timeout)
         |> result.unwrap(report.error(web.CallError))
     }
   }
 }
 
-pub fn service(config: Config) -> Result(static.Service, actor.StartError) {
-  use actor <- result.then(start(config.service))
+pub fn service(
+  method method: http.Method,
+  path path: List(String),
+  service service: fn() -> static.Service,
+  timeout timeout: Int,
+) -> Result(static.Service, actor.StartError) {
+  use actor <- result.then(start(service))
 
   Ok(static.Service(
-    assets: assets(actor, config),
-    router: router(actor, config),
+    assets: assets(actor, timeout),
+    router: router(actor, method, path, timeout),
   ))
 }

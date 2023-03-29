@@ -17,10 +17,6 @@ import lib/path
 import lib/report.{Report}
 import web.{Error}
 
-pub type Config {
-  Config(base: String, index: List(String), types: Map(String, String))
-}
-
 pub type Service {
   Service(assets: fn() -> Result(Assets, Report(Error)), router: web.Service)
 }
@@ -37,9 +33,13 @@ pub type Asset {
 pub type Assets =
   Map(List(String), Asset)
 
-pub fn service(config: Config) -> Service {
-  let assets = collect_assets(config.base, config.types)
-  Service(assets: fn() { Ok(assets) }, router: router(assets, config.index))
+pub fn service(
+  base base: String,
+  index index: List(String),
+  types types: Map(String, String),
+) -> Service {
+  let assets = collect_assets(base, types)
+  Service(assets: fn() { Ok(assets) }, router: router(assets, index))
 }
 
 fn router(assets: Assets, index: List(String)) {
@@ -94,10 +94,7 @@ fn get_asset(
   }
 }
 
-pub fn collect_assets(
-  from base: String,
-  types types: Map(String, String),
-) -> Assets {
+pub fn collect_assets(base: String, types: Map(String, String)) -> Assets {
   map.from_list({
     use relative_path <- list.filter_map(path.wildcard(base, "**"))
     let full_path = path.join([base, relative_path])

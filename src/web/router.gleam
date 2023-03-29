@@ -6,26 +6,18 @@ import gleam/set.{Set}
 import web
 import web/static
 
-pub type Config {
-  Config(
-    api: web.Service,
-    static: static.Service,
-    gzip_threshold: Int,
-    gzip_types: Set(String),
-  )
-}
-
-pub fn service(config: Config) -> Service(_, _) {
+pub fn service(
+  api api_router: web.Service,
+  static static: static.Service,
+  gzip_threshold gzip_threshold: Int,
+  gzip_types gzip_types: Set(String),
+) -> Service(_, _) {
   fn(request: Request(_)) -> Response(_) {
-    use <- web.gzip(
-      request,
-      only: config.gzip_types,
-      above: config.gzip_threshold,
-    )
+    use <- web.gzip(request, only: gzip_types, above: gzip_threshold)
 
     case request.path_segments(request) {
       ["api", ..segments] ->
-        case config.api(request, segments) {
+        case api_router(request, segments) {
           Ok(response) ->
             response
             |> response.prepend_header("cache-control", "no-cache")
@@ -37,7 +29,7 @@ pub fn service(config: Config) -> Service(_, _) {
         }
 
       segments ->
-        case config.static.router(request, segments) {
+        case static.router(request, segments) {
           Ok(response) ->
             response
             |> response.prepend_header("cache-control", "no-cache")
