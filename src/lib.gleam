@@ -1,5 +1,13 @@
 import gleam/bit_builder.{BitBuilder}
+import gleam/list
 import gleam/result
+import gleam/string
+
+pub fn fields(string: String, separated_by sep: String) -> List(String) {
+  string.split(string, sep)
+  |> list.map(string.trim)
+  |> list.filter(fn(part) { !string.is_empty(part) })
+}
 
 pub fn wrap(wrap: fn(a) -> b, make: fn() -> a) -> b {
   wrap(make())
