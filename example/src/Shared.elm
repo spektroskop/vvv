@@ -9,6 +9,9 @@ module Shared exposing
 
 import Browser
 import Browser.Navigation as Navigation
+import Html exposing (img)
+import Html.Attributes exposing (src)
+import Lib.Html as Html exposing (class)
 import Route exposing (Route)
 
 
@@ -38,5 +41,11 @@ update msg model =
 document : Maybe Route -> Model -> Browser.Document Msg
 document route model =
     { title = "Example"
-    , body = []
+    , body =
+        [ img
+            [ src "/heart.svg"
+            , class [ "h-[50vh] w-[50vh]" ]
+            ]
+            []
+        ]
     }

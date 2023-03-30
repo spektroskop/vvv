@@ -57,7 +57,7 @@ document : Model -> Browser.Document Msg
 document model =
     case model of
         NotFound ->
-            Document.placeholder "Not Found"
+            Document.none
 
         Top ->
-            Document.placeholder "Top"
+            Document.none

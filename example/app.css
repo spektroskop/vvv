@@ -9,9 +9,4 @@
     @apply h-screen m-0;
     @apply flex items-center justify-center;
   }
-
-  img#heart {
-    height: 50vh;
-    width: 50vw;
-  }
 }
