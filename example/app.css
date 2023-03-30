@@ -2,18 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  align-items: center;
-  background: #312;
-  display: flex;
-  font-family: sans-serif;
-  height: 100vh;
-  justify-content: center;
-  margin: 0;
-  color: #ddd;
-}
+@layer base {
+  body {
+    @apply font-sans;
+    @apply bg-rose-950 text-gray-200;
+    @apply h-screen m-0;
+    @apply flex items-center justify-center;
+  }
 
-img#heart {
-  height: 50vh;
-  width: 50vw;
+  img#heart {
+    height: 50vh;
+    width: 50vw;
+  }
 }
