@@ -6,7 +6,7 @@ build:
 	cp heart.svg build/heart.svg
 	./bundler --output build app.js
 	tailwind --input app.css --output build/app.css
-	-curl -s -X PATCH http://localhost:3210/static | jq -c .
+	-curl -s -X PATCH http://localhost:3210/static
 
 clean:
 	rm -rf build
