@@ -21,6 +21,7 @@ docs:
 	$(config) $(run)
 
 example:
-	STATIC_BASE=example \
+	make -C example
+	STATIC_BASE=example/build \
 	$(config) $(run)
 
