@@ -1,7 +1,7 @@
-module Lib.Document exposing ( placeholder, none, map, join )
+module Lib.Document exposing (join, map, none, placeholder)
 
 import Browser
-import Html exposing ( text )
+import Html exposing (text)
 
 
 placeholder : String -> Browser.Document msg
@@ -23,10 +23,10 @@ map f doc =
 
 join : String -> List (Browser.Document msg) -> Browser.Document msg
 join separator docs =
-    { title =  
+    { title =
         List.reverse docs
             |> List.map .title
             |> List.filter (not << String.isEmpty)
             |> String.join separator
-    , body = List.concatMap .body docs 
+    , body = List.concatMap .body docs
     }

@@ -1,27 +1,27 @@
-module Shared exposing 
-    ( Msg
-    , Model
+module Shared exposing
+    ( Model
+    , Msg
+    , document
     , init
     , subscriptions
     , update
-    , document 
     )
 
 import Browser
 import Browser.Navigation as Navigation
-import Route exposing ( Route )
+import Route exposing (Route)
 
 
-type Msg =
-    Never
+type Msg
+    = Never
 
 
-type alias Model = 
+type alias Model =
     {}
 
 
 init : Navigation.Key -> ( Model, Cmd Msg )
-init key = 
+init key =
     ( {}, Cmd.none )
 
 
