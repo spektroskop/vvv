@@ -101,10 +101,10 @@ update msg model =
                 ( shared, sharedCmd ) =
                     Shared.update sharedMsg model.shared
 
-                pageCmd =
-                    Cmd.none
+                ( page, pageCmd ) =
+                    ( model.page, Cmd.none )
             in
-            ( { model | shared = shared }
+            ( { model | shared = shared, page = page }
             , Cmd.batch
                 [ Cmd.map SharedMsg sharedCmd
                 , Cmd.map PageMsg pageCmd
@@ -116,10 +116,10 @@ update msg model =
                 ( page, pageCmd ) =
                     Pages.update pageMsg model.key model.shared model.page
 
-                sharedCmd =
-                    Cmd.none
+                ( shared, sharedCmd ) =
+                    ( model.shared, Cmd.none )
             in
-            ( { model | page = page }
+            ( { model | shared = shared, page = page }
             , Cmd.batch
                 [ Cmd.map SharedMsg sharedCmd
                 , Cmd.map PageMsg pageCmd
