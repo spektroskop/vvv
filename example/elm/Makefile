@@ -1,10 +1,4 @@
-.PHONY: all build clean
-
-all: build
-
-bundler/bundler:
-	cd bundler && go build -v ./cmd/bundler
-
+.PHONY: build
 build: bundler/bundler
 	mkdir -p build
 	cp index.html build/index.html
@@ -12,7 +6,18 @@ build: bundler/bundler
 	bundler/bundler --output build app.js
 	tailwind --input app.css --output build/app.css
 	-curl -s -X PATCH http://localhost:3210/static
+	@echo
 
+bundler/bundler:
+	cd bundler && go build -v ./cmd/bundler
+
+.PHONY: watch
+watch:
+	watchexec --watch src --watch app.js --watch tailwind.config.js \
+	--watch index.html --watch app.css \
+	make build
+
+.PHONY: clean
 clean:
 	rm -f bundler/bundler
 	rm -rf build
