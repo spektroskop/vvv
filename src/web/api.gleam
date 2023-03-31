@@ -19,12 +19,13 @@ pub fn service(
         use assets <- result.then(get_assets())
 
         let body =
-          json.object([
-            #("interval", json.int(interval)),
-            #("assets", static.encode_assets(assets)),
-            #("reload_browser", json.bool(reload_browser)),
-          ])
-          |> json.to_string()
+          json.to_string({
+            json.object([
+              #("interval", json.int(interval)),
+              #("assets", static.encode_assets(assets)),
+              #("reload_browser", json.bool(reload_browser)),
+            ])
+          })
 
         response.new(200)
         |> response.set_body(body)
