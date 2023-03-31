@@ -37,7 +37,3 @@ example/elm:
 	make -C example/elm build
 	STATIC_BASE=example/elm/build \
 	$(config) $(run)
-
-.PHONY: watch-elm
-watch-elm:
-	make -C example/elm watch

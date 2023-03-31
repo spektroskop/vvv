@@ -45,4 +45,4 @@ The `CONFIG` variable sets the path to the config file to use.
 
     STATIC_BASE=example/elm/build make watch-reloader
 
-    make watch-elm
+    make -C example/elm watch
