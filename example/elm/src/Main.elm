@@ -48,11 +48,7 @@ init () url key =
         ( page, pageCmd ) =
             Pages.init key route Nothing
     in
-    ( { key = key
-      , route = route
-      , shared = shared
-      , page = page
-      }
+    ( { key = key, route = route, shared = shared, page = page }
     , Cmd.batch
         [ Cmd.map SharedMsg sharedCmd
         , Cmd.map PageMsg pageCmd
