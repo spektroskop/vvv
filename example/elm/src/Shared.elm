@@ -16,6 +16,7 @@ import Http
 import Json.Decode as Decode
 import Lib.Cmd as Cmd
 import Lib.Html as Html exposing (class)
+import Lib.List as List
 import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
 import Lib.Return as Return
 import Route exposing (Route)
@@ -28,7 +29,9 @@ type Msg
 
 
 type alias Model =
-    { assets : Loadable Http.Error Static.Assets }
+    { assets : Loadable Http.Error Static.Assets
+    , diff : List Static.Diff
+    }
 
 
 onRouteChange : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -38,8 +41,15 @@ onRouteChange route model =
 
 init : Navigation.Key -> ( Model, Cmd Msg )
 init key =
-    ( { assets = Loading }, Cmd.none )
+    ( initialModel, Cmd.none )
         |> Return.andThen getAssets
+
+
+initialModel : Model
+initialModel =
+    { assets = Loading
+    , diff = []
+    }
 
 
 getAssets : Model -> ( Model, Cmd Msg )
@@ -73,7 +83,16 @@ update msg model =
             )
 
         GotAssets (Ok assets) ->
-            ( { model | assets = Loaded Resolved assets }
+            let
+                diff =
+                    Loadable.value model.assets
+                        |> Maybe.map (Static.diff assets)
+                        |> Maybe.andThen List.toMaybe
+            in
+            ( { model
+                | assets = Loaded Resolved assets
+                , diff = Maybe.withDefault model.diff diff
+              }
             , Cmd.after 2500 GetAssets
             )
 
