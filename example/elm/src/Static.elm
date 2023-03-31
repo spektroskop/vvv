@@ -1,4 +1,9 @@
-module Static exposing (..)
+module Static exposing
+    ( Assets
+    , Diff(..)
+    , decoder
+    , diff
+    )
 
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)

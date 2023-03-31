@@ -10,8 +10,8 @@ module Shared exposing
 
 import Browser
 import Browser.Navigation as Navigation
-import Html exposing (img)
-import Html.Attributes exposing (src)
+import Html exposing (button, text)
+import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
 import Lib.Cmd as Cmd
@@ -26,6 +26,7 @@ import Static
 type Msg
     = GetAssets
     | GotAssets (Result Http.Error Static.Assets)
+    | ReloadPage
 
 
 type alias Model =
@@ -96,15 +97,27 @@ update msg model =
             , Cmd.after 2500 GetAssets
             )
 
+        ReloadPage ->
+            ( model
+            , Navigation.reloadAndSkipCache
+            )
+
 
 document : Maybe Route -> Model -> Browser.Document Msg
 document route model =
     { title = "Example"
     , body =
-        [ img
-            [ src "/heart.svg"
-            , class [ "h-[50vh] w-[50vh]" ]
-            ]
-            []
+        [ if model.diff == [] then
+            text "Example"
+
+          else
+            button
+                [ onClick ReloadPage
+                , class
+                    [ "px-3 py-2 rounded"
+                    , "bg-gray-300 text-gray-900"
+                    ]
+                ]
+                [ text "A new version is available!" ]
         ]
     }
