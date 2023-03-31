@@ -3,10 +3,10 @@ version = "1.0.0"
 
 [dependencies]
 gleam_crypto = "~> 0.3"
-gleam_elli = "~> 2.1"
 gleam_erlang = "~> 0.18"
 gleam_http = "~> 3.1"
 gleam_otp = "~> 0.5"
 gleam_stdlib = "~> 0.28"
 gleam_json = "~> 0.5"
 tomerl = "~> 0.5"
+mist = "~> 0.10"
