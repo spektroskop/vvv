@@ -40,3 +40,9 @@ The `CONFIG` variable sets the path to the config file to use.
 ## get current asset hashes
 
     curl localhost:3210/api/assets
+
+# development
+
+    STATIC_BASE=example/elm/build make watch-reloader
+
+    make watch-elm
