@@ -5,8 +5,7 @@ build: bundler/bundler
 	cp heart.svg build/heart.svg
 	bundler/bundler --output build app.js
 	tailwind --input app.css --output build/app.css
-	-curl -s -X PATCH http://localhost:3210/static
-	@echo
+	-curl -s -X PATCH http://localhost:3210/static | jq -c .
 
 bundler/bundler:
 	cd bundler && go build -v ./cmd/bundler
