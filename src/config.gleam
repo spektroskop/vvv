@@ -100,10 +100,10 @@ fn get_section(map: Map(String, Dynamic), name: String) -> Dynamic {
   |> result.unwrap(dynamic.from(map.new()))
 }
 
-const config_keys = ["server", "static", "gzip"]
+const config_keys = ["app", "server", "static", "gzip"]
 
 pub type Config {
-  Config(server: Server, static: Static, gzip: Gzip)
+  Config(app: App, server: Server, static: Static, gzip: Gzip)
 }
 
 fn config_decoder(
@@ -116,6 +116,8 @@ fn config_decoder(
     |> report.map_error(BadFormat)
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
+
+  let app = App(assets_interval: 2500)
 
   use server <- result.then({
     server_decoder(["SERVER", ..prefix], get_section(map, "server"))
@@ -132,7 +134,13 @@ fn config_decoder(
     |> report.error_context(BadCategory("gzip"))
   })
 
-  Ok(Config(server: server, static: static, gzip: gzip))
+  Ok(Config(app: app, server: server, static: static, gzip: gzip))
+}
+
+const app_keys = ["assets_interval"]
+
+pub type App {
+  App(assets_interval: Int)
 }
 
 const server_keys = ["port"]
@@ -402,10 +410,15 @@ fn gzip_decoder(
 
 pub fn encode(config: Config) -> Json {
   json.object([
+    #("app", encode_app(config.app)),
     #("server", encode_server(config.server)),
     #("static", encode_static(config.static)),
     #("gzip", encode_gzip(config.gzip)),
   ])
+}
+
+fn encode_app(app: App) -> Json {
+  json.object([#("assets_interval", json.int(app.assets_interval))])
 }
 
 fn encode_server(server: Server) -> Json {
