@@ -15,6 +15,7 @@ import Html.Attributes exposing (src)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder)
+import Json.Encode as Encode
 import Lib.Basics exposing (flip)
 import Lib.Cmd as Cmd
 import Lib.Decode as Decode
@@ -22,6 +23,7 @@ import Lib.Html as Html exposing (class)
 import Lib.List as List
 import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
 import Lib.Return as Return
+import Ports
 import Route exposing (Route)
 import Static
 
@@ -109,31 +111,37 @@ update msg model =
                         |> Maybe.map (Static.diff app.assets)
                         |> Maybe.andThen List.toMaybe
 
-                cmd =
-                    case ( diff, app.reloadBrowser ) of
-                        ( Nothing, _ ) ->
-                            scheduleApp (Just app)
-
-                        ( Just [], _ ) ->
-                            scheduleApp (Just app)
-
-                        ( Just d, False ) ->
-                            scheduleApp (Just app)
-
-                        ( _, True ) ->
-                            Navigation.reloadAndSkipCache
+                newModel =
+                    { model
+                        | app = Loaded Resolved app
+                        , diff = Maybe.withDefault model.diff diff
+                    }
             in
-            ( { model
-                | app = Loaded Resolved app
-                , diff = Maybe.withDefault model.diff diff
-              }
-            , cmd
-            )
+            case ( diff, app.reloadBrowser ) of
+                ( Nothing, _ ) ->
+                    ( newModel, scheduleApp (Just app) )
+
+                ( Just [], _ ) ->
+                    ( newModel, scheduleApp (Just app) )
+
+                ( Just changes, False ) ->
+                    ( newModel
+                    , Cmd.batch
+                        [ scheduleApp (Just app)
+                        , List.map Static.toString changes
+                            |> Encode.list Encode.string
+                            |> Ports.Log
+                            |> Ports.send
+                        ]
+                    )
+
+                ( Just _, True ) ->
+                    ( { newModel | diff = [] }
+                    , Navigation.reloadAndSkipCache
+                    )
 
         ReloadPage ->
-            ( model
-            , Navigation.reloadAndSkipCache
-            )
+            ( model, Navigation.reloadAndSkipCache )
 
 
 scheduleApp : Maybe App -> Cmd Msg

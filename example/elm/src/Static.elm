@@ -3,6 +3,7 @@ module Static exposing
     , Diff(..)
     , decoder
     , diff
+    , toString
     )
 
 import Dict exposing (Dict)
@@ -46,3 +47,16 @@ diff static1 static2 =
         , Set.diff keys2 keys1 |> Set.toList |> List.map Removed
         , changedKeys |> Set.toList |> List.map Changed
         ]
+
+
+toString : Diff -> String
+toString change =
+    case change of
+        Added name ->
+            "Added " ++ name
+
+        Removed name ->
+            "Removed " ++ name
+
+        Changed name ->
+            "Changed " ++ name
