@@ -89,11 +89,21 @@ update msg model =
                 route =
                     Route.fromUrl url
 
+                ( shared, sharedCmd ) =
+                    if route == model.route then
+                        ( model.shared, Cmd.none )
+
+                    else
+                        Shared.onRouteChange route model.shared
+
                 ( page, pageCmd ) =
                     Pages.init model.key route (Just model.page)
             in
-            ( { model | route = route, page = page }
-            , Cmd.map PageMsg pageCmd
+            ( { model | route = route, shared = shared, page = page }
+            , Cmd.batch
+                [ Cmd.map SharedMsg sharedCmd
+                , Cmd.map PageMsg pageCmd
+                ]
             )
 
         SharedMsg sharedMsg ->

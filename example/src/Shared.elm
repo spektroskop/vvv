@@ -3,6 +3,7 @@ module Shared exposing
     , Msg
     , document
     , init
+    , onRouteChange
     , subscriptions
     , update
     )
@@ -21,6 +22,11 @@ type Msg
 
 type alias Model =
     {}
+
+
+onRouteChange : Maybe Route -> Model -> ( Model, Cmd Msg )
+onRouteChange route model =
+    ( model, Cmd.none )
 
 
 init : Navigation.Key -> ( Model, Cmd Msg )
