@@ -4,9 +4,9 @@
 
 @layer base {
   body {
-    @apply font-sans;
     @apply bg-dark-red text-gray-200;
-    @apply h-screen m-0;
     @apply flex items-center justify-center;
+    @apply font-sans;
+    @apply h-screen m-0;
   }
 }
