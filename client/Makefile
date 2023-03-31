@@ -12,8 +12,12 @@ bundler/bundler:
 
 .PHONY: watch
 watch:
-	watchexec --watch src --watch app.js --watch tailwind.config.js \
-	--watch index.html --watch app.css \
+	watchexec \
+	--watch tailwind.config.js \
+	--watch index.html \
+	--watch app.js \
+	--watch app.css \
+	--watch src \
 	make build
 
 .PHONY: clean
