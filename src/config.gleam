@@ -140,10 +140,10 @@ fn config_decoder(
   Ok(Config(app: app, server: server, static: static, gzip: gzip))
 }
 
-const app_keys = ["interval"]
+const app_keys = ["interval", "reload_browser"]
 
 pub type App {
-  App(interval: Int)
+  App(interval: Int, reload_browser: Bool)
 }
 
 fn app_decoder(
@@ -171,7 +171,23 @@ fn app_decoder(
     }
   })
 
-  Ok(App(interval: interval))
+  use reload_browser <- result.then({
+    case get_env(["RELOAD_BROWSER", ..prefix]), map.get(map, "reload_browser") {
+      Ok("false"), _map -> Ok(False)
+      Ok("true"), _map -> Ok(True)
+      Ok(_), _map ->
+        BadEnvironment("reload_browser")
+        |> report.error()
+
+      _env, Ok(value) ->
+        dynamic.bool(value)
+        |> report.map_error(BadConfig("reload_browser", _))
+
+      _env, _map -> Ok(False)
+    }
+  })
+
+  Ok(App(interval: interval, reload_browser: reload_browser))
 }
 
 const server_keys = ["port"]
@@ -449,7 +465,10 @@ pub fn encode(config: Config) -> Json {
 }
 
 fn encode_app(app: App) -> Json {
-  json.object([#("interval", json.int(app.interval))])
+  json.object([
+    #("interval", json.int(app.interval)),
+    #("reload_browser", json.bool(app.reload_browser)),
+  ])
 }
 
 fn encode_server(server: Server) -> Json {

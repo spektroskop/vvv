@@ -1,5 +1,6 @@
 [app]
 interval = 5000 # Frontend poller interval (env: APP_INTERVAL)
+reload_browser = true # Reload frontend on changes (env: APP_RELOAD_BROWSER)
 
 [server]
 port = 3210 # Server listen port (required) (env: SERVER_PORT)

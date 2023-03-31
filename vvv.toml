@@ -1,2 +1,3 @@
 [app]
 interval = 2500
+reload_browser = true

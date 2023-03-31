@@ -41,6 +41,7 @@ type alias Model =
 type alias App =
     { interval : Float
     , assets : Static.Assets
+    , reloadBrowser : Bool
     }
 
 
@@ -77,6 +78,7 @@ appDecoder =
     Decode.succeed App
         |> Decode.required "interval" Decode.float
         |> Decode.required "assets" Static.decoder
+        |> Decode.required "reload_browser" Decode.bool
 
 
 subscriptions : Model -> Sub Msg
@@ -106,12 +108,26 @@ update msg model =
                         |> Maybe.map .assets
                         |> Maybe.map (Static.diff app.assets)
                         |> Maybe.andThen List.toMaybe
+
+                cmd =
+                    case ( diff, app.reloadBrowser ) of
+                        ( Nothing, _ ) ->
+                            scheduleApp (Just app)
+
+                        ( Just [], _ ) ->
+                            scheduleApp (Just app)
+
+                        ( Just d, False ) ->
+                            scheduleApp (Just app)
+
+                        ( _, True ) ->
+                            Navigation.reloadAndSkipCache
             in
             ( { model
                 | app = Loaded Resolved app
                 , diff = Maybe.withDefault model.diff diff
               }
-            , scheduleApp (Just app)
+            , cmd
             )
 
         ReloadPage ->

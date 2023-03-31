@@ -60,6 +60,7 @@ pub fn main() {
         api: api.service(
           interval: config.app.interval,
           assets: static_service.assets,
+          reload_browser: config.app.reload_browser,
         ),
         static: static_service,
         gzip_types: config.gzip.types,

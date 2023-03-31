@@ -10,6 +10,7 @@ import web/static
 
 pub fn service(
   assets get_assets: fn() -> Result(static.Assets, Report(Error)),
+  reload_browser reload_browser: Bool,
   interval interval: Int,
 ) -> web.Service {
   fn(request: Request(_), segments: List(String)) -> web.Result {
@@ -21,6 +22,7 @@ pub fn service(
           json.object([
             #("interval", json.int(interval)),
             #("assets", static.encode_assets(assets)),
+            #("reload_browser", json.bool(reload_browser)),
           ])
           |> json.to_string()
 
