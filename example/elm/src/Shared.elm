@@ -10,7 +10,6 @@ module Shared exposing
 
 import Browser
 import Browser.Navigation as Navigation
-import Dict exposing (Dict)
 import Html exposing (img)
 import Html.Attributes exposing (src)
 import Http
@@ -20,15 +19,16 @@ import Lib.Html as Html exposing (class)
 import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
 import Lib.Return as Return
 import Route exposing (Route)
+import Static
 
 
 type Msg
     = GetAssets
-    | GotAssets (Result Http.Error (Dict String String))
+    | GotAssets (Result Http.Error Static.Assets)
 
 
 type alias Model =
-    { assets : Loadable Http.Error (Dict String String) }
+    { assets : Loadable Http.Error Static.Assets }
 
 
 onRouteChange : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -47,9 +47,7 @@ getAssets model =
     ( { model | assets = Loadable.reload model.assets }
     , Http.get
         { url = "/api/assets"
-        , expect =
-            Http.expectJson GotAssets
-                (Decode.dict Decode.string)
+        , expect = Http.expectJson GotAssets Static.decoder
         }
     )
 
