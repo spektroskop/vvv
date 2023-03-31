@@ -22,6 +22,7 @@ pub fn service(
 
         response.new(200)
         |> response.set_body(body)
+        |> response.prepend_header("content-type", "application/json")
         |> response.map(bit_builder.from_string)
         |> Ok
       }
