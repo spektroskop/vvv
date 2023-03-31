@@ -2,8 +2,10 @@ module Pages exposing
     ( Model
     , Msg
     , document
+    , fromShared
     , init
     , subscriptions
+    , toShared
     , update
     )
 
@@ -41,6 +43,26 @@ subscriptions model =
 
         Top ->
             Sub.none
+
+
+toShared : Model -> Shared.Model -> ( Shared.Model, Cmd Shared.Msg )
+toShared model shared =
+    case model of
+        NotFound ->
+            ( shared, Cmd.none )
+
+        Top ->
+            ( shared, Cmd.none )
+
+
+fromShared : Shared.Model -> Model -> ( Model, Cmd Msg )
+fromShared shared model =
+    case model of
+        NotFound ->
+            ( model, Cmd.none )
+
+        Top ->
+            ( model, Cmd.none )
 
 
 update : Msg -> Navigation.Key -> Shared.Model -> Model -> ( Model, Cmd Msg )
