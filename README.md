@@ -1,16 +1,16 @@
 # vvv
 
-This is a template application for serving web assets with [Gleam](https://gleam.run).
+This is a template repository for things I usually need when writing web applications. [Gleam](https://gleam.run) is used for the backend, [Elm](https://elm-lang.org) for the frontend.
 
-Configuration is provided either through a config file or the environment. See `vvv.example.toml` for all the configuration options, their defaults, and corresponding environment variable names.
+Backend configuration is provided either through a config file or the environment. See `vvv.example.toml` for all the configuration options, their defaults, and corresponding environment variable names.
 
 # running
 
-If you want to use an environment prefix it must be passed as an argument to the application. 
+If you want to use an environment prefix it must be passed as an argument to the backend application. 
 
 The `CONFIG` variable sets the path to the config file to use. 
 
-`SERVER_PORT` and `STATIC_BASE` must be defined.
+`SERVER_PORT` and `STATIC_BASE` must be defined, either in the environment or in the config file.
 
 ## general syntax
 
@@ -40,17 +40,3 @@ The `CONFIG` variable sets the path to the config file to use.
 ## get current asset hashes
 
     curl localhost:3210/api/assets
-
-## browse package documentation
-
-    gleam docs build
-    
-    SERVER_PORT=3210 \
-    STATIC_BASE=build/dev/docs/vvv \
-    gleam run
-
-## example assets
-
-    SERVER_PORT=3210 \
-    STATIC_BASE=example \
-    gleam run
