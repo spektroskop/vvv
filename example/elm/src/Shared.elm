@@ -163,8 +163,9 @@ document route model =
             button
                 [ onClick ReloadPage
                 , class
-                    [ "px-3 py-2 rounded"
-                    , "bg-gray-300 text-gray-900"
+                    [ "px-4 py-2 rounded-lg drop-shadow-lg"
+                    , "font-bold text-slate-700"
+                    , "bg-slate-300 border-b-4 border-slate-600"
                     ]
                 ]
                 [ text "A new version is available!" ]
