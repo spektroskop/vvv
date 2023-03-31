@@ -10,7 +10,8 @@ module Shared exposing
 
 import Browser
 import Browser.Navigation as Navigation
-import Html exposing (button, text)
+import Html exposing (button, img, text)
+import Html.Attributes exposing (src)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
@@ -108,7 +109,7 @@ document route model =
     { title = "Example"
     , body =
         [ if model.diff == [] then
-            text "Example"
+            img [ src "/heart.svg", class [ "h-[50vh] w-[50vw]" ] ] []
 
           else
             button
