@@ -20,8 +20,14 @@ docs:
 	STATIC_BASE=build/dev/docs/vvv \
 	$(config) $(run)
 
-example:
-	make -C example
-	STATIC_BASE=example/build \
+.PHONY: example/simple example/elm
+
+example/simple:
+	STATIC_BASE=example/simple \
+	$(config) $(run)
+
+example/elm:
+	make -C example/elm
+	STATIC_BASE=example/elm/build \
 	$(config) $(run)
 
