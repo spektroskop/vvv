@@ -1,0 +1,3 @@
+[submodule "example/elm/bundler"]
+	path = example/elm/bundler
+	url = git@github.com:spektroskop/bundler.git
