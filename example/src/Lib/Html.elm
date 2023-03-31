@@ -1,7 +1,15 @@
-module Lib.Html exposing (class)
+module Lib.Html exposing
+    ( class
+    , none
+    )
 
-import Html
+import Html exposing (Html, text)
 import Html.Attributes
+
+
+none : Html msg
+none =
+    text ""
 
 
 class : List String -> Html.Attribute msg
