@@ -117,7 +117,10 @@ fn config_decoder(
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
 
-  let app = App(assets_interval: 2500)
+  use app <- result.then({
+    app_decoder(["APP", ..prefix], get_section(map, "app"))
+    |> report.error_context(BadCategory("app"))
+  })
 
   use server <- result.then({
     server_decoder(["SERVER", ..prefix], get_section(map, "server"))
@@ -137,10 +140,38 @@ fn config_decoder(
   Ok(Config(app: app, server: server, static: static, gzip: gzip))
 }
 
-const app_keys = ["assets_interval"]
+const app_keys = ["interval"]
 
 pub type App {
-  App(assets_interval: Int)
+  App(interval: Int)
+}
+
+fn app_decoder(
+  prefix: List(String),
+  data: Dynamic,
+) -> Result(App, Report(Error)) {
+  use map <- result.then(
+    data
+    |> decode.shallow_map(dynamic.string)
+    |> report.map_error(BadConfig("app", _))
+    |> result.then(check_unknown_keys(_, [app_keys])),
+  )
+
+  use interval <- result.then({
+    case get_env(["INTERVAL", ..prefix]), map.get(map, "interval") {
+      Ok(value), _map ->
+        int.parse(value)
+        |> report.replace_error(BadEnvironment("interval"))
+
+      _env, Ok(value) ->
+        dynamic.int(value)
+        |> report.map_error(BadConfig("interval", _))
+
+      _env, _map -> Ok(5000)
+    }
+  })
+
+  Ok(App(interval: interval))
 }
 
 const server_keys = ["port"]
@@ -418,7 +449,7 @@ pub fn encode(config: Config) -> Json {
 }
 
 fn encode_app(app: App) -> Json {
-  json.object([#("assets_interval", json.int(app.assets_interval))])
+  json.object([#("interval", json.int(app.interval))])
 }
 
 fn encode_server(server: Server) -> Json {
