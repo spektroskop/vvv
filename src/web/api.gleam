@@ -10,9 +10,27 @@ import web/static
 
 pub fn service(
   assets get_assets: fn() -> Result(static.Assets, Report(Error)),
+  interval interval: Int,
 ) -> web.Service {
   fn(request: Request(_), segments: List(String)) -> web.Result {
     case request.method, segments {
+      http.Get, ["app"] -> {
+        use assets <- result.then(get_assets())
+
+        let body =
+          json.object([
+            #("interval", json.int(interval)),
+            #("assets", static.encode_assets(assets)),
+          ])
+          |> json.to_string()
+
+        response.new(200)
+        |> response.set_body(body)
+        |> response.prepend_header("content-type", "application/json")
+        |> response.map(bit_builder.from_string)
+        |> Ok
+      }
+
       http.Get, ["assets"] -> {
         use assets <- result.then(get_assets())
 

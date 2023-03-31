@@ -1,3 +1,6 @@
+[app]
+interval = 5000 # Frontend poller interval (env: APP_INTERVAL)
+
 [server]
 port = 3210 # Server listen port (required) (env: SERVER_PORT)
 

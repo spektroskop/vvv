@@ -14,8 +14,10 @@ import Html exposing (button, img, text)
 import Html.Attributes exposing (src)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode as Decode
+import Json.Decode as Decode exposing (Decoder)
+import Lib.Basics exposing (flip)
 import Lib.Cmd as Cmd
+import Lib.Decode as Decode
 import Lib.Html as Html exposing (class)
 import Lib.List as List
 import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
@@ -25,14 +27,20 @@ import Static
 
 
 type Msg
-    = GetAssets
-    | GotAssets (Result Http.Error Static.Assets)
+    = GetApp
+    | GotApp (Result Http.Error App)
     | ReloadPage
 
 
 type alias Model =
-    { assets : Loadable Http.Error Static.Assets
+    { app : Loadable Http.Error App
     , diff : List Static.Diff
+    }
+
+
+type alias App =
+    { interval : Float
+    , assets : Static.Assets
     }
 
 
@@ -44,24 +52,31 @@ onRouteChange route model =
 init : Navigation.Key -> ( Model, Cmd Msg )
 init key =
     ( initialModel, Cmd.none )
-        |> Return.andThen getAssets
+        |> Return.andThen getApp
 
 
 initialModel : Model
 initialModel =
-    { assets = Loading
+    { app = Loading
     , diff = []
     }
 
 
-getAssets : Model -> ( Model, Cmd Msg )
-getAssets model =
-    ( { model | assets = Loadable.reload model.assets }
+getApp : Model -> ( Model, Cmd Msg )
+getApp model =
+    ( { model | app = Loadable.reload model.app }
     , Http.get
-        { url = "/api/assets"
-        , expect = Http.expectJson GotAssets Static.decoder
+        { url = "/api/app"
+        , expect = Http.expectJson GotApp appDecoder
         }
     )
+
+
+appDecoder : Decoder App
+appDecoder =
+    Decode.succeed App
+        |> Decode.required "interval" Decode.float
+        |> Decode.required "assets" Static.decoder
 
 
 subscriptions : Model -> Sub Msg
@@ -72,36 +87,45 @@ subscriptions model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GetAssets ->
-            getAssets model
+        GetApp ->
+            getApp model
 
-        GotAssets (Err error) ->
+        GotApp (Err error) ->
             let
-                assets =
-                    Loadable.value model.assets
+                app =
+                    Loadable.value model.app
             in
-            ( { model | assets = Failed Resolved error assets }
-            , Cmd.after 2500 GetAssets
+            ( { model | app = Failed Resolved error app }
+            , scheduleApp app
             )
 
-        GotAssets (Ok assets) ->
+        GotApp (Ok app) ->
             let
                 diff =
-                    Loadable.value model.assets
-                        |> Maybe.map (Static.diff assets)
+                    Loadable.value model.app
+                        |> Maybe.map .assets
+                        |> Maybe.map (Static.diff app.assets)
                         |> Maybe.andThen List.toMaybe
             in
             ( { model
-                | assets = Loaded Resolved assets
+                | app = Loaded Resolved app
                 , diff = Maybe.withDefault model.diff diff
               }
-            , Cmd.after 2500 GetAssets
+            , scheduleApp (Just app)
             )
 
         ReloadPage ->
             ( model
             , Navigation.reloadAndSkipCache
             )
+
+
+scheduleApp : Maybe App -> Cmd Msg
+scheduleApp app =
+    Maybe.map .interval app
+        |> Maybe.withDefault 5000
+        |> max 1000
+        |> flip Cmd.after GetApp
 
 
 document : Maybe Route -> Model -> Browser.Document Msg

@@ -57,7 +57,10 @@ pub fn main() {
     mist.run_service(
       config.server.port,
       router.service(
-        api: api.service(assets: static_service.assets),
+        api: api.service(
+          interval: config.app.interval,
+          assets: static_service.assets,
+        ),
         static: static_service,
         gzip_types: config.gzip.types,
         gzip_threshold: config.gzip.threshold,
