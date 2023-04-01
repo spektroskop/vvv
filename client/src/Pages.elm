@@ -13,6 +13,7 @@ import Browser
 import Browser.Navigation as Navigation
 import Lib.Document as Document
 import Lib.Return as Return
+import Page.Example
 import Page.Home
 import Route exposing (Route)
 import Shared
@@ -20,12 +21,14 @@ import Shared
 
 type Msg
     = HomeMsg Page.Home.Msg
+    | ExampleMsg Page.Example.Msg
 
 
 type Model
     = NotFound
     | Top
     | Home Page.Home.Model
+    | Example Page.Example.Model
 
 
 init : Navigation.Key -> Maybe Route -> Maybe Model -> ( Model, Cmd Msg )
@@ -37,6 +40,10 @@ init key route current =
         ( Just Route.Top, _ ) ->
             Page.Home.init
                 |> Return.map Home HomeMsg
+
+        ( Just Route.Example, _ ) ->
+            Page.Example.init
+                |> Return.map Example ExampleMsg
 
 
 subscriptions : Model -> Sub Msg
@@ -52,6 +59,10 @@ subscriptions model =
             Page.Home.subscriptions pageModel
                 |> Sub.map HomeMsg
 
+        Example pageModel ->
+            Page.Example.subscriptions pageModel
+                |> Sub.map ExampleMsg
+
 
 toShared : Model -> Shared.Model -> ( Shared.Model, Cmd Shared.Msg )
 toShared model shared =
@@ -65,6 +76,9 @@ toShared model shared =
         Home _ ->
             ( shared, Cmd.none )
 
+        Example _ ->
+            ( shared, Cmd.none )
+
 
 fromShared : Shared.Model -> Model -> ( Model, Cmd Msg )
 fromShared shared model =
@@ -76,6 +90,9 @@ fromShared shared model =
             ( model, Cmd.none )
 
         Home _ ->
+            ( model, Cmd.none )
+
+        Example _ ->
             ( model, Cmd.none )
 
 
@@ -92,6 +109,16 @@ update msg key shared model =
             Page.Home.update pageMsg pageModel
                 |> Return.map Home HomeMsg
 
+        ( Home _, _ ) ->
+            ( model, Cmd.none )
+
+        ( Example pageModel, ExampleMsg pageMsg ) ->
+            Page.Example.update pageMsg pageModel
+                |> Return.map Example ExampleMsg
+
+        ( Example _, _ ) ->
+            ( model, Cmd.none )
+
 
 document : Model -> Browser.Document Msg
 document model =
@@ -105,3 +132,7 @@ document model =
         Home pageModel ->
             Page.Home.document pageModel
                 |> Document.map HomeMsg
+
+        Example pageModel ->
+            Page.Example.document pageModel
+                |> Document.map ExampleMsg

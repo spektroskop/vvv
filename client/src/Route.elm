@@ -16,6 +16,7 @@ import Url.Parser as Url exposing ((</>))
 
 type Route
     = Top
+    | Example
 
 
 fromUrl : Url -> Maybe Route
@@ -25,7 +26,9 @@ fromUrl =
 
 routes : List (Url.Parser (Route -> a) a)
 routes =
-    [ Url.map Top Url.top ]
+    [ Url.map Top Url.top
+    , Url.map Example (Url.s "example")
+    ]
 
 
 toString : Route -> String
@@ -37,6 +40,9 @@ toString route =
     case route of
         Top ->
             join []
+
+        Example ->
+            join [ "example" ]
 
 
 href : Route -> Html.Attribute msg
