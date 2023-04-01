@@ -1,10 +1,10 @@
 .PHONY: build
 build: ../bundler/bundler
 	mkdir -p build
-	cp index.html build/index.html
-	cp heart.svg build/heart.svg
-	../bundler/bundler --output build app.js
-	tailwind --input app.css --output build/app.css
+	cp assets/index.html build/index.html
+	cp assets/heart.svg build/heart.svg
+	../bundler/bundler --output build assets/app.js
+	tailwind --input assets/app.css --output build/app.css
 	-curl -s -X PATCH http://localhost:3210/static | jq -c .
 
 ../bundler/bundler:
@@ -13,11 +13,10 @@ build: ../bundler/bundler
 .PHONY: watch
 watch:
 	watchexec \
+	--watch elm.json \
 	--watch tailwind.config.js \
-	--watch index.html \
-	--watch app.js \
-	--watch app.css \
 	--watch src \
+	--watch assets \
 	make build
 
 .PHONY: clean
