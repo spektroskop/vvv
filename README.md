@@ -1,31 +1,42 @@
 # vvv
 
-This is a template repository for things I usually need when writing web applications. It includes a server written in [Gleam](https://gleam.run) and a client written in [Elm](https://elm-lang.org).
+This is a template repository for things I usually need when writing web applications.
+
+Languages and tools used in this repo:
+
+- [Gleam](https://gleam.run)
+- [Elm](https://elm-lang.org)
+- [esbuild](https://github.com/evanw/esbuild)
+- [tailwind](https://tailwindcss.com)
+- [watchexec](https://github.com/watchexec/watchexec)
+- [jq](https://github.com/stedolan/jq)
+
+## configuration
 
 Server configuration is provided either through a config file or the environment. See `vvv.toml` for all the configuration options, their defaults, and corresponding environment variable names.
 
-# running the server
+## running the server
 
-If you want to use an environment prefix it must be passed as an argument to the backend application. 
+If you want to use an environment prefix it must be passed as a command line argument. 
 
 The `CONFIG` variable sets the path to the config file to use. 
 
 `SERVER_PORT` and `STATIC_BASE` must be defined, either in the environment or in the config file.
 
-## general syntax
+### general syntax
 
     [$PREFIX]_SERVER_PORT=$PORT \
     [$PREFIX]_STATIC_BASE=$PATH \
     [$PREFIX]_CONFIG=$PATH \
     gleam run [$PREFIX]
 
-## start the server
+### start the server
 
     SERVER_PORT=3210 \
     STATIC_PATH=some/path \
     gleam run
 
-## activate reloader
+### activate reloader
 
     SERVER_PORT=3210 \
     STATIC_BASE=some/path \
@@ -33,15 +44,15 @@ The `CONFIG` variable sets the path to the config file to use.
     STATIC_RELOADER_PATH=static \
     gleam run
 
-## reload assets
+### reload assets
 
     curl --request PATCH localhost:3210/static
 
-## get current asset hashes
+### get current asset hashes
 
     curl localhost:3210/api/assets
 
-# development
+## development
 
     STATIC_BASE=client/build make -C server watch
 
