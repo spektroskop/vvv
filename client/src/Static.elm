@@ -53,10 +53,10 @@ toString : Diff -> String
 toString change =
     case change of
         Added name ->
-            "Added " ++ name
+            "Added: " ++ name
 
         Removed name ->
-            "Removed " ++ name
+            "Removed: " ++ name
 
         Changed name ->
-            "Changed " ++ name
+            "Changed: " ++ name
