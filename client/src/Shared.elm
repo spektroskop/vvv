@@ -10,8 +10,7 @@ module Shared exposing
 
 import Browser
 import Browser.Navigation as Navigation
-import Html exposing (button, img, text)
-import Html.Attributes exposing (src)
+import Html exposing (button, text)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder)
@@ -154,10 +153,10 @@ scheduleApp app =
 
 document : Maybe Route -> Model -> Browser.Document Msg
 document route model =
-    { title = "Example"
+    { title = "vvv"
     , body =
         [ if model.diff == [] then
-            img [ src "/heart.svg", class [ "h-[50vh] w-[50vw]" ] ] []
+            Html.none
 
           else
             button

@@ -12,17 +12,20 @@ module Pages exposing
 import Browser
 import Browser.Navigation as Navigation
 import Lib.Document as Document
+import Lib.Return as Return
+import Page.Home
 import Route exposing (Route)
 import Shared
 
 
 type Msg
-    = Never
+    = HomeMsg Page.Home.Msg
 
 
 type Model
     = NotFound
     | Top
+    | Home Page.Home.Model
 
 
 init : Navigation.Key -> Maybe Route -> Maybe Model -> ( Model, Cmd Msg )
@@ -32,7 +35,8 @@ init key route current =
             ( NotFound, Cmd.none )
 
         ( Just Route.Top, _ ) ->
-            ( Top, Cmd.none )
+            Page.Home.init
+                |> Return.map Home HomeMsg
 
 
 subscriptions : Model -> Sub Msg
@@ -44,6 +48,10 @@ subscriptions model =
         Top ->
             Sub.none
 
+        Home pageModel ->
+            Page.Home.subscriptions pageModel
+                |> Sub.map HomeMsg
+
 
 toShared : Model -> Shared.Model -> ( Shared.Model, Cmd Shared.Msg )
 toShared model shared =
@@ -52,6 +60,9 @@ toShared model shared =
             ( shared, Cmd.none )
 
         Top ->
+            ( shared, Cmd.none )
+
+        Home _ ->
             ( shared, Cmd.none )
 
 
@@ -64,6 +75,9 @@ fromShared shared model =
         Top ->
             ( model, Cmd.none )
 
+        Home _ ->
+            ( model, Cmd.none )
+
 
 update : Msg -> Navigation.Key -> Shared.Model -> Model -> ( Model, Cmd Msg )
 update msg key shared model =
@@ -74,12 +88,20 @@ update msg key shared model =
         ( Top, _ ) ->
             ( model, Cmd.none )
 
+        ( Home pageModel, HomeMsg pageMsg ) ->
+            Page.Home.update pageMsg pageModel
+                |> Return.map Home HomeMsg
+
 
 document : Model -> Browser.Document Msg
 document model =
     case model of
         NotFound ->
-            Document.none
+            Document.placeholder "Not Found"
 
         Top ->
             Document.none
+
+        Home pageModel ->
+            Page.Home.document pageModel
+                |> Document.map HomeMsg
