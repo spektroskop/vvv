@@ -1,10 +1,10 @@
 # vvv
 
-This is a template repository for things I usually need when writing web applications. [Gleam](https://gleam.run) is used for the backend, [Elm](https://elm-lang.org) for the frontend.
+This is a template repository for things I usually need when writing web applications. It includes a server written in [Gleam](https://gleam.run) and a client written in [Elm](https://elm-lang.org).
 
-Backend configuration is provided either through a config file or the environment. See `vvv.example.toml` for all the configuration options, their defaults, and corresponding environment variable names.
+Server configuration is provided either through a config file or the environment. See `vvv.toml` for all the configuration options, their defaults, and corresponding environment variable names.
 
-# running
+# running the server
 
 If you want to use an environment prefix it must be passed as an argument to the backend application. 
 
@@ -43,6 +43,6 @@ The `CONFIG` variable sets the path to the config file to use.
 
 # development
 
-    STATIC_BASE=example/elm/build make watch-reloader
+    STATIC_BASE=client/build make -C server watch
 
-    make -C example/elm watch
+    make -C client watch

@@ -1,3 +1,64 @@
 [app]
+# Frontend poller interval
+# Environment: APP_INTERVAL
+# Default: 5000
 interval = 1000
-reload_browser = true
+
+# Reload frontend on changes
+# Environment: APP_RELOAD_BROWSER
+# Default:
+# reload_browser = false
+
+[server]
+# Server listen port (required)
+# Environment: SERVER_PORT
+port = 3210
+
+[static]
+# Where to look for assets (required) 
+# Environment: STATIC_BASE
+# base = "some/path"
+
+# Fallback path if the requested asset is not found 
+# Environment: STATIC_INDEX
+# Default:
+# index = "index.html" 
+
+# [static.types]
+# A map from file extensions to content types
+# Environment: STATIC_TYPES=css:text/css,...)
+# Default:
+# "css" = "text/css"
+# "html" = "text/html"
+# "ico" = "image/x-icon"
+# "js" = "text/javascript"
+# "woff" = "font/woff"
+# "woff2" = "font/woff2"
+# "png" = "image/png"
+# "svg" = "image/svg+xml"
+
+# [static.reloader]
+# HTTP method used to trigger reload
+# Environment: STATIC_RELOADER_METHOD
+# method = "PATCH"
+
+# Reload trigger path
+# Environment: STATIC_RELOADER_PATH
+# path = "static"
+
+[gzip]
+# Gzip assets that have a byte size above this threshold
+# Environment: GZIP_THRESHOLD
+# Default:
+# threshold = 350
+
+# Content types to gzip 
+# Environment: GZIP_TYPES=text/html,...
+# Default:
+# types = [
+#   "text/html",
+#   "text/css",
+#   "text/javascript",
+#   "application/json",
+#   "image/svg+xml"
+# ]
