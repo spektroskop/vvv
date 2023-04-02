@@ -159,18 +159,18 @@ document route model =
     { title = "vvv"
     , body =
         let
-            link_ target =
+            link target =
                 Html.new a
                     |> Html.classes [ "flex items-center px-1" ]
                     |> Html.attributes [ Route.href target ]
 
-            label_ =
+            label =
                 Html.new span
                     |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
 
-            active_ target body =
-                link_ target
-                    |> Html.wrap label_
+            active target body =
+                link target
+                    |> Html.wrap label
                     |> Html.classes
                         [ "text-white bg-cyan-900 text-shadow"
                         , "bg-gradient-to-b from-cyan-700 to-cyan-800"
@@ -178,9 +178,9 @@ document route model =
                     |> Html.body body
                     |> Html.build
 
-            background_ target body =
-                link_ target
-                    |> Html.wrap label_
+            background target body =
+                link target
+                    |> Html.wrap label
                     |> Html.classes
                         [ "text-white bg-neutral-600 text-shadow"
                         , "bg-gradient-to-b from-neutral-500 to-neutral-600"
@@ -188,10 +188,10 @@ document route model =
                     |> Html.body body
                     |> Html.build
 
-            normal_ target body =
-                link_ target
+            normal target body =
+                link target
                     |> Html.classes [ "hover:underline" ]
-                    |> Html.wrap label_
+                    |> Html.wrap label
                     |> Html.body body
                     |> Html.build
         in
@@ -206,19 +206,19 @@ document route model =
                 [ div [ class [ "flex basis-3/6" ] ]
                     [ case route of
                         Just Route.Overview ->
-                            active_ Route.Overview [ text "Overview" ]
+                            active Route.Overview [ text "Overview" ]
 
                         Just (Route.Detail _) ->
-                            background_ Route.Overview [ text "Overview" ]
+                            background Route.Overview [ text "Overview" ]
 
                         _ ->
-                            normal_ Route.Overview [ text "Overview" ]
+                            normal Route.Overview [ text "Overview" ]
                     , case route of
                         Just (Route.Docs _) ->
-                            active_ (Route.Docs Nothing) [ text "Docs" ]
+                            active (Route.Docs Nothing) [ text "Docs" ]
 
                         _ ->
-                            normal_ (Route.Docs Nothing) [ text "Docs" ]
+                            normal (Route.Docs Nothing) [ text "Docs" ]
                     ]
                 , if model.diff == [] then
                     Html.none
@@ -227,7 +227,7 @@ document route model =
                     div [ class [ "flex shrink-0" ] ]
                         [ Html.new button
                             |> Html.attributes [ onClick ReloadPage ]
-                            |> Html.wrap label_
+                            |> Html.wrap label
                             |> Html.classes
                                 [ "bg-gradient-to-b from-green-700 to-green-800"
                                 , "text-white text-shadow"
@@ -242,7 +242,7 @@ document route model =
                             [ href "https://github.com/spektroskop/vvv"
                             , target "_blank"
                             ]
-                        |> Html.wrap label_
+                        |> Html.wrap label
                         |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
                         |> Html.build
                     ]
