@@ -9,7 +9,6 @@ Languages and tools used in this repo:
 - [esbuild](https://github.com/evanw/esbuild)
 - [tailwind](https://tailwindcss.com)
 - [watchexec](https://github.com/watchexec/watchexec)
-- [jq](https://github.com/stedolan/jq)
 
 ## configuration
 
