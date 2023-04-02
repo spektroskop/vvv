@@ -223,24 +223,26 @@ document route model =
 
                   else
                     div [ class [ "flex shrink-0" ] ]
-                        [ button [ onClick ReloadPage ]
-                            [ label_ [ text "A new version is available!" ]
-                                |> Html.classes
-                                    [ "bg-gradient-to-b from-green-700 to-green-800"
-                                    , "text-white text-shadow"
-                                    ]
-                                |> Html.build
-                            ]
-                        ]
-                , div [ class [ "flex basis-3/6 justify-end" ] ]
-                    [ a
-                        [ class [ "flex items-center px-1 hover:underline" ]
-                        , href "https://github.com/spektroskop/vvv"
-                        , target "_blank"
-                        ]
-                        [ label_ [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
+                        [ Html.new button
+                            |> Html.attributes [ onClick ReloadPage ]
+                            |> Html.wrap (label_ [ text "A new version is available!" ])
+                            |> Html.classes
+                                [ "bg-gradient-to-b from-green-700 to-green-800"
+                                , "text-white text-shadow"
+                                ]
                             |> Html.build
                         ]
+                , div [ class [ "flex basis-3/6 justify-end" ] ]
+                    [ Html.new a
+                        |> Html.classes [ "flex items-center px-1", "hover:underline" ]
+                        |> Html.attributes
+                            [ href "https://github.com/spektroskop/vvv"
+                            , target "_blank"
+                            ]
+                        |> Html.wrapNode span
+                        |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
+                        |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
+                        |> Html.build
                     ]
                 ]
             ]
