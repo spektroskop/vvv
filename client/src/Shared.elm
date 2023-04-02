@@ -10,7 +10,7 @@ module Shared exposing
 
 import Browser
 import Browser.Navigation as Navigation
-import Html exposing (a, button, div, header, nav, span, text)
+import Html exposing (Html, a, button, div, header, nav, span, text)
 import Html.Attributes exposing (href, target)
 import Html.Events exposing (onClick)
 import Http
@@ -20,6 +20,7 @@ import Lib.Basics exposing (flip)
 import Lib.Cmd as Cmd
 import Lib.Decode as Decode
 import Lib.Html as Html exposing (class)
+import Lib.Html.Builder as Html
 import Lib.Icon.Mini as Mini
 import Lib.List as List
 import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
@@ -158,38 +159,39 @@ document route model =
     { title = "vvv"
     , body =
         let
-            active name target =
-                a [ class [ "flex items-center px-1" ], Route.href target ]
-                    [ span
-                        [ class
-                            [ "flex items-center gap-1 rounded px-3 py-1"
-                            , "text-white bg-cyan-900 text-shadow"
-                            , "bg-gradient-to-b from-cyan-700 to-cyan-800"
-                            ]
-                        ]
-                        [ text name ]
-                    ]
+            link_ target =
+                Html.new a
+                    |> Html.classes [ "flex items-center px-1" ]
+                    |> Html.attributes [ Route.href target ]
 
-            background name target =
-                a [ class [ "flex items-center px-1" ], Route.href target ]
-                    [ span
-                        [ class
-                            [ "flex items-center gap-1 rounded px-3 py-1"
-                            , "text-white bg-neutral-600 text-shadow"
-                            , "bg-gradient-to-b from-neutral-500 to-neutral-600"
-                            ]
-                        ]
-                        [ text name ]
-                    ]
+            label_ body =
+                Html.new span
+                    |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
+                    |> Html.body body
 
-            normal name target =
-                a
-                    [ class [ "flex items-center px-1", "hover:underline" ]
-                    , Route.href target
-                    ]
-                    [ span [ class [ "flex items-center gap-1 rounded px-3 py-1" ] ]
-                        [ text name ]
-                    ]
+            active_ target name =
+                link_ target
+                    |> Html.wrap (label_ name)
+                    |> Html.classes
+                        [ "text-white bg-cyan-900 text-shadow"
+                        , "bg-gradient-to-b from-cyan-700 to-cyan-800"
+                        ]
+                    |> Html.build
+
+            background_ target name =
+                link_ target
+                    |> Html.wrap (label_ name)
+                    |> Html.classes
+                        [ "text-white bg-neutral-600 text-shadow"
+                        , "bg-gradient-to-b from-neutral-500 to-neutral-600"
+                        ]
+                    |> Html.build
+
+            normal_ target name =
+                link_ target
+                    |> Html.classes [ "hover:underline" ]
+                    |> Html.wrap (label_ name)
+                    |> Html.build
         in
         [ header
             [ class
@@ -202,19 +204,19 @@ document route model =
                 [ div [ class [ "flex basis-3/6" ] ]
                     [ case route of
                         Just Route.Overview ->
-                            active "Overview" Route.Overview
+                            active_ Route.Overview [ text "Overview" ]
 
                         Just (Route.Detail _) ->
-                            background "Overview" Route.Overview
+                            background_ Route.Overview [ text "Overview" ]
 
                         _ ->
-                            normal "Overview" Route.Overview
+                            normal_ Route.Overview [ text "Overview" ]
                     , case route of
                         Just (Route.Docs _) ->
-                            active "Docs" (Route.Docs Nothing)
+                            active_ (Route.Docs Nothing) [ text "Docs" ]
 
                         _ ->
-                            normal "Docs" (Route.Docs Nothing)
+                            normal_ (Route.Docs Nothing) [ text "Docs" ]
                     ]
                 , if model.diff == [] then
                     Html.none
@@ -222,15 +224,12 @@ document route model =
                   else
                     div [ class [ "flex shrink-0" ] ]
                         [ button [ onClick ReloadPage ]
-                            [ span
-                                [ class
-                                    [ "flex items-center gap-1"
-                                    , "rounded px-3 py-1"
-                                    , "bg-gradient-to-b from-green-700 to-green-800"
+                            [ label_ [ text "A new version is available!" ]
+                                |> Html.classes
+                                    [ "bg-gradient-to-b from-green-700 to-green-800"
                                     , "text-white text-shadow"
                                     ]
-                                ]
-                                [ text "A new version is available!" ]
+                                |> Html.build
                             ]
                         ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ]
@@ -239,8 +238,8 @@ document route model =
                         , href "https://github.com/spektroskop/vvv"
                         , target "_blank"
                         ]
-                        [ span [ class [ "flex items-center gap-1 rounded px-3 py-1" ] ]
-                            [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
+                        [ label_ [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
+                            |> Html.build
                         ]
                     ]
                 ]

@@ -1,4 +1,7 @@
-module Lib.List exposing (toMaybe)
+module Lib.List exposing
+    ( prepend
+    , toMaybe
+    )
 
 
 toMaybe : List a -> Maybe (List a)
@@ -9,3 +12,8 @@ toMaybe a =
 
         v ->
             Just v
+
+
+prepend : List a -> a -> List a
+prepend vs v =
+    v :: vs
