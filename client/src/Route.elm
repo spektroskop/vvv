@@ -16,7 +16,9 @@ import Url.Parser as Url exposing ((</>))
 
 type Route
     = Top
-    | Example
+    | Overview
+    | Detail String
+    | Docs (Maybe String)
 
 
 fromUrl : Url -> Maybe Route
@@ -27,7 +29,9 @@ fromUrl =
 routes : List (Url.Parser (Route -> a) a)
 routes =
     [ Url.map Top Url.top
-    , Url.map Example (Url.s "example")
+    , Url.map Overview (Url.s "overview")
+    , Url.map Detail (Url.s "detail" </> Url.string)
+    , Url.map Docs (Url.s "docs" </> Url.fragment identity)
     ]
 
 
@@ -41,8 +45,16 @@ toString route =
         Top ->
             join []
 
-        Example ->
-            join [ "example" ]
+        Overview ->
+            join [ "overview" ]
+
+        Detail name ->
+            join [ "detail", name ]
+
+        Docs section ->
+            Maybe.map (\name -> [ "docs#" ++ name ]) section
+                |> Maybe.withDefault [ "docs" ]
+                |> join
 
 
 href : Route -> Html.Attribute msg

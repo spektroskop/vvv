@@ -13,22 +13,25 @@ import Browser
 import Browser.Navigation as Navigation
 import Lib.Document as Document
 import Lib.Return as Return
-import Page.Example
-import Page.Home
+import Page.Detail
+import Page.Docs
+import Page.Overview
 import Route exposing (Route)
 import Shared
 
 
 type Msg
-    = HomeMsg Page.Home.Msg
-    | ExampleMsg Page.Example.Msg
+    = OverviewMsg Page.Overview.Msg
+    | DetailMsg Page.Detail.Msg
+    | DocsMsg Page.Docs.Msg
 
 
 type Model
     = NotFound
     | Top
-    | Home Page.Home.Model
-    | Example Page.Example.Model
+    | Overview Page.Overview.Model
+    | Detail Page.Detail.Model
+    | Docs Page.Docs.Model
 
 
 init : Navigation.Key -> Maybe Route -> Maybe Model -> ( Model, Cmd Msg )
@@ -38,12 +41,19 @@ init key route current =
             ( NotFound, Cmd.none )
 
         ( Just Route.Top, _ ) ->
-            Page.Home.init
-                |> Return.map Home HomeMsg
+            ( Top, Route.replace key Route.Overview )
 
-        ( Just Route.Example, _ ) ->
-            Page.Example.init
-                |> Return.map Example ExampleMsg
+        ( Just Route.Overview, _ ) ->
+            Page.Overview.init
+                |> Return.map Overview OverviewMsg
+
+        ( Just (Route.Detail name), _ ) ->
+            Page.Detail.init name
+                |> Return.map Detail DetailMsg
+
+        ( Just (Route.Docs section), _ ) ->
+            Page.Docs.init section
+                |> Return.map Docs DocsMsg
 
 
 subscriptions : Model -> Sub Msg
@@ -55,13 +65,17 @@ subscriptions model =
         Top ->
             Sub.none
 
-        Home pageModel ->
-            Page.Home.subscriptions pageModel
-                |> Sub.map HomeMsg
+        Overview pageModel ->
+            Page.Overview.subscriptions pageModel
+                |> Sub.map OverviewMsg
 
-        Example pageModel ->
-            Page.Example.subscriptions pageModel
-                |> Sub.map ExampleMsg
+        Detail pageModel ->
+            Page.Detail.subscriptions pageModel
+                |> Sub.map DetailMsg
+
+        Docs pageModel ->
+            Page.Docs.subscriptions pageModel
+                |> Sub.map DocsMsg
 
 
 toShared : Model -> Shared.Model -> ( Shared.Model, Cmd Shared.Msg )
@@ -73,10 +87,13 @@ toShared model shared =
         Top ->
             ( shared, Cmd.none )
 
-        Home _ ->
+        Overview _ ->
             ( shared, Cmd.none )
 
-        Example _ ->
+        Detail _ ->
+            ( shared, Cmd.none )
+
+        Docs _ ->
             ( shared, Cmd.none )
 
 
@@ -89,10 +106,13 @@ fromShared shared model =
         Top ->
             ( model, Cmd.none )
 
-        Home _ ->
+        Overview _ ->
             ( model, Cmd.none )
 
-        Example _ ->
+        Detail _ ->
+            ( model, Cmd.none )
+
+        Docs _ ->
             ( model, Cmd.none )
 
 
@@ -105,18 +125,25 @@ update msg key shared model =
         ( Top, _ ) ->
             ( model, Cmd.none )
 
-        ( Home pageModel, HomeMsg pageMsg ) ->
-            Page.Home.update pageMsg pageModel
-                |> Return.map Home HomeMsg
+        ( Overview pageModel, OverviewMsg pageMsg ) ->
+            Page.Overview.update pageMsg pageModel
+                |> Return.map Overview OverviewMsg
 
-        ( Home _, _ ) ->
+        ( Overview _, _ ) ->
             ( model, Cmd.none )
 
-        ( Example pageModel, ExampleMsg pageMsg ) ->
-            Page.Example.update pageMsg pageModel
-                |> Return.map Example ExampleMsg
+        ( Detail pageModel, DetailMsg pageMsg ) ->
+            Page.Detail.update pageMsg pageModel
+                |> Return.map Detail DetailMsg
 
-        ( Example _, _ ) ->
+        ( Detail _, _ ) ->
+            ( model, Cmd.none )
+
+        ( Docs pageModel, DocsMsg pageMsg ) ->
+            Page.Docs.update pageMsg pageModel
+                |> Return.map Docs DocsMsg
+
+        ( Docs _, _ ) ->
             ( model, Cmd.none )
 
 
@@ -129,10 +156,14 @@ document model =
         Top ->
             Document.none
 
-        Home pageModel ->
-            Page.Home.document pageModel
-                |> Document.map HomeMsg
+        Overview pageModel ->
+            Page.Overview.document pageModel
+                |> Document.map OverviewMsg
 
-        Example pageModel ->
-            Page.Example.document pageModel
-                |> Document.map ExampleMsg
+        Detail pageModel ->
+            Page.Detail.document pageModel
+                |> Document.map DetailMsg
+
+        Docs pageModel ->
+            Page.Docs.document pageModel
+                |> Document.map DocsMsg

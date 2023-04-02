@@ -1,4 +1,4 @@
-module Page.Example exposing
+module Page.Docs exposing
     ( Model
     , Msg
     , document
@@ -8,8 +8,7 @@ module Page.Example exposing
     )
 
 import Browser
-import Html exposing (Html, img)
-import Html.Attributes exposing (src)
+import Html exposing (Html, div, text)
 import Lib.Html exposing (class)
 import Lib.Return as Return exposing (Return)
 
@@ -19,12 +18,12 @@ type Msg
 
 
 type alias Model =
-    {}
+    { section : Maybe String }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( {}, Cmd.none )
+init : Maybe String -> ( Model, Cmd Msg )
+init section =
+    ( { section = section }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -39,6 +38,14 @@ update msg model =
 
 document : Model -> Browser.Document Msg
 document model =
-    { title = "Example"
-    , body = []
+    { title = "Docs"
+    , body =
+        [ div
+            [ class
+                [ "flex justify-center h-screen mt-10"
+                , "font-bold text-2xl"
+                ]
+            ]
+            [ text (Debug.toString model.section) ]
+        ]
     }

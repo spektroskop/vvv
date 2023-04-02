@@ -1,4 +1,4 @@
-module Page.Home exposing
+module Page.Detail exposing
     ( Model
     , Msg
     , document
@@ -8,8 +8,7 @@ module Page.Home exposing
     )
 
 import Browser
-import Html exposing (Html, img)
-import Html.Attributes exposing (src)
+import Html exposing (Html, div, text)
 import Lib.Html exposing (class)
 import Lib.Return as Return exposing (Return)
 
@@ -19,12 +18,12 @@ type Msg
 
 
 type alias Model =
-    {}
+    { id : String }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( {}, Cmd.none )
+init : String -> ( Model, Cmd Msg )
+init id =
+    ( { id = id }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -39,12 +38,14 @@ update msg model =
 
 document : Model -> Browser.Document Msg
 document model =
-    { title = "Home"
+    { title = model.id
     , body =
-        [ img
-            [ src "/heart.svg"
-            , class [ "h-[50vh] w-[50vw]" ]
+        [ div
+            [ class
+                [ "flex justify-center h-screen mt-10"
+                , "font-bold text-2xl"
+                ]
             ]
-            []
+            [ text model.id ]
         ]
     }
