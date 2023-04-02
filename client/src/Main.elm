@@ -105,7 +105,7 @@ update msg model =
         SharedMsg sharedMsg ->
             let
                 ( shared, sharedCmd ) =
-                    Shared.update sharedMsg model.shared
+                    Shared.update sharedMsg model.key model.shared
 
                 ( page, pageCmd ) =
                     Pages.fromShared shared model.page

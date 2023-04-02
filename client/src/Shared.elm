@@ -90,8 +90,8 @@ subscriptions _ =
     Sub.none
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Navigation.Key -> Model -> ( Model, Cmd Msg )
+update msg _ model =
     case msg of
         GetApp ->
             getApp model
