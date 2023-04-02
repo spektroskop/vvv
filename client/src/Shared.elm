@@ -159,24 +159,19 @@ document route model =
     { title = "vvv"
     , body =
         let
-            overview =
+            pages =
                 case route of
                     Just Route.Overview ->
-                        active
+                        { overview = active, docs = normal }
 
                     Just (Route.Detail _) ->
-                        background
+                        { overview = background, docs = normal }
 
-                    _ ->
-                        normal
-
-            docs =
-                case route of
                     Just (Route.Docs _) ->
-                        active
+                        { overview = normal, docs = active }
 
                     _ ->
-                        normal
+                        { overview = normal, docs = normal }
 
             updated =
                 if model.diff == [] then
@@ -194,8 +189,8 @@ document route model =
             ]
             [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
                 [ div [ class [ "flex basis-3/6" ] ]
-                    [ overview Route.Overview [ text "Overview" ]
-                    , docs (Route.Docs Nothing) [ text "Docs" ]
+                    [ pages.overview Route.Overview [ text "Overview" ]
+                    , pages.docs (Route.Docs Nothing) [ text "Docs" ]
                     ]
                 , div [ class [ "flex shrink-0" ] ] [ updated ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ] [ project ]
