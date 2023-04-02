@@ -10,7 +10,8 @@ module Shared exposing
 
 import Browser
 import Browser.Navigation as Navigation
-import Html exposing (button, text)
+import Html exposing (a, button, div, header, nav, span, text)
+import Html.Attributes exposing (href, target)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder)
@@ -19,6 +20,7 @@ import Lib.Basics exposing (flip)
 import Lib.Cmd as Cmd
 import Lib.Decode as Decode
 import Lib.Html as Html exposing (class)
+import Lib.Icon.Mini as Mini
 import Lib.List as List
 import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
 import Lib.Return as Return
@@ -155,18 +157,93 @@ document : Maybe Route -> Model -> Browser.Document Msg
 document route model =
     { title = "vvv"
     , body =
-        [ if model.diff == [] then
-            Html.none
+        let
+            active name target =
+                a [ class [ "flex items-center px-1" ], Route.href target ]
+                    [ span
+                        [ class
+                            [ "flex items-center gap-1 rounded px-3 py-1"
+                            , "text-white bg-cyan-900 text-shadow"
+                            , "bg-gradient-to-b from-cyan-700 to-cyan-800"
+                            ]
+                        ]
+                        [ text name ]
+                    ]
 
-          else
-            button
-                [ onClick ReloadPage
-                , class
-                    [ "px-4 py-2 rounded-lg drop-shadow-lg"
-                    , "font-bold text-slate-700"
-                    , "bg-slate-300 border-b-4 border-slate-600"
+            background name target =
+                a [ class [ "flex items-center px-1" ], Route.href target ]
+                    [ span
+                        [ class
+                            [ "flex items-center gap-1 rounded px-3 py-1"
+                            , "text-white bg-neutral-600 text-shadow"
+                            , "bg-gradient-to-b from-neutral-500 to-neutral-600"
+                            ]
+                        ]
+                        [ text name ]
+                    ]
+
+            normal name target =
+                a
+                    [ class [ "flex items-center px-1", "hover:underline" ]
+                    , Route.href target
+                    ]
+                    [ span [ class [ "flex items-center gap-1 rounded px-3 py-1" ] ]
+                        [ text name ]
+                    ]
+        in
+        [ header
+            [ class
+                [ "flex justify-center items-stretch sticky top-0 z-50"
+                , "font-semibold h-[50px] shadow-md px-6 text-slate-800"
+                , "bg-gradient-to-t from-stone-200 to-white"
+                ]
+            ]
+            [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
+                [ div [ class [ "flex basis-3/6" ] ]
+                    [ case route of
+                        Just Route.Overview ->
+                            active "Overview" Route.Overview
+
+                        Just (Route.Detail _) ->
+                            background "Overview" Route.Overview
+
+                        _ ->
+                            normal "Overview" Route.Overview
+                    , case route of
+                        Just (Route.Docs _) ->
+                            active "Docs" (Route.Docs Nothing)
+
+                        _ ->
+                            normal "Docs" (Route.Docs Nothing)
+                    ]
+                , if model.diff == [] then
+                    Html.none
+
+                  else
+                    div [ class [ "flex shrink-0" ] ]
+                        [ button [ onClick ReloadPage ]
+                            [ span
+                                [ class
+                                    [ "flex items-center gap-1"
+                                    , "rounded px-3 py-1"
+                                    , "bg-gradient-to-b from-green-700 to-green-800"
+                                    , "text-white text-shadow"
+                                    ]
+                                ]
+                                [ text "A new version is available!" ]
+                            ]
+                        ]
+                , div [ class [ "flex basis-3/6 justify-end" ] ]
+                    [ a
+                        [ class [ "flex items-center px-1 hover:underline" ]
+                        , href "https://github.com/spektroskop/vvv"
+                        , target "_blank"
+                        ]
+                        [ span [ class [ "flex items-center gap-1 rounded px-3 py-1" ] ]
+                            [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
+                        ]
                     ]
                 ]
-                [ text "A new version is available!" ]
+            ]
         ]
     }
