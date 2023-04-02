@@ -194,6 +194,25 @@ document route model =
                     |> Html.wrap label
                     |> Html.body body
                     |> Html.build
+
+            overview =
+                case route of
+                    Just Route.Overview ->
+                        active
+
+                    Just (Route.Detail _) ->
+                        background
+
+                    _ ->
+                        normal
+
+            docs =
+                case route of
+                    Just (Route.Docs _) ->
+                        active
+
+                    _ ->
+                        normal
         in
         [ header
             [ class
@@ -204,21 +223,8 @@ document route model =
             ]
             [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
                 [ div [ class [ "flex basis-3/6" ] ]
-                    [ case route of
-                        Just Route.Overview ->
-                            active Route.Overview [ text "Overview" ]
-
-                        Just (Route.Detail _) ->
-                            background Route.Overview [ text "Overview" ]
-
-                        _ ->
-                            normal Route.Overview [ text "Overview" ]
-                    , case route of
-                        Just (Route.Docs _) ->
-                            active (Route.Docs Nothing) [ text "Docs" ]
-
-                        _ ->
-                            normal (Route.Docs Nothing) [ text "Docs" ]
+                    [ overview Route.Overview [ text "Overview" ]
+                    , docs (Route.Docs Nothing) [ text "Docs" ]
                     ]
                 , if model.diff == [] then
                     Html.none
