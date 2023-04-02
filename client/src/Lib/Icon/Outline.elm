@@ -2,12 +2,11 @@ module Lib.Icon.Outline exposing (arrowTopRightOnSquare)
 
 -- https://heroicons.com/
 
+import Lib.Svg exposing (class, d)
 import Svg exposing (Svg, path, svg)
 import Svg.Attributes
     exposing
-        ( class
-        , d
-        , fill
+        ( fill
         , stroke
         , strokeLinecap
         , strokeLinejoin
@@ -16,7 +15,7 @@ import Svg.Attributes
         )
 
 
-arrowTopRightOnSquare : String -> Svg msg
+arrowTopRightOnSquare : List String -> Svg msg
 arrowTopRightOnSquare cs =
     svg
         [ fill "none"
@@ -28,10 +27,10 @@ arrowTopRightOnSquare cs =
         [ path
             [ strokeLinecap "round"
             , strokeLinejoin "round"
-            , d """
-                M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25
-                2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25
-                """
+            , d
+                [ "M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25"
+                , "2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                ]
             ]
             []
         ]
