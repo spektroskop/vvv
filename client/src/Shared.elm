@@ -216,7 +216,7 @@ document route model =
                     _ ->
                         normal
 
-            updateAvailable =
+            appUpdated =
                 if model.diff == [] then
                     Html.none
 
@@ -254,7 +254,7 @@ document route model =
                     [ overviewPage Route.Overview [ text "Overview" ]
                     , docsPage (Route.Docs Nothing) [ text "Docs" ]
                     ]
-                , div [ class [ "flex shrink-0" ] ] [ updateAvailable ]
+                , div [ class [ "flex shrink-0" ] ] [ appUpdated ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ] [ projectLink ]
                 ]
             ]
