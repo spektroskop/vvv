@@ -221,17 +221,15 @@ document route model =
                     Html.none
 
                 else
-                    div [ class [ "flex shrink-0" ] ]
-                        [ Html.new button
-                            |> Html.attributes [ onClick ReloadPage ]
-                            |> Html.wrap label
-                            |> Html.classes
-                                [ "bg-gradient-to-b from-green-700 to-green-800"
-                                , "text-white text-shadow"
-                                ]
-                            |> Html.body [ text "A new version is available!" ]
-                            |> Html.build
-                        ]
+                    Html.new button
+                        |> Html.attributes [ onClick ReloadPage ]
+                        |> Html.wrap label
+                        |> Html.classes
+                            [ "bg-gradient-to-b from-green-700 to-green-800"
+                            , "text-white text-shadow"
+                            ]
+                        |> Html.body [ text "A new version is available!" ]
+                        |> Html.build
 
             projectLink =
                 link
@@ -256,9 +254,8 @@ document route model =
                     [ overviewPage Route.Overview [ text "Overview" ]
                     , docsPage (Route.Docs Nothing) [ text "Docs" ]
                     ]
-                , updateAvailable
-                , div [ class [ "flex basis-3/6 justify-end" ] ]
-                    [ projectLink ]
+                , div [ class [ "flex shrink-0" ] ] [ updateAvailable ]
+                , div [ class [ "flex basis-3/6 justify-end" ] ] [ projectLink ]
                 ]
             ]
         ]
