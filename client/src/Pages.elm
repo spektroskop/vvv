@@ -47,8 +47,8 @@ init key route current =
             Page.Overview.init
                 |> Return.map Overview OverviewMsg
 
-        ( Just (Route.Detail name), _ ) ->
-            Page.Detail.init name
+        ( Just (Route.Detail id), _ ) ->
+            Page.Detail.init id
                 |> Return.map Detail DetailMsg
 
         ( Just (Route.Docs section), _ ) ->

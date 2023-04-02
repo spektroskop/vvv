@@ -13,7 +13,7 @@ import Lib.Html exposing (class)
 
 
 type Msg
-    = Never
+    = Noop
 
 
 type alias Model =
@@ -31,8 +31,10 @@ subscriptions _ =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update _ model =
-    ( model, Cmd.none )
+update msg model =
+    case msg of
+        Noop ->
+            ( model, Cmd.none )
 
 
 document : Model -> Browser.Document Msg
