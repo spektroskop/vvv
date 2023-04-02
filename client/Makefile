@@ -3,7 +3,7 @@ build: ../bundler/bundler
 	mkdir -p build
 	cp assets/index.html build/index.html
 	cp assets/heart.svg build/heart.svg
-	../bundler/bundler --output build assets/app.js assets/app.css
+	../bundler/bundler --output build --tailwind assets/app.js assets/app.css
 	-curl -s -X PATCH http://localhost:3210/static
 	@echo
 
