@@ -164,33 +164,35 @@ document route model =
                     |> Html.classes [ "flex items-center px-1" ]
                     |> Html.attributes [ Route.href target ]
 
-            label_ body =
+            label_ =
                 Html.new span
                     |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
-                    |> Html.body body
 
-            active_ target name =
+            active_ target body =
                 link_ target
-                    |> Html.wrap (label_ name)
+                    |> Html.wrap label_
                     |> Html.classes
                         [ "text-white bg-cyan-900 text-shadow"
                         , "bg-gradient-to-b from-cyan-700 to-cyan-800"
                         ]
+                    |> Html.body body
                     |> Html.build
 
-            background_ target name =
+            background_ target body =
                 link_ target
-                    |> Html.wrap (label_ name)
+                    |> Html.wrap label_
                     |> Html.classes
                         [ "text-white bg-neutral-600 text-shadow"
                         , "bg-gradient-to-b from-neutral-500 to-neutral-600"
                         ]
+                    |> Html.body body
                     |> Html.build
 
-            normal_ target name =
+            normal_ target body =
                 link_ target
                     |> Html.classes [ "hover:underline" ]
-                    |> Html.wrap (label_ name)
+                    |> Html.wrap label_
+                    |> Html.body body
                     |> Html.build
         in
         [ header
@@ -225,11 +227,12 @@ document route model =
                     div [ class [ "flex shrink-0" ] ]
                         [ Html.new button
                             |> Html.attributes [ onClick ReloadPage ]
-                            |> Html.wrap (label_ [ text "A new version is available!" ])
+                            |> Html.wrap label_
                             |> Html.classes
                                 [ "bg-gradient-to-b from-green-700 to-green-800"
                                 , "text-white text-shadow"
                                 ]
+                            |> Html.body [ text "A new version is available!" ]
                             |> Html.build
                         ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ]
@@ -239,8 +242,7 @@ document route model =
                             [ href "https://github.com/spektroskop/vvv"
                             , target "_blank"
                             ]
-                        |> Html.wrapNode span
-                        |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
+                        |> Html.wrap label_
                         |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
                         |> Html.build
                     ]
