@@ -193,7 +193,7 @@ document route model =
                 ]
             ]
             [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
-                [ div [ class [ "flex basis-3/6" ] ] pages
+                [ div [ class [ "flex basis-3/6 justify-start" ] ] pages
                 , div [ class [ "flex shrink-0" ] ] [ updated ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ] [ project ]
                 ]
@@ -220,7 +220,7 @@ active target body =
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
         |> Html.classes
-            [ "text-white bg-cyan-900 text-shadow"
+            [ "text-white text-shadow"
             , "bg-gradient-to-b from-cyan-700 to-cyan-800"
             ]
         |> Html.body body
@@ -233,7 +233,7 @@ background target body =
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
         |> Html.classes
-            [ "text-white bg-neutral-600 text-shadow"
+            [ "text-white text-shadow"
             , "bg-gradient-to-b from-neutral-500 to-neutral-600"
             ]
         |> Html.body body
@@ -256,8 +256,8 @@ refresh =
         |> Html.attributes [ onClick ReloadPage ]
         |> Html.wrap label
         |> Html.classes
-            [ "bg-gradient-to-b from-green-700 to-green-800"
-            , "text-white text-shadow"
+            [ "text-white text-shadow"
+            , "bg-gradient-to-b from-green-700 to-green-800"
             ]
         |> Html.body [ text "A new version is available!" ]
         |> Html.build
