@@ -159,45 +159,7 @@ document route model =
     { title = "vvv"
     , body =
         let
-            link =
-                Html.new a
-                    |> Html.classes [ "flex items-center px-1" ]
-
-            label =
-                Html.new span
-                    |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
-
-            active target body =
-                link
-                    |> Html.attributes [ Route.href target ]
-                    |> Html.wrap label
-                    |> Html.classes
-                        [ "text-white bg-cyan-900 text-shadow"
-                        , "bg-gradient-to-b from-cyan-700 to-cyan-800"
-                        ]
-                    |> Html.body body
-                    |> Html.build
-
-            background target body =
-                link
-                    |> Html.attributes [ Route.href target ]
-                    |> Html.wrap label
-                    |> Html.classes
-                        [ "text-white bg-neutral-600 text-shadow"
-                        , "bg-gradient-to-b from-neutral-500 to-neutral-600"
-                        ]
-                    |> Html.body body
-                    |> Html.build
-
-            normal target body =
-                link
-                    |> Html.attributes [ Route.href target ]
-                    |> Html.classes [ "hover:underline" ]
-                    |> Html.wrap label
-                    |> Html.body body
-                    |> Html.build
-
-            overviewPage =
+            overview =
                 case route of
                     Just Route.Overview ->
                         active
@@ -208,7 +170,7 @@ document route model =
                     _ ->
                         normal
 
-            docsPage =
+            docs =
                 case route of
                     Just (Route.Docs _) ->
                         active
@@ -216,31 +178,12 @@ document route model =
                     _ ->
                         normal
 
-            appUpdated =
+            updated =
                 if model.diff == [] then
                     Html.none
 
                 else
-                    Html.new button
-                        |> Html.attributes [ onClick ReloadPage ]
-                        |> Html.wrap label
-                        |> Html.classes
-                            [ "bg-gradient-to-b from-green-700 to-green-800"
-                            , "text-white text-shadow"
-                            ]
-                        |> Html.body [ text "A new version is available!" ]
-                        |> Html.build
-
-            projectLink =
-                link
-                    |> Html.classes [ "hover:underline" ]
-                    |> Html.attributes
-                        [ href "https://github.com/spektroskop/vvv"
-                        , target "_blank"
-                        ]
-                    |> Html.wrap label
-                    |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
-                    |> Html.build
+                    refresh
         in
         [ header
             [ class
@@ -251,12 +194,86 @@ document route model =
             ]
             [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
                 [ div [ class [ "flex basis-3/6" ] ]
-                    [ overviewPage Route.Overview [ text "Overview" ]
-                    , docsPage (Route.Docs Nothing) [ text "Docs" ]
+                    [ overview Route.Overview [ text "Overview" ]
+                    , docs (Route.Docs Nothing) [ text "Docs" ]
                     ]
-                , div [ class [ "flex shrink-0" ] ] [ appUpdated ]
-                , div [ class [ "flex basis-3/6 justify-end" ] ] [ projectLink ]
+                , div [ class [ "flex shrink-0" ] ] [ updated ]
+                , div [ class [ "flex basis-3/6 justify-end" ] ] [ project ]
                 ]
             ]
         ]
     }
+
+
+link : Html.Builder msg
+link =
+    Html.new a
+        |> Html.classes [ "flex items-center px-1" ]
+
+
+label : Html.Builder msg
+label =
+    Html.new span
+        |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
+
+
+active : Route -> List (Html msg) -> Html msg
+active target body =
+    link
+        |> Html.attributes [ Route.href target ]
+        |> Html.wrap label
+        |> Html.classes
+            [ "text-white bg-cyan-900 text-shadow"
+            , "bg-gradient-to-b from-cyan-700 to-cyan-800"
+            ]
+        |> Html.body body
+        |> Html.build
+
+
+background : Route -> List (Html msg) -> Html msg
+background target body =
+    link
+        |> Html.attributes [ Route.href target ]
+        |> Html.wrap label
+        |> Html.classes
+            [ "text-white bg-neutral-600 text-shadow"
+            , "bg-gradient-to-b from-neutral-500 to-neutral-600"
+            ]
+        |> Html.body body
+        |> Html.build
+
+
+normal : Route -> List (Html msg) -> Html msg
+normal target body =
+    link
+        |> Html.attributes [ Route.href target ]
+        |> Html.classes [ "hover:underline" ]
+        |> Html.wrap label
+        |> Html.body body
+        |> Html.build
+
+
+refresh : Html Msg
+refresh =
+    Html.new button
+        |> Html.attributes [ onClick ReloadPage ]
+        |> Html.wrap label
+        |> Html.classes
+            [ "bg-gradient-to-b from-green-700 to-green-800"
+            , "text-white text-shadow"
+            ]
+        |> Html.body [ text "A new version is available!" ]
+        |> Html.build
+
+
+project : Html msg
+project =
+    link
+        |> Html.classes [ "hover:underline" ]
+        |> Html.attributes
+            [ href "https://github.com/spektroskop/vvv"
+            , target "_blank"
+            ]
+        |> Html.wrap label
+        |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
+        |> Html.build
