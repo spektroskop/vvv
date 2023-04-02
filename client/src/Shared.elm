@@ -159,17 +159,17 @@ document route model =
     { title = "vvv"
     , body =
         let
-            link target =
+            link =
                 Html.new a
                     |> Html.classes [ "flex items-center px-1" ]
-                    |> Html.attributes [ Route.href target ]
 
             label =
                 Html.new span
                     |> Html.classes [ "flex items-center gap-1 rounded px-3 py-1" ]
 
             active target body =
-                link target
+                link
+                    |> Html.attributes [ Route.href target ]
                     |> Html.wrap label
                     |> Html.classes
                         [ "text-white bg-cyan-900 text-shadow"
@@ -179,7 +179,8 @@ document route model =
                     |> Html.build
 
             background target body =
-                link target
+                link
+                    |> Html.attributes [ Route.href target ]
                     |> Html.wrap label
                     |> Html.classes
                         [ "text-white bg-neutral-600 text-shadow"
@@ -189,7 +190,8 @@ document route model =
                     |> Html.build
 
             normal target body =
-                link target
+                link
+                    |> Html.attributes [ Route.href target ]
                     |> Html.classes [ "hover:underline" ]
                     |> Html.wrap label
                     |> Html.body body
@@ -242,8 +244,8 @@ document route model =
                             |> Html.build
                         ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ]
-                    [ Html.new a
-                        |> Html.classes [ "flex items-center px-1", "hover:underline" ]
+                    [ link
+                        |> Html.classes [ "hover:underline" ]
                         |> Html.attributes
                             [ href "https://github.com/spektroskop/vvv"
                             , target "_blank"
