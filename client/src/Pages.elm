@@ -98,7 +98,7 @@ toShared model shared =
 
 
 fromShared : Shared.Model -> Model -> ( Model, Cmd Msg )
-fromShared shared model =
+fromShared _ model =
     case model of
         NotFound ->
             ( model, Cmd.none )
@@ -117,7 +117,7 @@ fromShared shared model =
 
 
 update : Msg -> Navigation.Key -> Shared.Model -> Model -> ( Model, Cmd Msg )
-update msg key shared model =
+update msg _ _ model =
     case ( model, msg ) of
         ( NotFound, _ ) ->
             ( model, Cmd.none )

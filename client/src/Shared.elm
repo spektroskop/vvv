@@ -50,12 +50,12 @@ type alias App =
 
 
 onRouteChange : Maybe Route -> Model -> ( Model, Cmd Msg )
-onRouteChange route model =
+onRouteChange _ model =
     ( model, Cmd.none )
 
 
 init : Navigation.Key -> ( Model, Cmd Msg )
-init key =
+init _ =
     ( initialModel, Cmd.none )
         |> Return.andThen getApp
 
@@ -86,7 +86,7 @@ appDecoder =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 

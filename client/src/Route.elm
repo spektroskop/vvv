@@ -9,7 +9,7 @@ module Route exposing
 
 import Browser.Navigation as Navigation
 import Html
-import Html.Attributes exposing (href)
+import Html.Attributes
 import Url exposing (Url)
 import Url.Parser as Url exposing ((</>))
 

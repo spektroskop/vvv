@@ -8,9 +8,8 @@ module Page.Docs exposing
     )
 
 import Browser
-import Html exposing (Html, div, text)
+import Html exposing (div, text)
 import Lib.Html exposing (class)
-import Lib.Return as Return exposing (Return)
 
 
 type Msg
@@ -27,12 +26,12 @@ init section =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update _ model =
     ( model, Cmd.none )
 
 

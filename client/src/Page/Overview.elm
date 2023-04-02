@@ -8,9 +8,8 @@ module Page.Overview exposing
     )
 
 import Browser
-import Html exposing (Html, a, div, h1, text)
+import Html exposing (a, div, h1, text)
 import Lib.Html exposing (class)
-import Lib.Return as Return exposing (Return)
 import Route
 
 
@@ -28,17 +27,17 @@ init =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update _ model =
     ( model, Cmd.none )
 
 
 document : Model -> Browser.Document Msg
-document model =
+document _ =
     { title = "Overview"
     , body =
         let
