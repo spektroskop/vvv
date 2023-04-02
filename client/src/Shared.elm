@@ -197,7 +197,7 @@ document route model =
                     |> Html.body body
                     |> Html.build
 
-            overview =
+            overviewPage =
                 case route of
                     Just Route.Overview ->
                         active
@@ -208,30 +208,19 @@ document route model =
                     _ ->
                         normal
 
-            docs =
+            docsPage =
                 case route of
                     Just (Route.Docs _) ->
                         active
 
                     _ ->
                         normal
-        in
-        [ header
-            [ class
-                [ "flex justify-center items-stretch sticky top-0 z-50"
-                , "font-semibold h-[50px] shadow-md px-6 text-slate-800"
-                , "bg-gradient-to-t from-stone-200 to-white"
-                ]
-            ]
-            [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
-                [ div [ class [ "flex basis-3/6" ] ]
-                    [ overview Route.Overview [ text "Overview" ]
-                    , docs (Route.Docs Nothing) [ text "Docs" ]
-                    ]
-                , if model.diff == [] then
+
+            updateAvailable =
+                if model.diff == [] then
                     Html.none
 
-                  else
+                else
                     div [ class [ "flex shrink-0" ] ]
                         [ Html.new button
                             |> Html.attributes [ onClick ReloadPage ]
@@ -243,17 +232,33 @@ document route model =
                             |> Html.body [ text "A new version is available!" ]
                             |> Html.build
                         ]
-                , div [ class [ "flex basis-3/6 justify-end" ] ]
-                    [ link
-                        |> Html.classes [ "hover:underline" ]
-                        |> Html.attributes
-                            [ href "https://github.com/spektroskop/vvv"
-                            , target "_blank"
-                            ]
-                        |> Html.wrap label
-                        |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
-                        |> Html.build
+
+            projectLink =
+                link
+                    |> Html.classes [ "hover:underline" ]
+                    |> Html.attributes
+                        [ href "https://github.com/spektroskop/vvv"
+                        , target "_blank"
+                        ]
+                    |> Html.wrap label
+                    |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare "w-5 h-5" ]
+                    |> Html.build
+        in
+        [ header
+            [ class
+                [ "flex justify-center items-stretch sticky top-0 z-50"
+                , "font-semibold h-[50px] shadow-md px-6 text-slate-800"
+                , "bg-gradient-to-t from-stone-200 to-white"
+                ]
+            ]
+            [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
+                [ div [ class [ "flex basis-3/6" ] ]
+                    [ overviewPage Route.Overview [ text "Overview" ]
+                    , docsPage (Route.Docs Nothing) [ text "Docs" ]
                     ]
+                , updateAvailable
+                , div [ class [ "flex basis-3/6 justify-end" ] ]
+                    [ projectLink ]
                 ]
             ]
         ]
