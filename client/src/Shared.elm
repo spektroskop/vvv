@@ -159,7 +159,7 @@ document route model =
     { title = "vvv"
     , body =
         let
-            pages =
+            state =
                 case route of
                     Just Route.Overview ->
                         { overview = active, docs = normal }
@@ -172,6 +172,11 @@ document route model =
 
                     _ ->
                         { overview = normal, docs = normal }
+
+            pages =
+                [ state.overview Route.Overview [ text "Overview" ]
+                , state.docs (Route.Docs Nothing) [ text "Docs" ]
+                ]
 
             updated =
                 if model.diff == [] then
@@ -188,10 +193,7 @@ document route model =
                 ]
             ]
             [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
-                [ div [ class [ "flex basis-3/6" ] ]
-                    [ pages.overview Route.Overview [ text "Overview" ]
-                    , pages.docs (Route.Docs Nothing) [ text "Docs" ]
-                    ]
+                [ div [ class [ "flex basis-3/6" ] ] pages
                 , div [ class [ "flex shrink-0" ] ] [ updated ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ] [ project ]
                 ]
