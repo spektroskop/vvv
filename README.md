@@ -64,9 +64,19 @@ curl localhost:3210/api/assets
 
 ## development
 
+### setup
+
+```sh
+git submodule update --init
+```
+
+### backend
+
 ```sh
 STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
 ```
+
+### frontend
 
 ```sh
 make -C frontends/elm watch
