@@ -51,8 +51,8 @@ init key route current =
             Page.Detail.init id
                 |> Return.map Detail DetailMsg
 
-        ( Just (Route.Docs section), _ ) ->
-            Page.Docs.init section
+        ( Just (Route.Docs fragment), _ ) ->
+            Page.Docs.init fragment
                 |> Return.map Docs DocsMsg
 
 

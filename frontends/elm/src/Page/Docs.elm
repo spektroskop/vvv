@@ -8,6 +8,8 @@ module Page.Docs exposing
     )
 
 import Browser
+import Html exposing (div, h1, text)
+import Lib.Html exposing (class)
 
 
 type Msg
@@ -15,12 +17,12 @@ type Msg
 
 
 type alias Model =
-    {}
+    { fragment : Maybe String }
 
 
 init : Maybe String -> ( Model, Cmd Msg )
-init _ =
-    ( {}, Cmd.none )
+init fragment =
+    ( { fragment = fragment }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -36,7 +38,13 @@ update msg model =
 
 
 document : Model -> Browser.Document Msg
-document _ =
+document model =
     { title = "Docs"
-    , body = []
+    , body =
+        [ div
+            [ class [ "flex flex-col items-center mt-10 gap-2" ] ]
+            [ h1 [ class [ "font-mono mb-5" ] ]
+                [ text (Debug.toString model) ]
+            ]
+        ]
     }
