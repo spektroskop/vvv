@@ -179,11 +179,7 @@ document route model =
                 ]
 
             updated =
-                if model.diff == [] then
-                    Html.none
-
-                else
-                    refresh
+                Html.unless (model.diff == []) refresh
         in
         [ header
             [ class
@@ -247,8 +243,8 @@ normal target body =
         |> Html.build
 
 
-refresh : Html Msg
-refresh =
+refresh : () -> Html Msg
+refresh _ =
     Html.new button
         |> Html.attributes [ onClick ReloadPage ]
         |> Html.wrap label
