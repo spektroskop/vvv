@@ -266,5 +266,5 @@ project =
         |> Html.attributes [ target "_blank" ]
         |> Html.wrap label
         |> Html.body [ text "vvv" ]
-        |> Html.body [ Mini.arrowTopRightOnSquare [ "w-5 h-5" ] ]
+        |> Html.body [ Mini.arrowTopRightOnSquare [ "w-5 h-5 translate-y-px" ] ]
         |> Html.build
