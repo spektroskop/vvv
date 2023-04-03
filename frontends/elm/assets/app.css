@@ -6,10 +6,11 @@
   :root {
     --content-width: 850px;
     --nav-width: calc(var(--content-width) - 100px);
+    --nav-height: 60px;
   }
 
   body {
-    @apply bg-dark-red text-gray-200;
+    @apply bg-cyan-900 text-cyan-100;
     @apply font-sans;
   }
 }

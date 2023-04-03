@@ -188,7 +188,7 @@ document route model =
         [ header
             [ class
                 [ "flex justify-center items-stretch"
-                , "sticky top-0 h-[50px] z-50 px-6"
+                , "sticky top-0 h-[var(--nav-height)] z-50 px-6"
                 , "shadow-md font-semibold text-slate-800"
                 , "bg-gradient-to-t from-stone-200 to-white"
                 ]
@@ -221,7 +221,7 @@ active target body =
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
         |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-b from-cyan-700 to-cyan-800" ]
+        |> Html.classes [ "bg-gradient-to-br from-cyan-600 to-cyan-700" ]
         |> Html.body body
         |> Html.build
 
@@ -232,7 +232,7 @@ background target body =
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
         |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-b from-neutral-500 to-neutral-600" ]
+        |> Html.classes [ "bg-gradient-to-br from-gray-400 to-gray-500" ]
         |> Html.body body
         |> Html.build
 
