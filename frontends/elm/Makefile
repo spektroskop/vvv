@@ -2,20 +2,19 @@
 .DEFAULT_GOAL := build
 
 bundler := ../../bundler
-
-$(bundler)/bundler: $(shell find $(bundler) -type f -name '*.go')
-	cd $(bundler) && go build -v ./cmd/bundler
+static_reloader := PATCH http://localhost:3210/static
 
 clean:
-	rm -f $(bundler)/bundler
+	make -C $(bundler) clean
 	rm -rf build
 
 build: $(bundler)/bundler
-	@mkdir -p build
-	@cp assets/index.html build/index.html
-	@cp assets/heart.svg build/heart.svg
-	@$(bundler)/bundler --output build --tailwind assets/app.js assets/app.css
-	@-curl -s -X PATCH http://localhost:3210/static && echo
+	make -C $(bundler) build/bundler
+	mkdir -p build
+	cp assets/index.html build/index.html
+	cp assets/heart.svg build/heart.svg
+	$(bundler)/build/bundler --tailwind --output build assets/app.js assets/app.css
+	@-curl --silent --request $(static_reloader) && echo
 
 watch:
 	watchexec \
