@@ -6,6 +6,7 @@ Languages and tools used in this repo:
 
 - [Gleam](https://gleam.run)
 - [Elm](https://elm-lang.org)
+- [Go](https://go.dev)
 - [esbuild](https://github.com/evanw/esbuild)
 - [tailwind](https://tailwindcss.com)
 - [watchexec](https://github.com/watchexec/watchexec)

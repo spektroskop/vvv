@@ -102,7 +102,7 @@ update msg _ model =
                     Loadable.value model.app
             in
             ( { model | app = Failed Resolved error app }
-            , scheduleApp app
+            , schedule app
             )
 
         GotApp (Ok app) ->
@@ -113,7 +113,7 @@ update msg _ model =
                         |> Maybe.map (Static.diff app.assets)
                         |> Maybe.andThen List.toMaybe
 
-                newModel =
+                updated =
                     { model
                         | app = Loaded Resolved app
                         , diff = Maybe.withDefault model.diff diff
@@ -121,15 +121,15 @@ update msg _ model =
             in
             case ( diff, app.reloadBrowser ) of
                 ( Nothing, _ ) ->
-                    ( newModel, scheduleApp (Just app) )
+                    ( updated, schedule (Just app) )
 
                 ( Just [], _ ) ->
-                    ( newModel, scheduleApp (Just app) )
+                    ( updated, schedule (Just app) )
 
                 ( Just changes, False ) ->
-                    ( newModel
+                    ( updated
                     , Cmd.batch
-                        [ scheduleApp (Just app)
+                        [ schedule (Just app)
                         , List.map Static.toString changes
                             |> Encode.list Encode.string
                             |> Ports.Log
@@ -138,7 +138,7 @@ update msg _ model =
                     )
 
                 ( Just _, True ) ->
-                    ( { newModel | diff = [] }
+                    ( { updated | diff = [] }
                     , Navigation.reloadAndSkipCache
                     )
 
@@ -146,8 +146,8 @@ update msg _ model =
             ( model, Navigation.reloadAndSkipCache )
 
 
-scheduleApp : Maybe App -> Cmd Msg
-scheduleApp app =
+schedule : Maybe App -> Cmd Msg
+schedule app =
     Maybe.map .interval app
         |> Maybe.withDefault 5000
         |> max 1000
@@ -187,8 +187,9 @@ document route model =
         in
         [ header
             [ class
-                [ "flex justify-center items-stretch sticky top-0 z-50"
-                , "font-semibold h-[50px] shadow-md px-6 text-slate-800"
+                [ "flex justify-center items-stretch"
+                , "sticky top-0 h-[50px] z-50 px-6"
+                , "shadow-md font-semibold text-slate-800"
                 , "bg-gradient-to-t from-stone-200 to-white"
                 ]
             ]

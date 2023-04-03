@@ -58,9 +58,7 @@ body v (Builder b) =
 
 wrapNode : Node msg -> Builder msg -> Builder msg
 wrapNode node parent =
-    case new node of
-        Builder b ->
-            Builder { b | parent = Just parent }
+    wrap (new node) parent
 
 
 wrap : Builder msg -> Builder msg -> Builder msg
@@ -71,11 +69,11 @@ wrap (Builder b) parent =
 build : Builder msg -> Html msg
 build (Builder b) =
     let
-        rendered =
+        self =
             String.join " " b.classes
                 |> Html.Attributes.class
                 |> List.prepend b.attributes
                 |> flip b.node b.body
     in
-    Maybe.map (body [ rendered ] >> build) b.parent
-        |> Maybe.withDefault rendered
+    Maybe.map (build << body [ self ]) b.parent
+        |> Maybe.withDefault self
