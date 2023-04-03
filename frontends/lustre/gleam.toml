@@ -1,0 +1,6 @@
+name = "vvv"
+version = "1.0.0"
+
+[dependencies]
+gleam_stdlib = "~> 0.28"
+lustre = "~> 2.0"
