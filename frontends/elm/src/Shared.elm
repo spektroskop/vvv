@@ -189,7 +189,7 @@ document route model =
             [ class
                 [ "flex justify-center items-stretch"
                 , "sticky top-0 h-[var(--nav-height)] z-50 px-6"
-                , "shadow-md font-semibold text-slate-800"
+                , "shadow-md font-semibold text-cyan-900"
                 , "bg-gradient-to-t from-stone-200 to-white"
                 ]
             ]
@@ -253,7 +253,7 @@ refresh =
         |> Html.attributes [ onClick ReloadPage ]
         |> Html.wrap label
         |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-b from-green-700 to-green-800" ]
+        |> Html.classes [ "bg-gradient-to-b from-teal-600 to-teal-700" ]
         |> Html.body [ text "A new version is available!" ]
         |> Html.build
 

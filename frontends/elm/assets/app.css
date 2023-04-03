@@ -10,7 +10,7 @@
   }
 
   body {
-    @apply bg-cyan-900 text-cyan-100;
+    @apply bg-cyan-900 text-cyan-50;
     @apply font-sans;
   }
 }
