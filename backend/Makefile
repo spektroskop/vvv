@@ -1,4 +1,4 @@
-.PHONY: docs watch
+.PHONY: build docs watch
 .DEFAULT_GOAL := build
 
 listen_port := 3210
