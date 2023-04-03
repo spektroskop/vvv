@@ -13,9 +13,9 @@ Languages and tools used in this repo:
 
 ## configuration
 
-Server configuration is provided either through a config file or the environment. See `vvv.toml` for all the configuration options, their defaults, and corresponding environment variable names.
+Backend configuration is provided either through a config file or the environment. See `vvv.toml` for all the configuration options, their defaults, and corresponding environment variable names.
 
-## running the server
+## running
 
 If you want to use an environment prefix it must be passed as a command line argument. 
 
@@ -25,35 +25,49 @@ The `CONFIG` variable sets the path to the config file to use.
 
 ### general syntax
 
-    [$PREFIX]_SERVER_PORT=$PORT \
-    [$PREFIX]_STATIC_BASE=$PATH \
-    [$PREFIX]_CONFIG=$PATH \
-    gleam run [$PREFIX]
+```
+[$PREFIX]_SERVER_PORT=$PORT \
+[$PREFIX]_STATIC_BASE=$PATH \
+[$PREFIX]_CONFIG=$PATH \
+gleam run [$PREFIX]
+```
 
 ### start the server
 
-    SERVER_PORT=3210 \
-    STATIC_PATH=some/path \
-    gleam run
+```sh
+SERVER_PORT=3210 \
+STATIC_PATH=some/path \
+gleam run
+```
 
 ### activate reloader
 
-    SERVER_PORT=3210 \
-    STATIC_BASE=some/path \
-    STATIC_RELOADER_METHOD=PATCH \
-    STATIC_RELOADER_PATH=static \
-    gleam run
+```sh
+SERVER_PORT=3210 \
+STATIC_BASE=some/path \
+STATIC_RELOADER_METHOD=PATCH \
+STATIC_RELOADER_PATH=static \
+gleam run
+```
 
 ### reload assets
 
-    curl --request PATCH localhost:3210/static
+```sh
+curl --request PATCH localhost:3210/static
+```
 
 ### get current asset hashes
 
-    curl localhost:3210/api/assets
+```sh
+curl localhost:3210/api/assets
+```
 
 ## development
 
-    STATIC_BASE=client/build make -C server watch
+```sh
+STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
+```
 
-    make -C client watch
+```sh
+make -C frontends/elm watch
+```
