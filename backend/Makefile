@@ -1,14 +1,17 @@
+.PHONY: docs watch
+.DEFAULT_GOAL := build
+
 listen_port := 3210
 config_file := ../vvv.toml
 
-.PHONY: docs
+build:
+
 docs:
 	gleam docs build
 	SERVER_PORT=$(listen_port) \
 	STATIC_BASE=build/dev/docs/vvv \
 	gleam run
 
-.PHONY: watch
 watch:
 	CONFIG=$(config_file) \
 	SERVER_PORT=$(listen_port) \
