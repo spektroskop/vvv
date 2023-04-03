@@ -9,7 +9,7 @@ build: $(bundler)/bundler
 	-curl -s -X PATCH http://localhost:3210/static
 	@echo
 
-$(bundler)/bundler:
+$(bundler)/bundler: $(shell find $(bundler) -type f -name '*.go')
 	cd $(bundler) && go build -v ./cmd/bundler
 
 .PHONY: watch
