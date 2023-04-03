@@ -220,10 +220,8 @@ active target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes
-            [ "text-white text-shadow"
-            , "bg-gradient-to-b from-cyan-700 to-cyan-800"
-            ]
+        |> Html.classes [ "text-white text-shadow" ]
+        |> Html.classes [ "bg-gradient-to-b from-cyan-700 to-cyan-800" ]
         |> Html.body body
         |> Html.build
 
@@ -233,10 +231,8 @@ background target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes
-            [ "text-white text-shadow"
-            , "bg-gradient-to-b from-neutral-500 to-neutral-600"
-            ]
+        |> Html.classes [ "text-white text-shadow" ]
+        |> Html.classes [ "bg-gradient-to-b from-neutral-500 to-neutral-600" ]
         |> Html.body body
         |> Html.build
 
@@ -256,10 +252,8 @@ refresh =
     Html.new button
         |> Html.attributes [ onClick ReloadPage ]
         |> Html.wrap label
-        |> Html.classes
-            [ "text-white text-shadow"
-            , "bg-gradient-to-b from-green-700 to-green-800"
-            ]
+        |> Html.classes [ "text-white text-shadow" ]
+        |> Html.classes [ "bg-gradient-to-b from-green-700 to-green-800" ]
         |> Html.body [ text "A new version is available!" ]
         |> Html.build
 
@@ -268,10 +262,9 @@ project : Html msg
 project =
     link
         |> Html.classes [ "hover:underline" ]
-        |> Html.attributes
-            [ href "https://github.com/spektroskop/vvv"
-            , target "_blank"
-            ]
+        |> Html.attributes [ href "https://github.com/spektroskop/vvv" ]
+        |> Html.attributes [ target "_blank" ]
         |> Html.wrap label
-        |> Html.body [ text "vvv", Mini.arrowTopRightOnSquare [ "w-5 h-5" ] ]
+        |> Html.body [ text "vvv" ]
+        |> Html.body [ Mini.arrowTopRightOnSquare [ "w-5 h-5" ] ]
         |> Html.build
