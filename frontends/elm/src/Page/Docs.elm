@@ -8,8 +8,6 @@ module Page.Docs exposing
     )
 
 import Browser
-import Html exposing (div, text)
-import Lib.Html exposing (class)
 
 
 type Msg
@@ -17,12 +15,12 @@ type Msg
 
 
 type alias Model =
-    { section : Maybe String }
+    {}
 
 
 init : Maybe String -> ( Model, Cmd Msg )
-init section =
-    ( { section = section }, Cmd.none )
+init _ =
+    ( {}, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -38,15 +36,7 @@ update msg model =
 
 
 document : Model -> Browser.Document Msg
-document model =
+document _ =
     { title = "Docs"
-    , body =
-        [ div
-            [ class
-                [ "flex justify-center h-screen mt-10"
-                , "font-bold text-2xl"
-                ]
-            ]
-            [ text (Debug.toString model.section) ]
-        ]
+    , body = []
     }
