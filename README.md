@@ -42,7 +42,7 @@ STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
 make -C frontends/elm watch
 ```
 
-#### lustre
+#### [lustre](https://github.com/hayleigh-dot-dev/gleam-lustre)
 
 > requires: [gleam](https://gleam.run), [go](https://go.dev), [watchexec](https://github.com/watchexec/watchexec)
 
