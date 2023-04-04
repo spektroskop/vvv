@@ -176,8 +176,8 @@ document route model =
         in
         [ header
             [ class
-                [ "flex justify-center items-stretch"
-                , "sticky top-0 h-[var(--nav-height)] z-50 px-6"
+                [ "flex justify-center items-stretch sticky top-0 px-6"
+                , "h-[var(--header-height)] z-[var(--header-z)]"
                 , "shadow-md font-semibold text-cyan-950"
                 , "bg-gradient-to-t from-stone-200 to-white"
                 ]

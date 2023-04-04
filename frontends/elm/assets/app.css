@@ -5,8 +5,9 @@
 @layer base {
   :root {
     --content-width: 850px;
+    --header-height: 60px;
+    --header-z: 50;
     --nav-width: calc(var(--content-width) - 100px);
-    --nav-height: 60px;
   }
 
   body {
