@@ -97,12 +97,8 @@ update msg _ model =
             getApp model
 
         GotApp (Err error) ->
-            let
-                app =
-                    Loadable.value model.app
-            in
-            ( { model | app = Failed Resolved error app }
-            , schedule app
+            ( { model | app = Loadable.fail error model.app }
+            , schedule (Loadable.value model.app)
             )
 
         GotApp (Ok app) ->
@@ -115,7 +111,7 @@ update msg _ model =
 
                 updated =
                     { model
-                        | app = Loaded Resolved app
+                        | app = Loadable.succeed app
                         , diff = Maybe.withDefault model.diff diff
                     }
             in
