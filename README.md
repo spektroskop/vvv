@@ -2,9 +2,7 @@
 
 This is my bikeshed laboratory for experimenting with web app development!
 
-## development
-
-### setup
+## setup
 
 Fetch [bundler](https://github.com/spektroskop/bundler) component
 
@@ -12,7 +10,7 @@ Fetch [bundler](https://github.com/spektroskop/bundler) component
 git submodule update --init
 ```
 
-### gleam backend
+## gleam backend
 
 > requires: [gleam](https://gleam.run), [watchexec](https://github.com/watchexec/watchexec)
 
@@ -20,15 +18,15 @@ git submodule update --init
 STATIC_BASE=path/to/assets make -C backend watch
 ```
 
-### frontends
+## frontends
 
-#### static
+### static
 
 ```sh
 STATIC_BASE=$PWD/frontends/static make -C backend watch
 ```
 
-#### elm
+### elm
 
 ```sh
 STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
@@ -40,7 +38,7 @@ STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
 make -C frontends/elm watch
 ```
 
-#### [lustre](https://github.com/hayleigh-dot-dev/gleam-lustre)
+### [lustre](https://github.com/hayleigh-dot-dev/gleam-lustre)
 
 ```sh
 STATIC_BASE=$PWD/frontends/lustre/build/bundle make -C backend watch
