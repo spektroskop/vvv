@@ -177,9 +177,6 @@ document route model =
                 [ overview Route.Overview [ text "Overview" ]
                 , docs (Route.Docs Nothing) [ text "Docs" ]
                 ]
-
-            updated =
-                Html.unless (model.diff == []) refresh
         in
         [ header
             [ class
@@ -191,7 +188,7 @@ document route model =
             ]
             [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
                 [ div [ class [ "flex basis-3/6 justify-start" ] ] pages
-                , div [ class [ "flex shrink-0" ] ] [ updated ]
+                , div [ class [ "flex shrink-0" ] ] [ refresh model.diff ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ] [ project ]
                 ]
             ]
@@ -243,15 +240,19 @@ normal target body =
         |> Html.build
 
 
-refresh : () -> Html Msg
-refresh _ =
-    Html.new button
-        |> Html.attributes [ onClick ReloadPage ]
-        |> Html.wrap label
-        |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-b from-teal-600 to-teal-700" ]
-        |> Html.body [ text "A new version is available!" ]
-        |> Html.build
+refresh : List a -> Html Msg
+refresh diff =
+    if diff == [] then
+        Html.none
+
+    else
+        Html.new button
+            |> Html.attributes [ onClick ReloadPage ]
+            |> Html.wrap label
+            |> Html.classes [ "text-white text-shadow" ]
+            |> Html.classes [ "bg-gradient-to-b from-teal-600 to-teal-700" ]
+            |> Html.body [ text "A new version is available!" ]
+            |> Html.build
 
 
 project : Html msg
