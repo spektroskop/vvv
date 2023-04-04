@@ -11,19 +11,21 @@ Languages and tools currently used in this repo:
 - [tailwind](https://tailwindcss.com) — styling
 - [watchexec](https://github.com/watchexec/watchexec) — development
 
-## setup
+## development
+
+### setup
 
 ```sh
 git submodule update --init
 ```
 
-## backend server
+### gleam backend
 
 ```sh
 STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
 ```
 
-## elm frontend
+### elm frontend
 
 ```sh
 make -C frontends/elm watch
