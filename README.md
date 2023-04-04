@@ -10,7 +10,9 @@ Fetch [bundler](https://github.com/spektroskop/bundler) component
 git submodule update --init
 ```
 
-## [gleam backend](backend)
+## backends
+
+### [gleam](backend)
 
 > requires: [gleam](https://gleam.run), [watchexec](https://github.com/watchexec/watchexec)
 
@@ -44,7 +46,7 @@ make -C frontends/elm watch
 STATIC_BASE=$PWD/frontends/lustre/build/bundle make -C backend watch
 ```
 
-> requires: [gleam](https://gleam.run), [go](https://go.dev), [watchexec](https://github.com/watchexec/watchexec)
+> requires: [gleam](https://gleam.run), [node](https://nodejs.org), [go](https://go.dev), [watchexec](https://github.com/watchexec/watchexec)
 
 ```sh
 make -C frontends/lustre watch

@@ -48,7 +48,8 @@ document _ =
         in
         [ div
             [ class [ "flex flex-col items-center mt-10 gap-2" ] ]
-            [ h1 [ class [ "font-bold text-2xl mb-5" ] ] [ text "Things" ]
+            [ h1 [ class [ "font-bold text-2xl mb-5 text-shadow" ] ]
+                [ text "Things" ]
             , item "a" [ text "Lorem ipsum dolor sit amet" ]
             , item "b" [ text "Etiam accumsan consequat" ]
             , item "c" [ text "Fusce in feugiat felis" ]

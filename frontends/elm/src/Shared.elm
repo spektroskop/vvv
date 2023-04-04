@@ -182,7 +182,7 @@ document route model =
             [ class
                 [ "flex justify-center items-stretch"
                 , "sticky top-0 h-[var(--nav-height)] z-50 px-6"
-                , "shadow-md font-semibold text-cyan-900"
+                , "shadow-md font-semibold text-cyan-950"
                 , "bg-gradient-to-t from-stone-200 to-white"
                 ]
             ]

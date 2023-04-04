@@ -8,7 +8,7 @@ module Page.Detail exposing
     )
 
 import Browser
-import Html exposing (div, text)
+import Html exposing (div, h1, text)
 import Lib.Html exposing (class)
 
 
@@ -41,10 +41,10 @@ document : Model -> Browser.Document Msg
 document model =
     { title = model.id
     , body =
-        [ div
+        [ h1
             [ class
                 [ "flex justify-center h-screen mt-10"
-                , "font-bold text-2xl"
+                , "font-bold text-2xl text-shadow"
                 ]
             ]
             [ text model.id ]
