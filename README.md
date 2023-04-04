@@ -24,8 +24,6 @@ STATIC_BASE=path/to/assets make -C backend watch
 
 #### static
 
-> requires: [watchexec](https://github.com/watchexec/watchexec)
-
 ```sh
 STATIC_BASE=$PWD/frontends/static make -C backend watch
 ```
