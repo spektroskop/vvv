@@ -159,7 +159,7 @@ document route model =
     { title = "vvv"
     , body =
         let
-            state =
+            { overview, docs } =
                 case route of
                     Just Route.Overview ->
                         { overview = active, docs = normal }
@@ -174,8 +174,8 @@ document route model =
                         { overview = normal, docs = normal }
 
             pages =
-                [ state.overview Route.Overview [ text "Overview" ]
-                , state.docs (Route.Docs Nothing) [ text "Docs" ]
+                [ overview Route.Overview [ text "Overview" ]
+                , docs (Route.Docs Nothing) [ text "Docs" ]
                 ]
 
             updated =
@@ -217,7 +217,7 @@ active target body =
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
         |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-br from-cyan-600 to-cyan-700" ]
+        |> Html.classes [ "bg-gradient-to-b from-cyan-600 to-cyan-700" ]
         |> Html.body body
         |> Html.build
 
@@ -228,7 +228,7 @@ background target body =
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
         |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-br from-gray-400 to-gray-500" ]
+        |> Html.classes [ "bg-gradient-to-b from-gray-400 to-gray-500" ]
         |> Html.body body
         |> Html.build
 
