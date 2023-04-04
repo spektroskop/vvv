@@ -1,8 +1,4 @@
-ifneq (, $(shell which jq))
-	format_json := jq
-else
-	format_json := cat && echo
-endif
+include ../../lib/Makefile
 
 .PHONY: clean build watch
 .DEFAULT_GOAL := build
