@@ -4,12 +4,12 @@ This is my bikeshed laboratory for experimenting with web app development!
 
 Languages and tools currently used in this repo:
 
-- [Gleam](https://gleam.run) — backend
-- [Elm](https://elm-lang.org) — frontend
-- [Go](https://go.dev) — bundler
-- [esbuild](https://github.com/evanw/esbuild) — bundler
-- [tailwind](https://tailwindcss.com) — styling
-- [watchexec](https://github.com/watchexec/watchexec) — development
+- [Gleam](https://gleam.run)
+- [Elm](https://elm-lang.org)
+- [Go](https://go.dev)
+- [esbuild](https://github.com/evanw/esbuild)
+- [tailwind](https://tailwindcss.com)
+- [watchexec](https://github.com/watchexec/watchexec)
 
 ## development
 
