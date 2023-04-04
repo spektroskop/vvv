@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := build
 
 listen_port := 3210
-config_file := ../vvv.toml
+config_file := vvv.toml
 
 build:
 
