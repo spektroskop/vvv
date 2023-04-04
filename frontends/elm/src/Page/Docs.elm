@@ -8,7 +8,7 @@ module Page.Docs exposing
     )
 
 import Browser
-import Html exposing (div, h1, text)
+import Html exposing (div, text)
 import Lib.Html exposing (class)
 
 
@@ -42,9 +42,16 @@ document model =
     { title = "Docs"
     , body =
         [ div
-            [ class [ "flex flex-col items-center mt-10 gap-2" ] ]
-            [ h1 [ class [ "font-mono mb-5" ] ]
-                [ text (Debug.toString model) ]
+            [ class [ "flex flex-row justify-center mt-10 gap-2" ] ]
+            [ div
+                [ class [ "font-mono" ] ]
+                [ case model.fragment of
+                    Nothing ->
+                        text "fragment: Nothing"
+
+                    Just fragment ->
+                        text ("fragment: " ++ fragment)
+                ]
             ]
         ]
     }
