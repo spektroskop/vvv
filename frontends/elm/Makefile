@@ -14,7 +14,7 @@ clean:
 	make -C $(bundler) clean
 	rm -rf build
 
-build: $(bundler)/bundler
+build:
 	make -C $(bundler) build/bundler
 	mkdir -p build
 	cp assets/index.html build/index.html
