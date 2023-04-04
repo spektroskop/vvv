@@ -49,9 +49,9 @@ document _ =
         [ div
             [ class [ "flex flex-col items-center mt-10 gap-2" ] ]
             [ h1 [ class [ "font-bold text-2xl mb-5" ] ] [ text "Things" ]
-            , item "Lorem" [ text "Lorem ipsum dolor sit amet" ]
-            , item "Etiam" [ text "Etiam accumsan consequat" ]
-            , item "Fusce" [ text "Fusce in feugiat felis" ]
+            , item "a" [ text "Lorem ipsum dolor sit amet" ]
+            , item "b" [ text "Etiam accumsan consequat" ]
+            , item "c" [ text "Fusce in feugiat felis" ]
             ]
         ]
     }
