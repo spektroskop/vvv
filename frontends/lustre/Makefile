@@ -22,3 +22,9 @@ build:
 	gleam build --target=javascript
 	$(bundler)/build/bundler --output $(build) assets/app.js
 	@-curl --silent --request $(static_reloader) | $(format_json)
+
+watch:
+	watchexec \
+	--watch src \
+	--watch assets \
+	make build
