@@ -11,7 +11,9 @@ module Pages exposing
 
 import Browser
 import Browser.Navigation as Navigation
+import Html exposing (div, h1, text)
 import Lib.Document as Document
+import Lib.Html exposing (class)
 import Lib.Return as Return
 import Page.Detail
 import Page.Docs
@@ -151,7 +153,15 @@ document : Model -> Browser.Document Msg
 document model =
     case model of
         NotFound ->
-            Document.placeholder "Not Found"
+            { title = "Not Found"
+            , body =
+                [ div
+                    [ class [ "flex justify-center mt-10" ] ]
+                    [ h1 [ class [ "font-bold text-2xl mb-5" ] ]
+                        [ text "Not Found" ]
+                    ]
+                ]
+            }
 
         Top ->
             Document.none
