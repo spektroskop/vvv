@@ -1,3 +1,9 @@
+ifneq (, $(shell which jq))
+	format_json := jq
+else
+	format_json := cat && echo
+endif
+
 .PHONY: clean build watch
 .DEFAULT_GOAL := build
 
@@ -14,7 +20,7 @@ build: $(bundler)/bundler
 	cp assets/index.html build/index.html
 	cp assets/heart.svg build/heart.svg
 	$(bundler)/build/bundler --tailwind --output build assets/app.js assets/app.css
-	@-curl --silent --request $(static_reloader) && echo
+	@-curl --silent --request $(static_reloader) | $(format_json)
 
 watch:
 	watchexec \
