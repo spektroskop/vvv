@@ -22,11 +22,33 @@ git submodule update --init
 ### gleam backend
 
 ```sh
+STATIC_BASE=path/to/assets make -C backend watch
+```
+
+### frontends
+
+#### static
+
+```sh
+STATIC_BASE=$PWD/frontends/static make -C backend watch
+```
+
+#### elm
+
+```sh
 STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
 ```
 
-### elm frontend
-
 ```sh
 make -C frontends/elm watch
+```
+
+#### lustre
+
+```sh
+STATIC_BASE=$PWD/frontends/lustre/build/bundle make -C backend watch
+```
+
+```sh
+make -C frontends/lustre watch
 ```
