@@ -6,6 +6,8 @@ This is my bikeshed laboratory for experimenting with web app development!
 
 ### setup
 
+Fetch [bundler](https://github.com/spektroskop/bundler) component
+
 ```sh
 git submodule update --init
 ```
