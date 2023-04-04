@@ -1,4 +1,4 @@
-include ../../lib/Makefile
+include ../../tools/Makefile
 
 .PHONY: clean build watch
 .DEFAULT_GOAL := build
