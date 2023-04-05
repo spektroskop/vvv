@@ -8,6 +8,11 @@
     --header-height: 60px;
     --header-z: 50;
     --nav-width: calc(var(--content-width) - 100px);
+    --scroll-offset: 100px;
+  }
+
+  html {
+    @apply scroll-smooth scroll-p-[var(--scroll-offset)];
   }
 
   body {
