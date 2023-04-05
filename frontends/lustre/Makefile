@@ -4,6 +4,7 @@ include ../../tools/Makefile
 .DEFAULT_GOAL := build
 
 bundler := ../../bundler
+gleam_build := build/dev/javascript/vvv
 static_reloader := PATCH http://localhost:3210/static
 build := build/bundle
 
@@ -15,8 +16,7 @@ build:
 	make -C $(bundler) build/bundler
 	mkdir -p $(build)
 	cp assets/index.html $(build)/index.html
-	gleam build --target=javascript
-	$(bundler)/build/bundler --output $(build) assets/app.js
+	$(bundler)/build/bundler --gleam $(gleam_build) --output $(build) assets/app.js
 	@-curl --silent --request $(static_reloader) | $(format_json)
 
 watch:
