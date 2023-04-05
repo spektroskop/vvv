@@ -16,7 +16,7 @@ build:
 	make -C $(bundler) build/bundler
 	mkdir -p $(build)
 	cp assets/index.html $(build)/index.html
-	$(bundler)/build/bundler --gleam $(gleam_build) --output $(build) assets/app.js
+	$(bundler)/build/bundler --resolve $(gleam_build) --output $(build) assets/app.js
 	@-curl --silent --request $(static_reloader) | $(format_json)
 
 watch:
