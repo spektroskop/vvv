@@ -15,7 +15,7 @@ build:
 	mkdir -p build
 	cp assets/index.html build/index.html
 	cp assets/heart.svg build/heart.svg
-	$(bundler)/build/bundler --tailwind --output build assets/app.js assets/app.css
+	$(bundler)/build/bundler --activate tailwind --output build assets/app.js assets/app.css
 	@-curl --silent --request $(static_reloader) | $(format_json)
 
 watch:
