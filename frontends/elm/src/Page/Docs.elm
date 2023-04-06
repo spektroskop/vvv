@@ -12,7 +12,7 @@ import Browser.Dom as Dom
 import Html exposing (Html, a, div, h1, p, section, text)
 import Html.Attributes exposing (href, id)
 import Lib.Html exposing (class)
-import Task
+import Task exposing (Task)
 
 
 type Msg
@@ -20,22 +20,27 @@ type Msg
 
 
 type alias Model =
-    {}
+    { fragment : Maybe String }
 
 
 init : Maybe String -> ( Model, Cmd Msg )
 init fragment =
-    ( {}
-    , case fragment of
-        Nothing ->
-            Dom.setViewport 0 0
-                |> Task.attempt DomResult
-
-        Just id ->
-            Dom.getElement id
-                |> Task.andThen (\{ element } -> Dom.setViewport 0 (element.y - 100))
-                |> Task.attempt DomResult
+    ( { fragment = fragment }
+    , Maybe.map Dom.getElement fragment
+        |> Maybe.map (Task.andThen scrollTo)
+        |> Maybe.withDefault (scroll 0)
+        |> Task.attempt DomResult
     )
+
+
+scrollTo : Dom.Element -> Task x ()
+scrollTo { element } =
+    scroll (element.y - 100)
+
+
+scroll : Float -> Task x ()
+scroll y =
+    Dom.setViewport 0 y
 
 
 subscriptions : Model -> Sub Msg
@@ -51,34 +56,64 @@ update msg model =
 
 
 document : Model -> Browser.Document Msg
-document _ =
+document model =
     { title = "Docs"
     , body =
+        let
+            link partId label =
+                a
+                    [ class [ "hover:underline p-1 px-3" ]
+                    , href ("#" ++ partId)
+                    ]
+                    [ text label ]
+        in
         [ div [ class [ "flex justify-center" ] ]
             [ div
                 [ class
-                    [ "flex flex-col justify-center mt-10 gap-2"
+                    [ "flex flex-col justify-center mt-5 gap-2"
                     , "max-w-[--nav-width] w-full"
                     ]
                 ]
-                [ part "Part1"
-                , part "Part2"
-                , part "Part3"
+                [ div
+                    [ class
+                        [ "flex self-center mb-5 rounded font-bold"
+                        , "sticky top-[80px] shadow text-slate-600"
+                        , "bg-gradient-to-b from-slate-200 to-slate-300"
+                        ]
+                    ]
+                    [ link "section-1" "1"
+                    , link "section-2" "2"
+                    , link "section-3" "3"
+                    ]
+                , part "section-1" "Section 1" model.fragment
+                , part "section-2" "Section 2" model.fragment
+                , part "section-3" "Section 3" model.fragment
                 ]
             ]
         ]
     }
 
 
-part : String -> Html msg
-part name =
+part : String -> String -> Maybe String -> Html msg
+part partId name fragment =
     let
-        sectionId =
-            String.toLower name
+        background =
+            if fragment == Just partId then
+                "bg-teal-600"
+
+            else
+                ""
     in
     section [ class [ "mb-10" ] ]
-        [ a [ href ("#" ++ sectionId), class [ "hover:underline" ] ]
-            [ h1 [ id sectionId, class [ "font-bold text-2xl mb-5 text-shadow" ] ]
+        [ a [ href ("#" ++ partId), class [ "hover:underline" ] ]
+            [ h1
+                [ id partId
+                , class
+                    [ "font-bold text-2xl text-shadow"
+                    , "inline-flex mb-5"
+                    , background
+                    ]
+                ]
                 [ text name ]
             ]
         , p [ class [ "mb-5" ] ] [ text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae velit eget dolor cursus laoreet eu eget ligula. Integer at scelerisque mauris. Nam malesuada convallis nisi id porta. Aliquam pretium malesuada rutrum. Donec interdum nulla quam, vitae elementum diam imperdiet ut. Vestibulum at odio at mauris ornare condimentum. Nunc ac libero vel nisl iaculis condimentum." ]
