@@ -177,9 +177,8 @@ document route model =
         [ header
             [ class
                 [ "flex justify-center items-stretch sticky top-0 px-6"
-                , "h-[--header-height] z-[--header-z]"
-                , "shadow-md font-semibold text-cyan-950"
-                , "bg-gradient-to-t from-stone-200 to-white"
+                , "h-[--header-height] z-[--header-z] font-semibold"
+                , "text-stone-200 bg-stone-800"
                 ]
             ]
             [ nav [ class [ "flex max-w-[--nav-width] w-full" ] ]
@@ -209,8 +208,8 @@ active target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-b from-cyan-600 to-cyan-700" ]
+        |> Html.classes [ "text-stone-800 text-shadow-white" ]
+        |> Html.classes [ "bg-gradient-to-b from-zinc-200 to-zinc-400" ]
         |> Html.body body
         |> Html.build
 
@@ -220,8 +219,8 @@ background target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes [ "text-white text-shadow" ]
-        |> Html.classes [ "bg-gradient-to-b from-gray-400 to-gray-500" ]
+        |> Html.classes [ "text-stone-200" ]
+        |> Html.classes [ "bg-gradient-to-b from-zinc-600 to-zinc-800" ]
         |> Html.body body
         |> Html.build
 
@@ -230,7 +229,6 @@ normal : Route -> List (Html msg) -> Html msg
 normal target body =
     link
         |> Html.attributes [ Route.href target ]
-        -- |> Html.classes [ "hover:underline" ]
         |> Html.wrap label
         |> Html.body body
         |> Html.build

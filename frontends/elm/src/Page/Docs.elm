@@ -62,21 +62,17 @@ document model =
         let
             link partId label =
                 let
-                    selected =
+                    style =
                         if model.fragment == Just partId then
-                            "text-slate-50 text-shadow bg-slate-400"
+                            [ "p-1 px-3 first:rounded-s last:rounded-e"
+                            , "text-zinc-50 text-shadow"
+                            , "bg-gradient-to-b from-zinc-400 to-zinc-500"
+                            ]
 
                         else
-                            ""
+                            [ "p-1 px-3" ]
                 in
-                a
-                    [ class
-                        [ "p-1 px-3 first:rounded-s last:rounded-e"
-                        , selected
-                        ]
-                    , href ("#" ++ partId)
-                    ]
-                    [ text label ]
+                a [ class style, href ("#" ++ partId) ] [ text label ]
         in
         [ div [ class [ "flex justify-center" ] ]
             [ div
@@ -88,8 +84,8 @@ document model =
                 [ div
                     [ class
                         [ "flex self-center mb-5 rounded font-bold"
-                        , "sticky top-[80px] shadow text-slate-600"
-                        , "bg-gradient-to-b from-slate-200 to-slate-300"
+                        , "sticky top-[80px] text-zinc-700"
+                        , "bg-gradient-to-b from-zinc-300 to-zinc-400"
                         ]
                     ]
                     [ link "section-1" "1"
@@ -108,9 +104,9 @@ document model =
 part : String -> String -> Maybe String -> Html msg
 part partId name fragment =
     let
-        background =
+        highlight =
             if fragment == Just partId then
-                "bg-amber-700"
+                "bg-amber-300"
 
             else
                 ""
@@ -120,8 +116,8 @@ part partId name fragment =
             [ h1
                 [ id partId
                 , class
-                    [ "inline-flex mb-5 font-bold text-2xl text-shadow"
-                    , background
+                    [ "inline-flex mb-5 font-bold text-2xl"
+                    , highlight
                     ]
                 ]
                 [ text name ]

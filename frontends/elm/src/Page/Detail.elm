@@ -43,8 +43,8 @@ document model =
     , body =
         [ h1
             [ class
-                [ "flex justify-center h-screen mt-10"
-                , "font-bold text-2xl text-shadow"
+                [ "flex justify-center mt-10"
+                , "font-bold text-2xl"
                 ]
             ]
             [ text model.id ]
