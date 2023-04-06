@@ -110,18 +110,17 @@ part partId name fragment =
     let
         background =
             if fragment == Just partId then
-                "bg-teal-600"
+                "bg-amber-700"
 
             else
                 ""
     in
     section [ class [ "mb-10" ] ]
-        [ a [ href ("#" ++ partId), class [ "hover:underline" ] ]
+        [ a [ href ("#" ++ partId) ]
             [ h1
                 [ id partId
                 , class
-                    [ "font-bold text-2xl text-shadow"
-                    , "inline-flex mb-5"
+                    [ "inline-flex mb-5 font-bold text-2xl text-shadow"
                     , background
                     ]
                 ]

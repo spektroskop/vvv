@@ -137,7 +137,8 @@ fn config_decoder(
     |> report.error_context(BadCategory("gzip"))
   })
 
-  Ok(Config(app: app, server: server, static: static, gzip: gzip))
+  Config(app: app, server: server, static: static, gzip: gzip)
+  |> Ok
 }
 
 const app_keys = ["interval", "reload_browser"]
@@ -187,7 +188,8 @@ fn app_decoder(
     }
   })
 
-  Ok(App(interval: interval, reload_browser: reload_browser))
+  App(interval: interval, reload_browser: reload_browser)
+  |> Ok
 }
 
 const server_keys = ["port"]
@@ -223,7 +225,8 @@ fn server_decoder(
     }
   })
 
-  Ok(Server(port: port))
+  Server(port: port)
+  |> Ok
 }
 
 const static_keys = ["base", "index", "types", "reloader"]
@@ -272,7 +275,8 @@ fn static_decoder(
           |> report.map_error(BadConfig("index", _)),
         )
 
-        Ok(uri.path_segments(string))
+        uri.path_segments(string)
+        |> Ok
       }
 
       _env, _map -> Ok(default_static_index)
@@ -294,7 +298,8 @@ fn static_decoder(
           }
         })
 
-        Ok(map.from_list(args))
+        map.from_list(args)
+        |> Ok
       }
 
       _env, Ok(value) ->
@@ -302,7 +307,9 @@ fn static_decoder(
         |> dynamic.map(dynamic.string, dynamic.string)
         |> report.map_error(BadConfig("types", _))
 
-      _env, _map -> Ok(map.from_list(default_static_types))
+      _env, _map ->
+        map.from_list(default_static_types)
+        |> Ok
     }
   })
 
@@ -311,7 +318,8 @@ fn static_decoder(
     |> report.error_context(BadCategory("reloader"))
   })
 
-  Ok(Static(base: base, index: index, types: types, reloader: reloader))
+  Static(base: base, index: index, types: types, reloader: reloader)
+  |> Ok
 }
 
 const reloader_keys = ["method", "path"]
@@ -339,7 +347,8 @@ fn reloader_decoder(
           |> report.replace_error(BadEnvironment("method")),
         )
 
-        Ok(option.Some(method))
+        option.Some(method)
+        |> Ok
       }
 
       _env, Ok(value) -> {
@@ -353,7 +362,8 @@ fn reloader_decoder(
           |> report.replace_error(BadConfig("method", [])),
         )
 
-        Ok(option.Some(method))
+        option.Some(method)
+        |> Ok
       }
 
       _env, _map -> Ok(option.None)
@@ -445,14 +455,18 @@ fn gzip_decoder(
           |> report.map_error(BadConfig("types", _)),
         )
 
-        Ok(set.from_list(list))
+        set.from_list(list)
+        |> Ok
       }
 
-      _env, _map -> Ok(set.from_list(default_gzip_types))
+      _env, _map ->
+        set.from_list(default_gzip_types)
+        |> Ok
     }
   })
 
-  Ok(Gzip(threshold: threshold, types: types))
+  Gzip(threshold: threshold, types: types)
+  |> Ok
 }
 
 pub fn encode(config: Config) -> Json {

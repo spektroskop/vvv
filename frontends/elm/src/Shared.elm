@@ -230,7 +230,7 @@ normal : Route -> List (Html msg) -> Html msg
 normal target body =
     link
         |> Html.attributes [ Route.href target ]
-        |> Html.classes [ "hover:underline" ]
+        -- |> Html.classes [ "hover:underline" ]
         |> Html.wrap label
         |> Html.body body
         |> Html.build
@@ -246,7 +246,7 @@ refresh diff =
             |> Html.attributes [ onClick ReloadPage ]
             |> Html.wrap label
             |> Html.classes [ "text-white text-shadow" ]
-            |> Html.classes [ "bg-gradient-to-b from-teal-600 to-teal-700" ]
+            |> Html.classes [ "bg-gradient-to-b from-emerald-600 to-emerald-700" ]
             |> Html.body [ text "A new version is available!" ]
             |> Html.build
 

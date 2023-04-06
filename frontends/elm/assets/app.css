@@ -16,7 +16,7 @@
   }
 
   body {
-    @apply bg-cyan-900 text-cyan-50;
+    @apply bg-stone-800 text-stone-200;
     @apply font-sans;
   }
 }
