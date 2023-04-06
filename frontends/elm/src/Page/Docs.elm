@@ -61,8 +61,19 @@ document model =
     , body =
         let
             link partId label =
+                let
+                    selected =
+                        if model.fragment == Just partId then
+                            "text-slate-50 text-shadow bg-slate-400"
+
+                        else
+                            ""
+                in
                 a
-                    [ class [ "hover:underline p-1 px-3" ]
+                    [ class
+                        [ "p-1 px-3 first:rounded-s last:rounded-e"
+                        , selected
+                        ]
                     , href ("#" ++ partId)
                     ]
                     [ text label ]
