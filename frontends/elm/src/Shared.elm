@@ -177,12 +177,12 @@ document route model =
         [ header
             [ class
                 [ "flex justify-center items-stretch sticky top-0 px-6"
-                , "h-[var(--header-height)] z-[var(--header-z)]"
+                , "h-[--header-height] z-[--header-z]"
                 , "shadow-md font-semibold text-cyan-950"
                 , "bg-gradient-to-t from-stone-200 to-white"
                 ]
             ]
-            [ nav [ class [ "flex max-w-[var(--nav-width)] w-full" ] ]
+            [ nav [ class [ "flex max-w-[--nav-width] w-full" ] ]
                 [ div [ class [ "flex basis-3/6 justify-start" ] ] pages
                 , div [ class [ "flex shrink-0" ] ] [ refresh model.diff ]
                 , div [ class [ "flex basis-3/6 justify-end" ] ] [ project ]

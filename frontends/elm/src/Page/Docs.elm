@@ -58,7 +58,7 @@ document _ =
             [ div
                 [ class
                     [ "flex flex-col justify-center mt-10 gap-2"
-                    , "max-w-[var(--nav-width)] w-full"
+                    , "max-w-[--nav-width] w-full"
                     ]
                 ]
                 [ part "Part1"

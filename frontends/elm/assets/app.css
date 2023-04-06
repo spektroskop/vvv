@@ -12,7 +12,7 @@
   }
 
   html {
-    @apply scroll-smooth scroll-p-[var(--scroll-offset)];
+    @apply scroll-smooth scroll-p-[--scroll-offset];
   }
 
   body {
