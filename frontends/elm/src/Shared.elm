@@ -9,6 +9,7 @@ module Shared exposing
     )
 
 import Browser
+import Browser.Events as Browser
 import Browser.Navigation as Navigation
 import Html exposing (Html, a, button, div, header, nav, span, text)
 import Html.Attributes exposing (href, target)
@@ -32,13 +33,15 @@ import Theme
 
 
 type Msg
-    = GetApp
+    = VisibilityChanged Browser.Visibility
+    | GetApp
     | GotApp (Result Http.Error App)
     | ReloadPage
 
 
 type alias Model =
-    { app : Loadable Http.Error App
+    { visibility : Browser.Visibility
+    , app : Loadable Http.Error App
     , diff : List Static.Diff
     }
 
@@ -63,7 +66,8 @@ init _ =
 
 initialModel : Model
 initialModel =
-    { app = Loading
+    { visibility = Browser.Visible
+    , app = Loading
     , diff = []
     }
 
@@ -88,12 +92,15 @@ appDecoder =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Browser.onVisibilityChange VisibilityChanged
 
 
 update : Msg -> Navigation.Key -> Model -> ( Model, Cmd Msg )
 update msg _ model =
     case msg of
+        VisibilityChanged visibility ->
+            ( { model | visibility = visibility }, Cmd.none )
+
         GetApp ->
             getApp model
 
