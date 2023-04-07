@@ -106,7 +106,7 @@ part partId name fragment =
     let
         highlight =
             if fragment == Just partId then
-                "bg-amber-300"
+                "bg-amber-300 dark:bg-amber-700"
 
             else
                 ""

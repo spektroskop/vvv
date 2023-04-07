@@ -178,7 +178,8 @@ document route model =
             [ class
                 [ "flex justify-center items-stretch sticky top-0 px-6"
                 , "h-[--header-height] z-[--header-z] font-semibold"
-                , "text-stone-200 bg-stone-800"
+                , "text-stone-200 bg-zinc-900"
+                , "dark:text-stone-200 dark:bg-zinc-800"
                 ]
             ]
             [ nav [ class [ "flex max-w-[--nav-width] w-full" ] ]
@@ -219,8 +220,8 @@ background target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes [ "text-stone-200" ]
-        |> Html.classes [ "bg-gradient-to-b from-zinc-600 to-zinc-800" ]
+        |> Html.classes [ "text-zinc-300" ]
+        |> Html.classes [ "bg-gradient-to-b from-zinc-600 to-zinc-700" ]
         |> Html.body body
         |> Html.build
 
