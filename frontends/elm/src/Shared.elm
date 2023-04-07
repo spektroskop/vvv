@@ -217,7 +217,7 @@ active target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes Theme.default.navigation.active 
+        |> Html.classes Theme.default.navigation.active
         |> Html.body body
         |> Html.build
 

@@ -6,7 +6,8 @@
   :root {
     --content-width: 850px;
     --header-height: 60px;
-    --header-z: 50;
+    --header-z: 10;
+    --top-z: 50;
     --nav-width: calc(var(--content-width) - 100px);
     --scroll-offset: 100px;
   }

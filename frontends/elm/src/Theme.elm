@@ -44,11 +44,11 @@ default =
         }
     , docs =
         { highlight = [ "bg-amber-300 dark:bg-amber-700" ]
-        , navigation = 
-            [ "text-zinc-700"
+        , navigation =
+            [ "text-zinc-700 font-bold shadow"
             , "bg-gradient-to-b from-zinc-300 to-zinc-400"
             ]
-        , active = 
+        , active =
             [ "text-zinc-50 text-shadow"
             , "bg-gradient-to-b from-zinc-400 to-zinc-500"
             ]

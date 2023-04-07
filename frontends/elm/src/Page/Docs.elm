@@ -9,7 +9,7 @@ module Page.Docs exposing
 
 import Browser
 import Browser.Dom as Dom
-import Html exposing (Html, a, div, h1, p, section, text)
+import Html exposing (Html, a, div, h1, h2, p, section, text)
 import Html.Attributes exposing (href, id)
 import Lib.Html exposing (class)
 import Task exposing (Task)
@@ -78,18 +78,20 @@ document model =
         [ div [ class [ "flex justify-center" ] ]
             [ div
                 [ class
-                    [ "flex flex-col justify-center mt-5 gap-2"
+                    [ "flex flex-col justify-center mt-5"
                     , "max-w-[--nav-width] w-full"
                     ]
                 ]
                 [ div
-                    [ class [ "flex self-center mb-5 rounded font-bold sticky top-[80px]" ]
+                    [ class [ "flex self-center rounded top-[80px] sticky mb-5" ]
                     , class Theme.default.docs.navigation
                     ]
                     [ link "section-1" "1"
                     , link "section-2" "2"
                     , link "section-3" "3"
                     ]
+                , h1 [ class [ "inline-flex mb-10 font-bold text-3xl" ] ]
+                    [ text "Lorem ipsum dolor sit amet" ]
                 , part "section-1" "Section 1" model.fragment
                 , part "section-2" "Section 2" model.fragment
                 , part "section-3" "Section 3" model.fragment
@@ -111,7 +113,7 @@ part partId name fragment =
     in
     section [ class [ "mb-10" ] ]
         [ a [ href ("#" ++ partId) ]
-            [ h1
+            [ h2
                 [ id partId
                 , class
                     [ "inline-flex mb-5 font-bold text-2xl"
