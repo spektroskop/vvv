@@ -82,16 +82,16 @@ document model =
                     , "max-w-[--nav-width] w-full"
                     ]
                 ]
-                [ div
-                    [ class [ "flex self-center rounded top-[80px] sticky mb-5" ]
-                    , class Theme.default.docs.navigation
-                    ]
-                    [ link "section-1" "1"
-                    , link "section-2" "2"
-                    , link "section-3" "3"
-                    ]
-                , h1 [ class [ "inline-flex mb-10 font-bold text-3xl" ] ]
-                    [ text "Lorem ipsum dolor sit amet" ]
+                -- [ div
+                --     [ class [ "flex self-center rounded top-[80px] sticky mb-5" ]
+                --     , class Theme.default.docs.navigation
+                --     ]
+                --     [ link "section-1" "1"
+                --     , link "section-2" "2"
+                --     , link "section-3" "3"
+                --     ]
+                [ h1 [ class [ "inline-flex mb-10 font-bold text-3xl" ] ]
+                    [ text "Lorem ipsum" ]
                 , part "section-1" "Section 1" model.fragment
                 , part "section-2" "Section 2" model.fragment
                 , part "section-3" "Section 3" model.fragment
