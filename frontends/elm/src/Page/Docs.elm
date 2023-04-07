@@ -13,6 +13,7 @@ import Html exposing (Html, a, div, h1, p, section, text)
 import Html.Attributes exposing (href, id)
 import Lib.Html exposing (class)
 import Task exposing (Task)
+import Theme
 
 
 type Msg
@@ -82,11 +83,8 @@ document model =
                     ]
                 ]
                 [ div
-                    [ class
-                        [ "flex self-center mb-5 rounded font-bold"
-                        , "sticky top-[80px] text-zinc-700"
-                        , "bg-gradient-to-b from-zinc-300 to-zinc-400"
-                        ]
+                    [ class [ "flex self-center mb-5 rounded font-bold sticky top-[80px]" ]
+                    , class Theme.default.docs.navigation
                     ]
                     [ link "section-1" "1"
                     , link "section-2" "2"
