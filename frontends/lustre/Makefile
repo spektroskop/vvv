@@ -21,7 +21,8 @@ build: node_modules
 	make -C $(bundler) build/bundler
 	mkdir -p $(build)
 	cp assets/index.html $(build)/index.html
-	$(bundler)/build/bundler --resolve gleam=$(gleam_build) --output $(build) assets/app.js
+	$(bundler)/build/bundler assets/app.js assets/app.css --output $(build) \
+	--activate tailwind --resolve gleam=$(gleam_build)
 	@-curl --silent --request $(static_reloader) | $(format_json)
 
 watch:
