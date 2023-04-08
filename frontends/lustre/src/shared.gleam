@@ -1,6 +1,7 @@
 import gleam/string
 import loadable.{Loadable}
 import lustre/element.{div, text}
+import lustre/attribute.{class}
 import static
 
 pub type App {
@@ -16,5 +17,8 @@ pub fn new() -> Model {
 }
 
 pub fn render(model: Model) {
-  div([], [text(string.inspect(model))])
+  div(
+    [class("inline-flex p-1 px-2 bg-rose-300")],
+    [text(string.inspect(model))],
+  )
 }
