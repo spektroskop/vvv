@@ -2,9 +2,7 @@
 
 This is my bikeshed laboratory for web app experiments
 
-## setup
-
-Fetch [bundler](https://github.com/spektroskop/bundler) component
+## [bundler](https://github.com/spektroskop/bundler)
 
 ```sh
 git submodule update --init
@@ -42,7 +40,7 @@ make -C frontends/elm watch
 
 ### [lustre](frontends/lustre)
 
-> requires [gleam](https://gleam.run), [node](https://nodejs.org), [go](https://go.dev), [watchexec](https://github.com/watchexec/watchexec)
+> requires [gleam](https://gleam.run), [node](https://nodejs.org), [go](https://go.dev), [tailwind cli](https://tailwindcss.com), [watchexec](https://github.com/watchexec/watchexec)
 
 ```sh
 STATIC_BASE=$PWD/frontends/lustre/build/bundle make -C backend watch
