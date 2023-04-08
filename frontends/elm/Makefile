@@ -1,10 +1,8 @@
-include ../../tools/Makefile
-
-.PHONY: clean build watch
 .DEFAULT_GOAL := build
+.PHONY: clean build watch
 
 bundler := ../../bundler
-static_reloader := PATCH http://localhost:3210/static
+reload := PATCH http://localhost:3210/static
 
 clean:
 	make -C $(bundler) clean
@@ -15,8 +13,9 @@ build:
 	mkdir -p build
 	cp assets/index.html build/index.html
 	cp assets/heart.svg build/heart.svg
-	$(bundler)/build/bundler --activate tailwind --output build assets/app.js assets/app.css
-	@-curl --silent --request $(static_reloader) | $(format_json)
+	$(bundler)/build/bundler assets/app.js assets/app.css \
+	--output build --activate tailwind
+	@-curl --silent --request $(reload) | jq
 
 watch:
 	watchexec \
