@@ -8,6 +8,7 @@ import gleam/list
 import gleam/otp/actor
 import gleam/pair
 import gleam/result
+import lib
 import lib/report.{Report}
 import web.{Error}
 import web/static.{Assets}
@@ -75,24 +76,23 @@ pub fn service(
   timeout timeout: Int,
 ) -> Result(static.Service, actor.StartError) {
   use actor <- result.then(start(service))
+  use <- lib.wrap(Ok)
 
-  Ok({
-    static.Service(
-      assets: fn() {
-        process.try_call(actor, List, timeout)
-        |> result.unwrap(report.error(web.CallError))
-      },
-      router: fn(request: Request(_), segments) -> web.Result {
-        case request.method == method && segments == path {
-          True ->
-            process.try_call(actor, Reload, timeout)
-            |> result.unwrap(report.error(web.CallError))
+  static.Service(
+    assets: fn() {
+      process.try_call(actor, List, timeout)
+      |> result.unwrap(report.error(web.CallError))
+    },
+    router: fn(request: Request(_), segments) -> web.Result {
+      case request.method == method && segments == path {
+        True ->
+          process.try_call(actor, Reload, timeout)
+          |> result.unwrap(report.error(web.CallError))
 
-          False ->
-            process.try_call(actor, Route(request, segments, _), timeout)
-            |> result.unwrap(report.error(web.CallError))
-        }
-      },
-    )
-  })
+        False ->
+          process.try_call(actor, Route(request, segments, _), timeout)
+          |> result.unwrap(report.error(web.CallError))
+      }
+    },
+  )
 }
