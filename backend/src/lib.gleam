@@ -1,7 +1,7 @@
 import gleam/bit_builder.{BitBuilder}
 import gleam/result
 
-pub fn wrap(wrap: fn(a) -> b, body: fn() -> a) -> b {
+pub fn return(wrap: fn(a) -> b, body: fn() -> a) -> b {
   wrap(body())
 }
 
