@@ -1,5 +1,8 @@
 import gleam/io
+import websocket
 
 pub fn main() {
-  io.println("Hello from vvv!")
+  use event <- websocket.connect("/ws")
+  io.debug(event)
+  Nil
 }

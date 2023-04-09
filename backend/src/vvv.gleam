@@ -98,7 +98,7 @@ pub fn main() {
             handler.Upgrade({
               use message, client <- handler()
               io.debug(message)
-              ws.send(client, ws.TextMessage("Yo"))
+              ws.send(client, ws.TextMessage("Hi"))
               |> Ok
             })
           }
