@@ -9,15 +9,19 @@ module Page.Docs exposing
 
 import Browser
 import Browser.Dom as Dom
+import Browser.Navigation as Navigation
 import Html exposing (Html, a, div, h1, h2, p, section, text)
 import Html.Attributes exposing (href, id)
 import Lib.Html exposing (class)
+import Ports
 import Task exposing (Task)
 import Theme
 
 
 type Msg
     = DomResult (Result Dom.Error ())
+    | PortMessage Ports.Incoming
+    | PortError Ports.Error
 
 
 type alias Model =
@@ -27,10 +31,18 @@ type alias Model =
 init : Maybe String -> ( Model, Cmd Msg )
 init fragment =
     ( { fragment = fragment }
-    , Maybe.map Dom.getElement fragment
-        |> Maybe.map (Task.andThen scrollTo)
-        |> Maybe.withDefault (scroll 0)
-        |> Task.attempt DomResult
+    , case fragment of
+        Just id ->
+            Cmd.none
+
+        Nothing ->
+            scroll 0
+                |> Task.attempt DomResult
+      -- FIXME: Interferes with intersectionObserver
+      -- , Maybe.map Dom.getElement fragment
+      --     |> Maybe.map (Task.andThen scrollTo)
+      --     |> Maybe.withDefault (scroll 0)
+      --     |> Task.attempt DomResult
     )
 
 
@@ -46,13 +58,21 @@ scroll y =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Ports.receive PortMessage PortError
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Navigation.Key -> Msg -> Model -> ( Model, Cmd Msg )
+update key msg model =
     case msg of
         DomResult _ ->
+            ( model, Cmd.none )
+
+        PortMessage (Ports.Anchor id) ->
+            ( model
+            , Navigation.replaceUrl key (Debug.log "url" ("#" ++ id))
+            )
+
+        PortError _ ->
             ( model, Cmd.none )
 
 
@@ -93,12 +113,38 @@ document model =
                 [ h1 [ class [ "inline-flex mb-10 font-bold text-3xl" ] ]
                     [ text "Lorem ipsum" ]
                 , part "section-1" "Section 1" model.fragment
-                , part "section-2" "Section 2" model.fragment
+                , smallPart "section-2" "Section 2" model.fragment
                 , part "section-3" "Section 3" model.fragment
+                , part "section-4" "Section 4" model.fragment
                 ]
             ]
         ]
     }
+
+
+smallPart : String -> String -> Maybe String -> Html msg
+smallPart partId name fragment =
+    let
+        highlight =
+            if fragment == Just partId then
+                "bg-amber-300 dark:bg-amber-700"
+
+            else
+                ""
+    in
+    section [ class [ "doc-section", "mb-10" ] ]
+        [ a [ href ("#" ++ partId) ]
+            [ h2
+                [ id partId
+                , class
+                    [ "inline-flex mb-5 font-bold text-2xl"
+                    , highlight
+                    ]
+                ]
+                [ text name ]
+            ]
+        , p [ class [ "mb-5" ] ] [ text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae velit eget dolor cursus laoreet eu eget ligula. Integer at scelerisque mauris. Nam malesuada convallis nisi id porta. Aliquam pretium malesuada rutrum. Donec interdum nulla quam, vitae elementum diam imperdiet ut. Vestibulum at odio at mauris ornare condimentum. Nunc ac libero vel nisl iaculis condimentum." ]
+        ]
 
 
 part : String -> String -> Maybe String -> Html msg
@@ -111,7 +157,7 @@ part partId name fragment =
             else
                 ""
     in
-    section [ class [ "mb-10" ] ]
+    section [ class [ "doc-section", "mb-10" ] ]
         [ a [ href ("#" ++ partId) ]
             [ h2
                 [ id partId

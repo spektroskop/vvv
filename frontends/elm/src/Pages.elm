@@ -119,7 +119,7 @@ fromShared _ model =
 
 
 update : Msg -> Navigation.Key -> Shared.Model -> Model -> ( Model, Cmd Msg )
-update msg _ _ model =
+update msg key _ model =
     case ( model, msg ) of
         ( NotFound, _ ) ->
             ( model, Cmd.none )
@@ -142,7 +142,7 @@ update msg _ _ model =
             ( model, Cmd.none )
 
         ( Docs pageModel, DocsMsg pageMsg ) ->
-            Page.Docs.update pageMsg pageModel
+            Page.Docs.update key pageMsg pageModel
                 |> Return.map Docs DocsMsg
 
         ( Docs _, _ ) ->
