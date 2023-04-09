@@ -76,21 +76,23 @@ pub fn service(
 ) -> Result(static.Service, actor.StartError) {
   use actor <- result.then(start(service))
 
-  Ok(static.Service(
-    assets: fn() {
-      process.try_call(actor, List, timeout)
-      |> result.unwrap(report.error(web.CallError))
-    },
-    router: fn(request: Request(_), segments) -> web.Result {
-      case request.method == method && segments == path {
-        True ->
-          process.try_call(actor, Reload, timeout)
-          |> result.unwrap(report.error(web.CallError))
+  Ok({
+    static.Service(
+      assets: fn() {
+        process.try_call(actor, List, timeout)
+        |> result.unwrap(report.error(web.CallError))
+      },
+      router: fn(request: Request(_), segments) -> web.Result {
+        case request.method == method && segments == path {
+          True ->
+            process.try_call(actor, Reload, timeout)
+            |> result.unwrap(report.error(web.CallError))
 
-        False ->
-          process.try_call(actor, Route(request, segments, _), timeout)
-          |> result.unwrap(report.error(web.CallError))
-      }
-    },
-  ))
+          False ->
+            process.try_call(actor, Route(request, segments, _), timeout)
+            |> result.unwrap(report.error(web.CallError))
+        }
+      },
+    )
+  })
 }
