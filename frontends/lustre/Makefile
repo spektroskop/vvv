@@ -26,6 +26,7 @@ build: node_modules
 watch:
 	watchexec \
 	--watch package.json \
+	--watch tailwind.config.js \
 	--watch src \
 	--watch assets \
 	make build
