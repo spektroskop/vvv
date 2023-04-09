@@ -13,9 +13,6 @@ import lib/report.{Report}
 import web.{Error}
 import web/static.{Assets}
 
-pub type Actor =
-  Subject(Message)
-
 pub type Message {
   Reload(Subject(web.Result))
   List(Subject(Result(Assets, Report(Error))))
