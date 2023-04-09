@@ -58,6 +58,7 @@ pub fn main() {
         )
     }
   }
+
   let router =
     router.service(
       api: api.service(
