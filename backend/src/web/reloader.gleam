@@ -22,52 +22,48 @@ pub type Message {
 }
 
 pub fn start(service: fn() -> static.Service) -> Result(Subject(Message), _) {
-  actor.start(service(), update(service))
-}
+  use message, state <- actor.start(service())
 
-fn update(reload: fn() -> static.Service) {
-  fn(message, state: static.Service) -> actor.Next(static.Service) {
-    case message {
-      Reload(reply) -> {
-        let reloaded = reload()
+  case message {
+    Reload(reply) -> {
+      let reloaded = service()
 
-        process.send(
-          reply,
-          case state.assets(), reloaded.assets() {
-            Ok(old), Ok(new) -> {
-              let changes =
-                static.changes(from: old, to: new)
-                |> list.map(pair.map_second(_, json.array(_, json.string)))
-                |> json.object()
-                |> json.to_string()
+      process.send(
+        reply,
+        case state.assets(), reloaded.assets() {
+          Ok(old), Ok(new) -> {
+            let changes =
+              static.changes(from: old, to: new)
+              |> list.map(pair.map_second(_, json.array(_, json.string)))
+              |> json.object()
+              |> json.to_string()
 
-              response.new(200)
-              |> response.prepend_header("content-type", "application/json")
-              |> response.set_body(changes)
-              |> response.map(bit_builder.from_string)
-              |> Ok
-            }
+            response.new(200)
+            |> response.prepend_header("content-type", "application/json")
+            |> response.set_body(changes)
+            |> response.map(bit_builder.from_string)
+            |> Ok
+          }
 
-            _, _ ->
-              response.new(500)
-              |> response.set_body("500 Internal Server Error")
-              |> response.map(bit_builder.from_string)
-              |> Ok
-          },
-        )
+          _, _ ->
+            response.new(500)
+            |> response.set_body("500 Internal Server Error")
+            |> response.map(bit_builder.from_string)
+            |> Ok
+        },
+      )
 
-        actor.Continue(reloaded)
-      }
+      actor.Continue(reloaded)
+    }
 
-      List(reply) -> {
-        process.send(reply, state.assets())
-        actor.Continue(state)
-      }
+    List(reply) -> {
+      process.send(reply, state.assets())
+      actor.Continue(state)
+    }
 
-      Route(request, segments, reply) -> {
-        process.send(reply, state.router(request, segments))
-        actor.Continue(state)
-      }
+    Route(request, segments, reply) -> {
+      process.send(reply, state.router(request, segments))
+      actor.Continue(state)
     }
   }
 }
