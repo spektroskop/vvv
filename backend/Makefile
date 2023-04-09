@@ -1,5 +1,5 @@
-.PHONY: build docs watch
 .DEFAULT_GOAL := build
+.PHONY: build docs watch
 
 listen_port := 3210
 config_file := vvv.toml
