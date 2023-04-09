@@ -1,40 +1,57 @@
-pub external type Connection
+import gleam/dynamic.{Dynamic}
+
+pub external type Socket
 
 pub type Event {
-  Open(Connection)
-  TextMessage(String)
-  Close(Reason)
+  Open(Socket)
+  Error(Dynamic)
+  Message(String)
+  Close(CloseReason)
 }
 
-pub type Reason {
+pub type CloseReason {
   Normal
   Other(Int)
 }
 
-type Handler(a) {
-  Handler(
-    on_open: fn(Connection) -> a,
-    on_close: fn(Int) -> a,
-    on_message: fn(String) -> a,
-  )
-}
-
-external fn glue_connect(String, Handler(a)) -> a =
+external fn glue_connect(
+  String,
+  open: fn(Socket) -> a,
+  error: fn(Dynamic) -> a,
+  message: fn(String) -> a,
+  close: fn(Int) -> a,
+) -> a =
   "./glue.js" "connect"
 
-fn handle(callback: fn(Event) -> a) -> Handler(a) {
-  Handler(
-    on_open: fn(conn) { callback(Open(conn)) },
-    on_close: fn(code) {
-      case code {
-        1000 -> callback(Close(Normal))
-        other -> callback(Close(Other(other)))
-      }
-    },
-    on_message: fn(message) { callback(TextMessage(message)) },
-  )
+pub external fn close(socket: Socket) -> Nil =
+  "./glue.js" "close"
+
+fn close_reason(code: Int) -> CloseReason {
+  case code {
+    1000 -> Normal
+    other -> Other(other)
+  }
 }
 
-pub fn connect(path: String, handler: fn(Event) -> Nil) {
-  glue_connect(path, handle(handler))
+pub fn connect(path: String, callback: fn(Event) -> a) {
+  glue_connect(
+    path,
+    open: fn(conn) {
+      Open(conn)
+      |> callback()
+    },
+    error: fn(error) {
+      Error(error)
+      |> callback()
+    },
+    message: fn(message) {
+      Message(message)
+      |> callback()
+    },
+    close: fn(code) {
+      close_reason(code)
+      |> Close
+      |> callback()
+    },
+  )
 }

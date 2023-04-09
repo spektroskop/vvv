@@ -79,6 +79,7 @@ pub fn main() {
 
         let connect = fn(client) {
           io.debug(#("connect", client))
+          ws.send(client, ws.TextMessage("Connected"))
           Nil
         }
 
@@ -96,10 +97,9 @@ pub fn main() {
         case request.method, request.path_segments(request) {
           http.Get, ["ws"] -> {
             handler.Upgrade({
-              use message, client <- handler()
+              use message, _client <- handler()
               io.debug(message)
-              ws.send(client, ws.TextMessage("Hi"))
-              |> Ok
+              Ok(Nil)
             })
           }
 

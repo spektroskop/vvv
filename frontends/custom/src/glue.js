@@ -1,19 +1,26 @@
-export const connect = (path, {on_open, on_close, on_message}) => {
+export const connect = (path, onOpen, onError, onMessage, onClose) => {
   const url = new URL(document.URL)
   const protocol = url.protocol === "https:" ? "wss" : "ws"
   const ws_url = `${protocol}://${url.host}${path}`
-  const conn = new WebSocket(ws_url)
+  const socket = new WebSocket(ws_url)
 
-  conn.onclose = (event) => {
-    on_close(event.code)
-  }
+  socket.addEventListener("open", (event) => {
+    onOpen(socket)
+  })
 
-  conn.onopen = (event) => {
-    on_open(conn)
-    setInterval(() =>  conn.send("Hello"), 1000)
-  }
+  socket.addEventListener("message", (event) => {
+    onMessage(event.data)
+  })
 
-  conn.onmessage = (event) => {
-    on_message(event.data)
-  }
+  socket.addEventListener("close", (event) => {
+    onClose(event.code)
+  })
+
+  socket.addEventListener("error", (event) => {
+    onError(event)
+  })
+}
+
+export const close = (socket) => {
+  socket.close()
 }
