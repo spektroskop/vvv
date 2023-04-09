@@ -1,8 +1,8 @@
 import gleam/bit_builder.{BitBuilder}
 import gleam/result
 
-pub fn wrap(wrap: fn(a) -> b, make: fn() -> a) -> b {
-  wrap(make())
+pub fn wrap(wrap: fn(a) -> b, body: fn() -> a) -> b {
+  wrap(body())
 }
 
 pub fn unwrap_error(result: Result(a, e), or default: fn(e) -> a) -> a {
