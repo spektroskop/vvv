@@ -1,12 +1,18 @@
 import config
 import gleam/erlang
 import gleam/erlang/process
+import gleam/http
+import gleam/http/request
+import gleam/http/response
 import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option
 import gleam/string
 import mist
+import mist/handler
+import mist/http as mh
+import mist/websocket as ws
 import web/api
 import web/reloader
 import web/router
@@ -52,21 +58,59 @@ pub fn main() {
         )
     }
   }
+  let router =
+    router.service(
+      api: api.service(
+        interval: config.app.interval,
+        assets: static_service.assets,
+        reload_browser: config.app.reload_browser,
+      ),
+      static: static_service,
+      gzip_types: config.gzip.types,
+      gzip_threshold: config.gzip.threshold,
+    )
 
   let assert Ok(_) =
-    mist.run_service(
-      config.server.port,
-      router.service(
-        api: api.service(
-          interval: config.app.interval,
-          assets: static_service.assets,
-          reload_browser: config.app.reload_browser,
-        ),
-        static: static_service,
-        gzip_types: config.gzip.types,
-        gzip_threshold: config.gzip.threshold,
-      ),
-      max_body_limit: 0,
+    mist.serve(
+      port: config.server.port,
+      handler: {
+        use request <- handler.with_func()
+
+        let connect = fn(client) {
+          io.debug(#("connect", client))
+          Nil
+        }
+
+        let close = fn(client) {
+          io.debug(#("close", client))
+          Nil
+        }
+
+        let handler = ws.WebsocketHandler(
+          on_init: option.Some(connect),
+          on_close: option.Some(close),
+          handler: _,
+        )
+
+        case request.method, request.path_segments(request) {
+          http.Get, ["ws"] -> {
+            handler.Upgrade({
+              use message, client <- handler()
+              io.debug(message)
+              ws.send(client, ws.TextMessage("Yo"))
+              |> Ok
+            })
+          }
+
+          _method, _segments -> {
+            let assert Ok(request) = mh.read_body(request)
+
+            router(request)
+            |> response.map(mh.BitBuilderBody)
+            |> handler.Response
+          }
+        }
+      },
     )
 
   process.sleep_forever()

@@ -20,7 +20,7 @@ build: node_modules
 	mkdir -p $(bundle)
 	cp assets/index.html $(bundle)/index.html
 	$(bundler)/build/bundler assets/app.js assets/app.css --output $(bundle) \
-	--activate tailwind --resolve gleam=$(build)
+	--activate tailwind --loader js=jsx --resolve gleam=$(build)
 	@-curl --silent --request $(reload) | jq
 
 watch:
