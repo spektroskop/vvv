@@ -176,6 +176,7 @@ fn app_decoder(
     case get_env(["RELOAD_BROWSER", ..prefix]), map.get(map, "reload_browser") {
       Ok("false"), _map -> Ok(False)
       Ok("true"), _map -> Ok(True)
+
       Ok(_), _map ->
         BadEnvironment("reload_browser")
         |> report.error()

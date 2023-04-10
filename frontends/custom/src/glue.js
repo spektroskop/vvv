@@ -20,7 +20,7 @@ export const connect = (
   })
 
   socket.addEventListener("close", (event) => {
-  on_close(event.code)
+    on_close(event.code)
   })
 
   socket.addEventListener("error", (event) => {

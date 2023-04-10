@@ -121,13 +121,14 @@ fn load_asset(
     |> result.nil_error(),
   )
 
-  Ok(Asset(
+  Asset(
     content_type: content_type,
     hash: crypto.hash(crypto.Sha224, data)
     |> base.encode64(False),
     relative_path: relative_path,
     full_path: full_path,
-  ))
+  )
+  |> Ok
 }
 
 pub fn encode_assets(assets: Assets) -> Json {
