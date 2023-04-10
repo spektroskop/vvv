@@ -1,8 +1,6 @@
 import config
 import gleam/erlang
 import gleam/erlang/process
-import gleam/http
-import gleam/http/request
 import gleam/http/response
 import gleam/io
 import gleam/json
@@ -12,7 +10,6 @@ import gleam/string
 import mist
 import mist/handler
 import mist/http as mh
-import mist/websocket as ws
 import web/api
 import web/reloader
 import web/router
@@ -76,41 +73,11 @@ pub fn main() {
       port: config.server.port,
       handler: {
         use request <- handler.with_func()
+        let assert Ok(request) = mh.read_body(request)
 
-        let connect = fn(client) {
-          io.debug(#("connect", client))
-          ws.send(client, ws.TextMessage("Connected"))
-          Nil
-        }
-
-        let close = fn(client) {
-          io.debug(#("close", client))
-          Nil
-        }
-
-        let handler = ws.WebsocketHandler(
-          on_init: option.Some(connect),
-          on_close: option.Some(close),
-          handler: _,
-        )
-
-        case request.method, request.path_segments(request) {
-          http.Get, ["ws"] -> {
-            handler.Upgrade({
-              use message, _client <- handler()
-              io.debug(message)
-              Ok(Nil)
-            })
-          }
-
-          _method, _segments -> {
-            let assert Ok(request) = mh.read_body(request)
-
-            router(request)
-            |> response.map(mh.BitBuilderBody)
-            |> handler.Response
-          }
-        }
+        router(request)
+        |> response.map(mh.BitBuilderBody)
+        |> handler.Response
       },
     )
 
