@@ -1,12 +1,15 @@
 import config
 import gleam/erlang
 import gleam/erlang/process
+import gleam/http/response
 import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option
 import gleam/string
 import mist
+import mist/handler
+import mist/http as mh
 import web/api
 import web/reloader
 import web/router
@@ -53,20 +56,29 @@ pub fn main() {
     }
   }
 
-  let assert Ok(_) =
-    mist.run_service(
-      config.server.port,
-      router.service(
-        api: api.service(
-          interval: config.app.interval,
-          assets: static_service.assets,
-          reload_browser: config.app.reload_browser,
-        ),
-        static: static_service,
-        gzip_types: config.gzip.types,
-        gzip_threshold: config.gzip.threshold,
+  let router =
+    router.service(
+      api: api.service(
+        interval: config.app.interval,
+        assets: static_service.assets,
+        reload_browser: config.app.reload_browser,
       ),
-      max_body_limit: 0,
+      static: static_service,
+      gzip_types: config.gzip.types,
+      gzip_threshold: config.gzip.threshold,
+    )
+
+  let assert Ok(_) =
+    mist.serve(
+      port: config.server.port,
+      handler: {
+        use request <- handler.with_func()
+        let assert Ok(request) = mh.read_body(request)
+
+        router(request)
+        |> response.map(mh.BitBuilderBody)
+        |> handler.Response
+      },
     )
 
   process.sleep_forever()
