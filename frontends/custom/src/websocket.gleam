@@ -1,4 +1,8 @@
 import gleam/dynamic.{Dynamic}
+import gleam/option
+import gleam/uri.{Uri}
+import gleam/result
+import lib
 
 pub external type Socket
 
@@ -33,25 +37,45 @@ fn close_reason(code: Int) -> CloseReason {
   }
 }
 
-pub fn connect(path: String, callback: fn(Event) -> a) {
-  glue_connect(
-    path,
-    open: fn(conn) {
-      Open(conn)
-      |> callback()
-    },
-    error: fn(error) {
-      Error(error)
-      |> callback()
-    },
-    message: fn(message) {
-      Message(message)
-      |> callback()
-    },
-    close: fn(code) {
-      close_reason(code)
-      |> Close
-      |> callback()
-    },
+fn uri(path: String) {
+  use uri <- result.then(lib.document_uri())
+
+  Ok(
+    Uri(
+      ..uri,
+      path: path,
+      scheme: case uri.scheme {
+        option.Some("https") -> option.Some("wss")
+        option.Some("http") -> option.Some("ws")
+        option.None -> option.Some("ws")
+      },
+    ),
   )
+}
+
+pub fn connect(path: String, callback: fn(Event) -> a) -> Result(a, Nil) {
+  use uri <- result.then(uri(path))
+
+  Ok({
+    glue_connect(
+      uri.to_string(uri),
+      open: fn(conn) {
+        Open(conn)
+        |> callback()
+      },
+      error: fn(error) {
+        Error(error)
+        |> callback()
+      },
+      message: fn(message) {
+        Message(message)
+        |> callback()
+      },
+      close: fn(code) {
+        close_reason(code)
+        |> Close
+        |> callback()
+      },
+    )
+  })
 }

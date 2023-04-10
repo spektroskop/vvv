@@ -1,23 +1,30 @@
-export const connect = (path, onOpen, onError, onMessage, onClose) => {
-  const url = new URL(document.URL)
-  const protocol = url.protocol === "https:" ? "wss" : "ws"
-  const ws_url = `${protocol}://${url.host}${path}`
-  const socket = new WebSocket(ws_url)
+import * as Gleam from "./gleam.mjs"
+
+export const document_url = () => (new URL(document.URL)).toString()
+
+export const connect = (
+  url,
+  on_open,
+  on_error,
+  on_message,
+  on_close,
+) => {
+  const socket = new WebSocket(url)
 
   socket.addEventListener("open", (event) => {
-    onOpen(socket)
+    on_open(socket)
   })
 
   socket.addEventListener("message", (event) => {
-    onMessage(event.data)
+    on_message(event.data)
   })
 
   socket.addEventListener("close", (event) => {
-    onClose(event.code)
+  on_close(event.code)
   })
 
   socket.addEventListener("error", (event) => {
-    onError(event)
+    on_error(event)
   })
 }
 
