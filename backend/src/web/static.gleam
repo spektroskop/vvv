@@ -149,16 +149,14 @@ pub fn changes(from old: Assets, to new: Assets) {
     |> set.from_list()
 
   let removed =
-    set.to_list({
-      use key <- set.filter(old_keys)
-      !set.contains(new_keys, key)
-    })
+    old_keys
+    |> set.filter(fn(key) { !set.contains(new_keys, key) })
+    |> set.to_list()
 
   let added =
-    set.to_list({
-      use key <- set.filter(new_keys)
-      !set.contains(old_keys, key)
-    })
+    new_keys
+    |> set.filter(fn(key) { !set.contains(old_keys, key) })
+    |> set.to_list()
 
   let #(changed, _) = {
     use key <- list.partition(
