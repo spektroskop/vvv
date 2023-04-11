@@ -1,7 +1,6 @@
-import gleam/string
 import lustre/attribute.{class}
 import lustre/cmd.{Cmd}
-import lustre/element.{Element, div, text}
+import lustre/element.{Element, div}
 
 pub type Msg {
   Noop
@@ -20,6 +19,6 @@ pub fn update(model, _msg) {
   #(model, cmd.none())
 }
 
-pub fn render(model: Model) -> Element(Msg) {
-  div([class("")], [text(string.inspect(model))])
+pub fn render(_model: Model) -> Element(Msg) {
+  div([class("")], [])
 }
