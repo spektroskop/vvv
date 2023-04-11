@@ -37,29 +37,21 @@ fn close_reason(code: Int) -> CloseReason {
   }
 }
 
-fn uri(path: String) -> Result(Uri, Nil) {
-  use uri <- result.then(lib.document_uri())
-
-  Uri(
-    ..uri,
-    path: path,
-    scheme: case uri.scheme {
-      option.Some("https") -> option.Some("wss")
-      option.Some("http") -> option.Some("ws")
-      option.None -> option.Some("ws")
-    },
-  )
-  |> Ok
-}
-
 pub fn connect(path: String, callback: fn(Event) -> a) -> Result(a, Nil) {
-  use uri <- result.then(uri(path))
+  use document_uri <- result.then(lib.document_uri())
+  let scheme = case document_uri.scheme {
+    option.Some("https") -> option.Some("wss")
+    option.Some("http") -> option.Some("ws")
+    option.Some(_) -> panic
+    option.None -> option.Some("ws")
+  }
 
   Ok({
     glue_connect(
-      uri.to_string(uri),
-      open: fn(conn) {
-        Open(conn)
+      Uri(..document_uri, path: path, scheme: scheme)
+      |> uri.to_string(),
+      open: fn(socket) {
+        Open(socket)
         |> callback()
       },
       error: fn(error) {
