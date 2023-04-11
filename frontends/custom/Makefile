@@ -16,7 +16,7 @@ build:
 	mkdir -p $(bundle)
 	cp assets/index.html $(bundle)/index.html
 	$(bundler)/build/bundler assets/app.js assets/app.css --output $(bundle) \
-	--activate tailwind --resolve gleam=$(build)
+	--activate tailwind --set gleam.resolve=$(build)
 	@-curl --silent --request $(reload) | jq
 
 watch:
