@@ -20,6 +20,10 @@ pub fn init() -> #(Model, Cmd(Msg)) {
   #(Model(app: loadable.Initial), cmd.none())
 }
 
+pub fn update(model, _msg) {
+  #(model, cmd.none())
+}
+
 pub fn render(_model: Model) -> Element(Msg) {
   div([class("p-1 px-2 bg-pink-400")], [text("Shared")])
 }

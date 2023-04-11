@@ -26,10 +26,17 @@ pub fn main() {
   lustre.start(app, "#app")
 }
 
-fn update(state, msg) {
+fn update(model: Model, msg: Msg) {
   case msg {
-    SharedMsg(_) -> #(state, cmd.none())
-    PageMsg(_) -> #(state, cmd.none())
+    SharedMsg(shared_msg) -> {
+      let #(shared, shared_cmd) = shared.update(model.shared, shared_msg)
+      #(Model(..model, shared: shared), cmd.map(shared_cmd, SharedMsg))
+    }
+
+    PageMsg(page_msg) -> {
+      let #(page, page_cmd) = pages.update(model.page, page_msg)
+      #(Model(..model, page: page), cmd.map(page_cmd, PageMsg))
+    }
   }
 }
 
