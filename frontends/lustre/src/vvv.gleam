@@ -42,7 +42,7 @@ fn update(model: Model, msg: Msg) {
 
 fn render(model: Model) {
   div(
-    [class("inline-flex gap-2")],
+    [class("flex flex-col")],
     [
       shared.render(model.shared)
       |> element.map(SharedMsg),

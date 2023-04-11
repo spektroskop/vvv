@@ -1,7 +1,7 @@
 import loadable.{Loadable}
 import lustre/attribute.{class}
 import lustre/cmd.{Cmd}
-import lustre/element.{Element, div, text}
+import lustre/element.{Element, div, header, nav, text}
 import static
 
 pub type Msg {
@@ -25,5 +25,22 @@ pub fn update(model, _msg) {
 }
 
 pub fn render(_model: Model) -> Element(Msg) {
-  div([class("p-1 px-2 bg-pink-400")], [text("Shared")])
+  header(
+    [
+      class("flex justify-center items-stretch sticky top-0 px-6"),
+      class("h-[--header-height] z-[--header-z] font-semibold"),
+      class("text-stone-200 bg-zinc-900"),
+      class("dark:text-stone-200 dark:bg-zinc-800"),
+    ],
+    [
+      nav(
+        [class("flex max-w-[--nav-width] w-full")],
+        [
+          div([class("flex basis-3/6 justify-start")], [text("start")]),
+          div([class("flex shrink-0")], [text("middle")]),
+          div([class("flex basis-3/6 justify-end")], [text("end")]),
+        ],
+      ),
+    ],
+  )
 }

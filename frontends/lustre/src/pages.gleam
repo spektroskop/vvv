@@ -21,5 +21,5 @@ pub fn update(model, _msg) {
 }
 
 pub fn render(model: Model) -> Element(Msg) {
-  div([class("p-1 px-2 bg-cyan-400")], [text(string.inspect(model))])
+  div([class("")], [text(string.inspect(model))])
 }
