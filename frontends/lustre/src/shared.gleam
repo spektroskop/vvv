@@ -1,8 +1,12 @@
-import gleam/string
 import loadable.{Loadable}
-import lustre/element.{div, text}
 import lustre/attribute.{class}
+import lustre/cmd.{Cmd}
+import lustre/element.{Element, div, text}
 import static
+
+pub type Msg {
+  Noop
+}
 
 pub type App {
   App(interval: Int, assets: static.Assets, reload_browser: Bool)
@@ -12,13 +16,10 @@ pub type Model {
   Model(app: Loadable(App, String))
 }
 
-pub fn new() -> Model {
-  Model(app: loadable.Initial)
+pub fn init() -> #(Model, Cmd(Msg)) {
+  #(Model(app: loadable.Initial), cmd.none())
 }
 
-pub fn render(model: Model) {
-  div(
-    [class("inline-flex p-1 px-2 bg-rose-300")],
-    [text(string.inspect(model))],
-  )
+pub fn render(_model: Model) -> Element(Msg) {
+  div([class("p-1 px-2 bg-pink-400")], [text("Shared")])
 }

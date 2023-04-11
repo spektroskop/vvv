@@ -6,5 +6,6 @@
   html {
     @apply font-sans;
     @apply p-2;
+    @apply bg-zinc-100 dark:bg-zinc-900;
   }
 }
