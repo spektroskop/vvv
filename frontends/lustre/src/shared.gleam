@@ -1,3 +1,4 @@
+import icon
 import lib
 import loadable.{Loadable}
 import lustre/attribute.{class, href, target}
@@ -106,6 +107,9 @@ fn project() -> Element(msg) {
     target("_blank"),
   ])
   |> lib.wrap(label())
-  |> lib.body([text("vvv")])
+  |> lib.body([
+    text("vvv"),
+    icon.arrow_top_right_on_square("w-5 h-5 translate-y-px"),
+  ])
   |> lib.build()
 }
