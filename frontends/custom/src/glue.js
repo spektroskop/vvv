@@ -2,29 +2,23 @@ import * as Gleam from "./gleam.mjs"
 
 export const document_url = () => (new URL(document.URL)).toString()
 
-export const connect = (
-  url,
-  on_open,
-  on_error,
-  on_message,
-  on_close,
-) => {
+export const connect = (url, callbacks) => {
   const socket = new WebSocket(url)
 
   socket.addEventListener("open", (event) => {
-    on_open(socket)
+    callbacks.open(socket)
   })
 
   socket.addEventListener("message", (event) => {
-    on_message(event.data)
+    callbacks.message(event.data)
   })
 
   socket.addEventListener("close", (event) => {
-    on_close(event.code)
+    callbacks.close(event.code)
   })
 
   socket.addEventListener("error", (event) => {
-    on_error(event)
+    callbacks.error(event)
   })
 }
 

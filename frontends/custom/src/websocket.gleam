@@ -18,13 +18,16 @@ pub type CloseReason {
   Other(Int)
 }
 
-external fn glue_connect(
-  String,
-  open: fn(Socket) -> a,
-  error: fn(Dynamic) -> a,
-  message: fn(String) -> a,
-  close: fn(Int) -> a,
-) -> a =
+type Callbacks(a) {
+  Callbacks(
+    open: fn(Socket) -> a,
+    error: fn(Dynamic) -> a,
+    message: fn(String) -> a,
+    close: fn(Int) -> a,
+  )
+}
+
+external fn glue_connect(String, callbacks: Callbacks(a)) -> a =
   "./glue.js" "connect"
 
 pub external fn close(socket: Socket) -> Nil =
@@ -37,7 +40,7 @@ fn close_reason(code: Int) -> CloseReason {
   }
 }
 
-pub fn connect(path: String, callback: fn(Event) -> a) -> Result(a, Nil) {
+pub fn connect(path: String, handler: fn(Event) -> a) -> Result(a, Nil) {
   use document_uri <- result.then(lib.document_uri())
   let scheme = case document_uri.scheme {
     option.Some("https") -> option.Some("wss")
@@ -50,23 +53,25 @@ pub fn connect(path: String, callback: fn(Event) -> a) -> Result(a, Nil) {
     glue_connect(
       Uri(..document_uri, path: path, scheme: scheme)
       |> uri.to_string(),
-      open: fn(socket) {
-        Open(socket)
-        |> callback()
-      },
-      error: fn(error) {
-        Error(error)
-        |> callback()
-      },
-      message: fn(message) {
-        Message(message)
-        |> callback()
-      },
-      close: fn(code) {
-        close_reason(code)
-        |> Close
-        |> callback()
-      },
+      Callbacks(
+        open: fn(socket) {
+          Open(socket)
+          |> handler()
+        },
+        error: fn(error) {
+          Error(error)
+          |> handler()
+        },
+        message: fn(message) {
+          Message(message)
+          |> handler()
+        },
+        close: fn(code) {
+          close_reason(code)
+          |> Close
+          |> handler()
+        },
+      ),
     )
   })
 }
