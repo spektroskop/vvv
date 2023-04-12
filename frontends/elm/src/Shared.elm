@@ -29,7 +29,6 @@ import Lib.Return as Return
 import Ports
 import Route exposing (Route)
 import Static
-import Theme
 
 
 type Msg
@@ -217,7 +216,9 @@ active target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes Theme.default.navigation.active
+        |> Html.classes  [ "text-stone-800 text-shadow-white" ]
+        |> Html.classes [ "bg-gradient-to-b from-gray-300 to-gray-400" ]
+        |> Html.classes [ "dark:from-gray-300 dark:to-gray-400" ]
         |> Html.body body
         |> Html.build
 
@@ -227,7 +228,8 @@ background target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes Theme.default.navigation.background
+        |> Html.classes  [ "text-stone-900 opacity-60" ]
+        |> Html.classes [ "bg-gradient-to-b from-gray-300 to-gray-400" ]
         |> Html.body body
         |> Html.build
 
@@ -237,7 +239,7 @@ normal target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes Theme.default.navigation.normal
+        |> Html.classes []
         |> Html.body body
         |> Html.build
 

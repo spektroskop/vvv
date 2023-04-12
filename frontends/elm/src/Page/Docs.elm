@@ -13,7 +13,6 @@ import Html exposing (Html, a, div, h1, h2, p, section, text)
 import Html.Attributes exposing (href, id)
 import Lib.Html exposing (class)
 import Task exposing (Task)
-import Theme
 
 
 type Msg
