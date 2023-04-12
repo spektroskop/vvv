@@ -40,8 +40,9 @@ fn close_reason(code: Int) -> CloseReason {
   }
 }
 
-pub fn connect(path: String, handler: fn(Event) -> a) -> Result(a, Nil) {
+pub fn connect(path: String, handle: fn(Event) -> a) -> Result(a, Nil) {
   use document_uri <- result.then(lib.document_uri())
+
   let scheme = case document_uri.scheme {
     option.Some("https") -> option.Some("wss")
     option.Some("http") -> option.Some("ws")
@@ -49,29 +50,16 @@ pub fn connect(path: String, handler: fn(Event) -> a) -> Result(a, Nil) {
     option.None -> option.Some("ws")
   }
 
-  Ok({
-    glue_connect(
-      Uri(..document_uri, path: path, scheme: scheme)
-      |> uri.to_string(),
-      Callbacks(
-        open: fn(socket) {
-          Open(socket)
-          |> handler()
-        },
-        error: fn(error) {
-          Error(error)
-          |> handler()
-        },
-        message: fn(message) {
-          Message(message)
-          |> handler()
-        },
-        close: fn(code) {
-          close_reason(code)
-          |> Close
-          |> handler()
-        },
-      ),
+  let callbacks =
+    Callbacks(
+      open: fn(socket) { handle(Open(socket)) },
+      error: fn(error) { handle(Error(error)) },
+      message: fn(message) { handle(Message(message)) },
+      close: fn(code) { handle(Close(close_reason(code))) },
     )
-  })
+
+  Uri(..document_uri, path: path, scheme: scheme)
+  |> uri.to_string()
+  |> glue_connect(callbacks)
+  |> Ok
 }
