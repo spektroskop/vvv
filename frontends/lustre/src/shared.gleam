@@ -1,7 +1,7 @@
 import gleam/option.{Option}
 import icon
-import lib
-import loadable.{Loadable}
+import lib/element/builder.{Builder}
+import lib/loadable.{Loadable}
 import lustre/attribute.{class, href, target}
 import lustre/cmd.{Cmd}
 import lustre/element.{Element, a, button, div, header, nav, span, text}
@@ -67,46 +67,47 @@ pub fn render(_model: Model, route: Option(Route)) -> Element(Msg) {
   )
 }
 
-fn link() -> lib.Builder(msg) {
-  lib.new_builder(a)
-  |> lib.classes(["flex items-center px-1"])
+fn link() -> Builder(msg) {
+  builder.new(a)
+  |> builder.classes(["flex items-center px-1"])
 }
 
-fn label() -> lib.Builder(msg) {
-  lib.new_builder(span)
-  |> lib.classes(["flex items-center gap-1 rounded px-3 py-1"])
+fn label() -> Builder(msg) {
+  builder.new(span)
+  |> builder.classes(["flex items-center gap-1 rounded px-3 py-1"])
 }
 
 fn active(target: String, body: List(Element(msg))) -> Element(msg) {
   link()
-  |> lib.attributes([href(target)])
-  |> lib.wrap(label())
-  |> lib.classes([
-    "text-stone-800 text-shadow-white", "bg-gradient-to-b",
-    "from-gray-300 to-gray-400", "dark:from-gray-300 dark:to-gray-400",
+  |> builder.attributes([href(target)])
+  |> builder.wrap(label())
+  |> builder.classes([
+    "text-stone-800 text-shadow-white",
+    "bg-gradient-to-b from-gray-300 to-gray-400",
+    "dark:from-gray-300 dark:to-gray-400",
   ])
-  |> lib.body(body)
-  |> lib.build()
+  |> builder.body(body)
+  |> builder.build()
 }
 
 fn background(target: String, body: List(Element(msg))) -> Element(msg) {
   link()
-  |> lib.attributes([href(target)])
-  |> lib.wrap(label())
-  |> lib.classes([
-    "text-stone-900", "bg-gradient-to-b", "from-gray-300 to-gray-400",
+  |> builder.attributes([href(target)])
+  |> builder.wrap(label())
+  |> builder.classes([
+    "text-stone-900", "bg-gradient-to-b from-gray-300 to-gray-400",
   ])
-  |> lib.body(body)
-  |> lib.build()
+  |> builder.body(body)
+  |> builder.build()
 }
 
 fn normal(target: String, body: List(Element(msg))) -> Element(msg) {
   link()
-  |> lib.attributes([href(target)])
-  |> lib.wrap(label())
-  |> lib.classes([])
-  |> lib.body(body)
-  |> lib.build()
+  |> builder.attributes([href(target)])
+  |> builder.wrap(label())
+  |> builder.classes([])
+  |> builder.body(body)
+  |> builder.build()
 }
 
 fn refresh(diff: List(_)) -> Element(Msg) {
@@ -114,29 +115,29 @@ fn refresh(diff: List(_)) -> Element(Msg) {
     [] -> text("")
 
     _diff ->
-      lib.new_builder(button)
-      |> lib.attributes([event.on_click(Reload)])
-      |> lib.wrap(label())
-      |> lib.classes([
+      builder.new(button)
+      |> builder.attributes([event.on_click(Reload)])
+      |> builder.wrap(label())
+      |> builder.classes([
         "text-white text-shadow",
         "bg-gradient-to-b from-emerald-600 to-emerald-700",
       ])
-      |> lib.body([text("A new version is available!")])
-      |> lib.build
+      |> builder.body([text("A new version is available!")])
+      |> builder.build
   }
 }
 
 fn project() -> Element(msg) {
   link()
-  |> lib.classes(["hover:underline"])
-  |> lib.attributes([
+  |> builder.classes(["hover:underline"])
+  |> builder.attributes([
     href("https://github.com/spektroskop/vvv"),
     target("_blank"),
   ])
-  |> lib.wrap(label())
-  |> lib.body([
+  |> builder.wrap(label())
+  |> builder.body([
     text("vvv"),
     icon.arrow_top_right_on_square("w-5 h-5 translate-y-px"),
   ])
-  |> lib.build()
+  |> builder.build()
 }

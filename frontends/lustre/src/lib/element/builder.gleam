@@ -17,7 +17,7 @@ pub type Builder(msg) {
   )
 }
 
-pub fn new_builder(node: Node(msg)) -> Builder(msg) {
+pub fn new(node: Node(msg)) -> Builder(msg) {
   Builder(
     node: node,
     attributes: [],
