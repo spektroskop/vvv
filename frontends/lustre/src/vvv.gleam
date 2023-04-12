@@ -1,8 +1,10 @@
+import gleam/option
 import lustre
 import lustre/attribute.{class}
 import lustre/cmd
 import lustre/element.{div}
 import pages
+import route
 import shared
 
 pub type Msg {
@@ -44,7 +46,7 @@ fn render(model: Model) {
   div(
     [class("flex flex-col")],
     [
-      shared.render(model.shared)
+      shared.render(model.shared, option.Some(route.Overview))
       |> element.map(SharedMsg),
       pages.render(model.page)
       |> element.map(PageMsg),

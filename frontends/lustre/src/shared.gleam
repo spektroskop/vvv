@@ -1,3 +1,4 @@
+import gleam/option.{Option}
 import icon
 import lib
 import loadable.{Loadable}
@@ -5,6 +6,7 @@ import lustre/attribute.{class, href, target}
 import lustre/cmd.{Cmd}
 import lustre/element.{Element, a, button, div, header, nav, span, text}
 import lustre/event
+import route.{Route}
 import static
 
 pub type Msg {
@@ -27,9 +29,23 @@ pub fn update(model, _msg) {
   #(model, cmd.none())
 }
 
-pub fn render(_model: Model) -> Element(Msg) {
-  let overview = active("/overview", [text("Overview")])
-  let docs = normal("/docs", [text("Docs")])
+type Item(msg) =
+  fn(String, List(Element(msg))) -> Element(msg)
+
+type State(msg) {
+  State(overview: Item(msg), docs: Item(msg))
+}
+
+pub fn render(_model: Model, route: Option(Route)) -> Element(Msg) {
+  let State(overview, docs) = case route {
+    option.Some(route.Overview) -> State(overview: active, docs: normal)
+    option.Some(route.Detail(_)) -> State(overview: background, docs: normal)
+    option.Some(route.Docs(_)) -> State(overview: normal, docs: active)
+    option.None -> State(overview: normal, docs: normal)
+  }
+
+  let overview = overview("/overview", [text("Overview")])
+  let docs = docs("/docs", [text("Docs")])
 
   header(
     [
@@ -68,6 +84,17 @@ fn active(target: String, body: List(Element(msg))) -> Element(msg) {
   |> lib.classes([
     "text-stone-800 text-shadow-white", "bg-gradient-to-b",
     "from-gray-300 to-gray-400", "dark:from-gray-300 dark:to-gray-400",
+  ])
+  |> lib.body(body)
+  |> lib.build()
+}
+
+fn background(target: String, body: List(Element(msg))) -> Element(msg) {
+  link()
+  |> lib.attributes([href(target)])
+  |> lib.wrap(label())
+  |> lib.classes([
+    "text-stone-900", "bg-gradient-to-b", "from-gray-300 to-gray-400",
   ])
   |> lib.body(body)
   |> lib.build()
