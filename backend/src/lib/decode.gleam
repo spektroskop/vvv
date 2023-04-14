@@ -31,3 +31,9 @@ pub fn non_empty_string(data: Dynamic) -> Result(String, dynamic.DecodeErrors) {
     value -> Ok(value)
   }
 }
+
+pub fn singleton_list(
+  of decoder: dynamic.Decoder(a),
+) -> dynamic.Decoder(List(a)) {
+  dynamic.decode1(fn(v) { [v] }, decoder)
+}
