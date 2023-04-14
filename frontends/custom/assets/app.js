@@ -1,3 +1,3 @@
-import {main} from "../src/vvv.gleam"
+import { main } from "../src/vvv.gleam"
 
 main()

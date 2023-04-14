@@ -1,7 +1,9 @@
 import gleam/dynamic.{Dynamic}
+import gleam/function.{compose}
+import gleam/io
 import gleam/option
-import gleam/uri.{Uri}
 import gleam/result
+import gleam/uri.{Uri}
 import lib
 
 pub external type Socket
@@ -18,16 +20,16 @@ pub type CloseReason {
   Other(Int)
 }
 
-type Callbacks(a) {
-  Callbacks(
-    open: fn(Socket) -> a,
-    error: fn(Dynamic) -> a,
-    message: fn(String) -> a,
-    close: fn(Int) -> a,
+type Events {
+  Events(
+    open: fn(Socket) -> Event,
+    error: fn(Dynamic) -> Event,
+    message: fn(String) -> Event,
+    close: fn(Int) -> Event,
   )
 }
 
-external fn glue_connect(String, callbacks: Callbacks(a)) -> a =
+external fn glue_connect(String, Events, fn(Event) -> a) -> Socket =
   "./glue.js" "connect"
 
 pub external fn close(socket: Socket) -> Nil =
@@ -40,7 +42,7 @@ fn close_reason(code: Int) -> CloseReason {
   }
 }
 
-pub fn connect(path: String, handle: fn(Event) -> a) -> Result(a, Nil) {
+pub fn connect(path: String, handle: fn(Event) -> a) -> Result(Socket, Nil) {
   use document_uri <- result.then(lib.document_uri())
 
   let scheme = case document_uri.scheme {
@@ -50,16 +52,16 @@ pub fn connect(path: String, handle: fn(Event) -> a) -> Result(a, Nil) {
     option.None -> option.Some("ws")
   }
 
-  let callbacks =
-    Callbacks(
-      open: fn(socket) { handle(Open(socket)) },
-      error: fn(error) { handle(Error(error)) },
-      message: fn(message) { handle(Message(message)) },
-      close: fn(code) { handle(Close(close_reason(code))) },
+  let events =
+    Events(
+      open: Open,
+      error: Error,
+      message: Message,
+      close: compose(close_reason, Close),
     )
 
   Uri(..document_uri, path: path, scheme: scheme)
   |> uri.to_string()
-  |> glue_connect(callbacks)
+  |> glue_connect(events, handle)
   |> Ok
 }
