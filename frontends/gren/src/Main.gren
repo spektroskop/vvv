@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Navigation
 import Html
 import Lib.Return as Return exposing ( Return )
+import Route exposing ( Route )
 import Url exposing ( Url )
 
 
@@ -13,7 +14,9 @@ type Msg
 
 
 type alias Model =
-    { key : Navigation.Key }
+    { key : Navigation.Key
+    , route : Maybe Route
+    }
 
 
 main : Program {} Model Msg
@@ -29,8 +32,12 @@ main =
 
 
 init : {} -> Url -> Navigation.Key -> Return Msg Model
-init _flags _url key =
-    Return.model { key = key }
+init _flags url key =
+    let
+        route =
+            Route.fromUrl url
+    in
+    Return.model { key = key, route = route }
 
 
 subscriptions : Model -> Sub Msg
@@ -55,5 +62,5 @@ update msg model =
 view : Model -> Browser.Document Msg
 view model =
     { title = "vvv"
-    , body = [ Html.text "vvv" ]
+    , body = [ Html.text (Debug.toString model) ]
     }
