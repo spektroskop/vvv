@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply font-sans flex justify-center p-5;
+    @apply bg-zinc-100 text-stone-800;
+    @apply dark:bg-zinc-900 dark:text-stone-200;
+  }
+}

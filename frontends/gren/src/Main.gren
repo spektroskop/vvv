@@ -1,0 +1,66 @@
+module Main exposing ( Model, Msg )
+
+import Browser
+import Browser.Navigation as Navigation
+import Html
+import Lib.Return exposing ( Return )
+import Url exposing ( Url )
+
+
+type Msg
+    = UrlRequested Browser.UrlRequest
+    | UrlChanged Url
+
+
+type alias Model =
+    { key : Navigation.Key }
+
+
+main : Program {} Model Msg
+main =
+    Browser.application
+        { init = init
+        , subscriptions = subscriptions
+        , update = update
+        , view = view
+        , onUrlRequest = UrlRequested
+        , onUrlChange = UrlChanged
+        }
+
+
+init : {} -> Url -> Navigation.Key -> Return Msg Model
+init _ url key =
+    { model = { key = key }
+    , command = Cmd.none
+    }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _model =
+    Sub.none
+
+
+update : Msg -> Model -> Return Msg Model
+update msg model =
+    case msg of
+        UrlRequested (Browser.Internal url) ->
+            { model = model
+            , command = Cmd.none
+            }
+
+        UrlRequested (Browser.External href) ->
+            { model = model
+            , command = Navigation.load href
+            }
+
+        UrlChanged url ->
+            { model = model
+            , command = Cmd.none
+            }
+
+
+view : Model -> Browser.Document Msg
+view model =
+    { title = "vvv"
+    , body = [ Html.text "vvv" ]
+    }

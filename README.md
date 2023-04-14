@@ -38,6 +38,18 @@ STATIC_BASE=$PWD/frontends/elm/build make -C backend watch
 make -C frontends/elm watch
 ```
 
+### [gren](frontends/gren)
+
+> requires [gren](https://gren-lang.org), [go](https://go.dev), [tailwind cli](https://tailwindcss.com), [watchexec](https://github.com/watchexec/watchexec)
+
+```sh
+STATIC_BASE=$PWD/frontends/gren/build make -C backend watch
+```
+
+```sh
+make -C frontends/gren watch
+```
+
 ### [lustre](frontends/lustre)
 
 > requires [gleam](https://gleam.run), [node](https://nodejs.org), [go](https://go.dev), [tailwind cli](https://tailwindcss.com), [watchexec](https://github.com/watchexec/watchexec)

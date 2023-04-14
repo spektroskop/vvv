@@ -1,0 +1,15 @@
+module Lib.Html exposing ( class, none )
+
+import Html exposing ( Html, text )
+import Html.Attributes
+
+
+class : Array String -> Html.Attribute msg
+class cs =
+    String.join " " cs
+        |> Html.Attributes.class
+
+
+none : Html msg
+none =
+    text ""
