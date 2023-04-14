@@ -38,7 +38,6 @@ pub fn singleton_list(
   dynamic.decode1(fn(v) { [v] }, decoder)
 }
 
-// TODO: better name
-pub fn to_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a)) {
+pub fn as_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a)) {
   dynamic.any([singleton_list(decoder), dynamic.list(decoder)])
 }
