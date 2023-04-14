@@ -3,7 +3,7 @@ module Main exposing ( Model, Msg )
 import Browser
 import Browser.Navigation as Navigation
 import Html
-import Lib.Return exposing ( Return )
+import Lib.Return as Return exposing ( Return )
 import Url exposing ( Url )
 
 
@@ -29,10 +29,8 @@ main =
 
 
 init : {} -> Url -> Navigation.Key -> Return Msg Model
-init _ url key =
-    { model = { key = key }
-    , command = Cmd.none
-    }
+init _flags _url key =
+    Return.model { key = key }
 
 
 subscriptions : Model -> Sub Msg
@@ -43,20 +41,15 @@ subscriptions _model =
 update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
-        UrlRequested (Browser.Internal url) ->
-            { model = model
-            , command = Cmd.none
-            }
+        UrlRequested (Browser.Internal _url) ->
+            Return.model model
 
         UrlRequested (Browser.External href) ->
-            { model = model
-            , command = Navigation.load href
-            }
+            Navigation.load href
+                |> Return.command model
 
         UrlChanged url ->
-            { model = model
-            , command = Cmd.none
-            }
+            Return.model model
 
 
 view : Model -> Browser.Document Msg

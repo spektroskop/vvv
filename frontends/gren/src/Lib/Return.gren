@@ -1,7 +1,34 @@
-module Lib.Return exposing ( Return )
+module Lib.Return exposing 
+    ( Return
+    , model
+    , command
+    , batch
+    )
 
 
 type alias Return msg model =
     { model : model
     , command : Cmd msg
+    }
+
+
+model : model -> Return msg model
+model mdl = 
+    { model = mdl
+    , command = Cmd.none
+    }
+
+
+command : model -> Cmd msg -> Return msg model
+command mdl cmd =
+    { model = mdl
+    , command = cmd
+    }
+
+
+batch : Array (Cmd msg) -> Return msg model -> Return msg model
+batch cmds return =
+    { model = return.model
+    , command = Array.pushFirst return.command cmds
+        |> Cmd.batch
     }
