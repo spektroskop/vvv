@@ -15,16 +15,10 @@ pub fn shallow_map(
 pub fn non_empty_string(data: Dynamic) -> Result(String, dynamic.DecodeErrors) {
   use value <- result.then(
     dynamic.string(data)
-    |> result.replace_error([
-      dynamic.DecodeError(
-        expected: "string",
-        found: dynamic.classify(data),
-        path: [],
-      ),
-    ]),
+    |> result.map(string.trim),
   )
 
-  case string.trim(value) {
+  case value {
     "" ->
       Error([
         dynamic.DecodeError(
