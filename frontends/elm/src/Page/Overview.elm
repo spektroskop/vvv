@@ -9,7 +9,7 @@ module Page.Overview exposing
 
 import Browser
 import Html exposing (a, div, h1, text)
-import Lib.Html exposing (class)
+import Lib.Attributes exposing (class)
 import Route
 
 

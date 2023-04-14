@@ -11,7 +11,7 @@ import Browser
 import Browser.Dom as Dom
 import Html exposing (Html, a, div, h1, h2, p, section, text)
 import Html.Attributes exposing (href, id)
-import Lib.Html exposing (class)
+import Lib.Attributes exposing (class)
 import Task exposing (Task)
 
 

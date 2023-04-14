@@ -17,10 +17,11 @@ import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
+import Lib.Attributes exposing (class)
 import Lib.Basics exposing (flip)
 import Lib.Cmd as Cmd
 import Lib.Decode as Decode
-import Lib.Html as Html exposing (class)
+import Lib.Html as Html
 import Lib.Html.Builder as Html
 import Lib.Icon.Mini as Mini
 import Lib.List as List
@@ -32,15 +33,13 @@ import Static
 
 
 type Msg
-    = VisibilityChanged Browser.Visibility
-    | GetApp
+    = GetApp
     | GotApp (Result Http.Error App)
     | ReloadPage
 
 
 type alias Model =
-    { visibility : Browser.Visibility
-    , app : Loadable Http.Error App
+    { app : Loadable Http.Error App
     , diff : List Static.Diff
     }
 
@@ -65,8 +64,7 @@ init _ =
 
 initialModel : Model
 initialModel =
-    { visibility = Browser.Visible
-    , app = Loading
+    { app = Loading
     , diff = []
     }
 
@@ -91,15 +89,12 @@ appDecoder =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Browser.onVisibilityChange VisibilityChanged
+    Sub.none
 
 
 update : Msg -> Navigation.Key -> Model -> ( Model, Cmd Msg )
 update msg _ model =
     case msg of
-        VisibilityChanged visibility ->
-            ( { model | visibility = visibility }, Cmd.none )
-
         GetApp ->
             getApp model
 
@@ -216,7 +211,7 @@ active target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes  [ "text-stone-800 text-shadow-white" ]
+        |> Html.classes [ "text-stone-800 text-shadow-white" ]
         |> Html.classes [ "bg-gradient-to-b from-gray-300 to-gray-400" ]
         |> Html.classes [ "dark:from-gray-300 dark:to-gray-400" ]
         |> Html.body body
@@ -228,7 +223,7 @@ background target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes  [ "text-stone-900 opacity-60" ]
+        |> Html.classes [ "text-stone-900 opacity-60" ]
         |> Html.classes [ "bg-gradient-to-b from-gray-300 to-gray-400" ]
         |> Html.body body
         |> Html.build
@@ -239,7 +234,6 @@ normal target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes []
         |> Html.body body
         |> Html.build
 

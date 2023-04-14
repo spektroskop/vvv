@@ -1,8 +1,9 @@
 module Markdown exposing (..)
 
 import Html exposing (Html)
-import Html.Attributes as Attributes
-import Lib.Html as Html exposing (class)
+import Html.Attributes as Attributes exposing (class)
+import Lib.Attributes as Attributes
+import Lib.Html as Html
 import Markdown.Block as Block
 import Markdown.Html as Markdown
 import Markdown.Parser as Parser
@@ -58,7 +59,7 @@ docs =
                 , Attributes.target "_blank"
                 , Attributes.rel "noopener noreferrer"
                 , Maybe.map Attributes.title title
-                    |> Maybe.withDefault (class [])
+                    |> Maybe.withDefault Attributes.none
                 ]
     , image = \_ -> Html.none
     , unorderedList = \_ -> Html.none

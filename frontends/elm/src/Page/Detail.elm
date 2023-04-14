@@ -9,7 +9,7 @@ module Page.Detail exposing
 
 import Browser
 import Html exposing (div, h1, text)
-import Lib.Html exposing (class)
+import Lib.Attributes exposing (class)
 
 
 type Msg

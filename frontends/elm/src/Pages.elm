@@ -12,8 +12,8 @@ module Pages exposing
 import Browser
 import Browser.Navigation as Navigation
 import Html exposing (div, h1, text)
+import Lib.Attributes exposing (class)
 import Lib.Document as Document
-import Lib.Html exposing (class)
 import Lib.Return as Return
 import Page.Detail
 import Page.Docs
