@@ -37,5 +37,5 @@ pub fn into_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a)) {
 }
 
 pub fn optional_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a)) {
-  dynamic.any([into_list(decoder), dynamic.list(decoder)])
+  dynamic.any([dynamic.list(decoder), into_list(decoder)])
 }
