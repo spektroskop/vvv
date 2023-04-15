@@ -1,5 +1,6 @@
 import gleam/bit_builder.{BitBuilder}
 import gleam/result
+import gleam/string
 
 pub fn return(wrap: fn(a) -> b, body: fn() -> a) -> b {
   wrap(body())
@@ -43,3 +44,15 @@ pub fn when(
 
 pub external fn gzip(data: BitBuilder) -> BitBuilder =
   "zlib" "gzip"
+
+pub fn string_to_result(string: String) -> Result(String, Nil) {
+  case string {
+    "" -> Error(Nil)
+    _ -> Ok(string)
+  }
+}
+
+pub fn string_to_non_empty_string(string: String) -> Result(String, Nil) {
+  string.trim(string)
+  |> string_to_result()
+}
