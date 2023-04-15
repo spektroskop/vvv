@@ -32,12 +32,10 @@ pub fn non_empty_string(data: Dynamic) -> Result(String, dynamic.DecodeErrors) {
   }
 }
 
-pub fn singleton_list(
-  of decoder: dynamic.Decoder(a),
-) -> dynamic.Decoder(List(a)) {
+pub fn into_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a)) {
   dynamic.decode1(fn(v) { [v] }, decoder)
 }
 
-pub fn as_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a)) {
-  dynamic.any([singleton_list(decoder), dynamic.list(decoder)])
+pub fn optional_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a)) {
+  dynamic.any([into_list(decoder), dynamic.list(decoder)])
 }
