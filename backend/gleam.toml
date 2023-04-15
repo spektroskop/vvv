@@ -10,3 +10,6 @@ gleam_stdlib = "~> 0.28"
 gleam_json = "~> 0.5"
 tomerl = "~> 0.5"
 mist = "~> 0.10"
+
+[dev-dependencies]
+gleeunit = "~> 0.10"
