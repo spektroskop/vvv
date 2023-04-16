@@ -73,7 +73,7 @@ pub fn service(
   timeout timeout: Int,
 ) -> Result(static.Service, actor.StartError) {
   use actor <- result.then(start(service))
-  use <- lib.return(Ok)
+  use <- lib.wrap(Ok)
 
   static.Service(
     assets: fn() {

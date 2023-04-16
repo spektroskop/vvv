@@ -2,8 +2,12 @@ import gleam/bit_builder.{BitBuilder}
 import gleam/result
 import gleam/string
 
-pub fn return(wrap: fn(a) -> b, body: fn() -> a) -> b {
-  wrap(body())
+pub fn wrap(a: fn(a) -> b, body: fn() -> a) -> b {
+  a(body())
+}
+
+pub fn wrap2(a: fn(a) -> b, b: fn(b) -> c, body: fn() -> a) -> c {
+  b(a(body()))
 }
 
 pub fn unwrap_error(result: Result(a, e), or default: fn(e) -> a) -> a {
