@@ -13,7 +13,7 @@ type alias Return msg model =
 
 
 model : model -> Return msg model
-model mdl = 
+model mdl =
     { model = mdl
     , command = Cmd.none
     }
@@ -29,6 +29,7 @@ command mdl cmd =
 batch : Array (Cmd msg) -> Return msg model -> Return msg model
 batch cmds return =
     { model = return.model
-    , command = Array.pushFirst return.command cmds
-        |> Cmd.batch
+    , command =
+        Array.pushFirst return.command cmds
+            |> Cmd.batch
     }

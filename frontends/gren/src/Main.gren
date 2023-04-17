@@ -37,7 +37,8 @@ init _flags url key =
         route =
             Route.fromUrl url
     in
-    Return.model { key = key, route = route }
+    { key = key, route = route }
+        |> Return.model
 
 
 subscriptions : Model -> Sub Msg
