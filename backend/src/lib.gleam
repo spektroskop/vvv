@@ -10,6 +10,13 @@ pub fn wrap2(a: fn(a) -> b, b: fn(b) -> c, body: fn() -> a) -> c {
   b(a(body()))
 }
 
+pub fn recover(result: Result(a, x), value: a) -> Result(a, y) {
+  result
+  |> result.replace_error(value)
+  |> result.unwrap_both()
+  |> Ok
+}
+
 pub fn unwrap_error(result: Result(a, e), or default: fn(e) -> a) -> a {
   case result {
     Ok(ok) -> ok
