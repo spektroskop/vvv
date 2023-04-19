@@ -1,5 +1,6 @@
 import gleam/base
 import gleam/bit_builder
+import gleam/bool
 import gleam/crypto
 import gleam/erlang/file
 import gleam/http
@@ -12,7 +13,6 @@ import gleam/result
 import gleam/set
 import gleam/string
 import gleam/uri
-import lib
 import lib/path
 import lib/report.{Report}
 import web.{Error}
@@ -98,7 +98,7 @@ pub fn collect_assets(base: String, types: Map(String, String)) -> Assets {
   map.from_list({
     use relative_path <- list.filter_map(path.wildcard(base, "**"))
     let full_path = path.join([base, relative_path])
-    use <- lib.guard(when: path.is_directory(full_path), return: Error(Nil))
+    use <- bool.guard(when: path.is_directory(full_path), return: Error(Nil))
 
     use asset <- result.then(load_asset(relative_path, full_path, types))
     let segments = uri.path_segments(relative_path)

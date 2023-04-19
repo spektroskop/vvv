@@ -1,5 +1,6 @@
 import gleam
 import gleam/bit_builder.{BitBuilder}
+import gleam/bool
 import gleam/erlang/file
 import gleam/http
 import gleam/http/request.{Request}
@@ -44,14 +45,16 @@ pub fn gzip(
   from get_response: fn() -> Response(BitBuilder),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
-
   use <- lib.else(response)
 
-  use <- lib.when(bit_builder.byte_size(body) >= threshold)
+  let size = bit_builder.byte_size(body)
+  use <- bool.guard(when: size < threshold, return: Error(Nil))
+
   use accepts <- result.then(request.get_header(request, "accept-encoding"))
-  use <- lib.when(string.contains(accepts, "gzip"))
+  use <- bool.guard(when: !string.contains(accepts, "gzip"), return: Error(Nil))
+
   use kind <- result.then(response.get_header(response, "content-type"))
-  use <- lib.when(set.contains(kinds, kind))
+  use <- bool.guard(when: !set.contains(kinds, kind), return: Error(Nil))
 
   response
   |> response.set_body(body)
