@@ -12,8 +12,9 @@ import gleam/result
 import gleam/set.{Set}
 import gleam/string
 import gleam/uri
-import lib/decode
+import lib/dynamic_extra
 import lib/report.{Report}
+import lib/toml
 
 const default_static_index = ["index.html"]
 
@@ -57,7 +58,7 @@ pub fn read(prefix: List(String)) -> Result(Config, Report(Error)) {
           |> report.map_error(FileError),
         )
 
-        decode.toml(data)
+        toml.decode(data)
         |> report.map_error(BadToml)
       }
     }
@@ -112,7 +113,7 @@ fn config_decoder(
 ) -> Result(Config, Report(Error)) {
   use map <- result.then(
     data
-    |> decode.shallow_map(dynamic.string)
+    |> dynamic_extra.shallow_map(dynamic.string)
     |> report.map_error(BadFormat)
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
@@ -153,7 +154,7 @@ fn app_decoder(
 ) -> Result(App, Report(Error)) {
   use map <- result.then(
     data
-    |> decode.shallow_map(dynamic.string)
+    |> dynamic_extra.shallow_map(dynamic.string)
     |> report.map_error(BadConfig("app", _))
     |> result.then(check_unknown_keys(_, [app_keys])),
   )
@@ -205,7 +206,7 @@ fn server_decoder(
 ) -> Result(Server, Report(Error)) {
   use map <- result.then(
     data
-    |> decode.shallow_map(dynamic.string)
+    |> dynamic_extra.shallow_map(dynamic.string)
     |> report.map_error(BadConfig("server", _))
     |> result.then(check_unknown_keys(_, [server_keys])),
   )
@@ -247,7 +248,7 @@ fn static_decoder(
 ) -> Result(Static, Report(Error)) {
   use map <- result.then(
     data
-    |> decode.shallow_map(dynamic.string)
+    |> dynamic_extra.shallow_map(dynamic.string)
     |> report.map_error(BadConfig("static", _))
     |> result.then(check_unknown_keys(_, [static_keys])),
   )
@@ -335,7 +336,7 @@ fn reloader_decoder(
 ) -> Result(Option(Reloader), Report(Error)) {
   use map <- result.then(
     data
-    |> decode.shallow_map(dynamic.string)
+    |> dynamic_extra.shallow_map(dynamic.string)
     |> report.map_error(BadConfig("reloader", _))
     |> result.then(check_unknown_keys(_, [reloader_keys])),
   )
@@ -423,7 +424,7 @@ fn gzip_decoder(
 ) -> Result(Gzip, Report(Error)) {
   use map <- result.then(
     data
-    |> decode.shallow_map(dynamic.string)
+    |> dynamic_extra.shallow_map(dynamic.string)
     |> report.map_error(BadConfig("gzip", _))
     |> result.then(check_unknown_keys(_, [gzip_keys])),
   )

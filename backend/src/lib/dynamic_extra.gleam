@@ -1,10 +1,7 @@
 import gleam/dynamic.{Dynamic}
 import gleam/map.{Map}
 import gleam/result
-import lib
-
-pub external fn toml(data: String) -> Result(Dynamic, Dynamic) =
-  "tomerl" "parse"
+import lib/string_extra
 
 pub fn shallow_map(
   of key_type: dynamic.Decoder(a),
@@ -23,7 +20,7 @@ pub fn optional_list(of decoder: dynamic.Decoder(a)) -> dynamic.Decoder(List(a))
 pub fn non_empty_string(data: Dynamic) -> Result(String, dynamic.DecodeErrors) {
   use string <- result.then(dynamic.string(data))
 
-  lib.string_to_non_empty_string(string)
+  string_extra.non_empty_string(string)
   |> result.replace_error([
     dynamic.DecodeError(
       expected: "non-empty string",

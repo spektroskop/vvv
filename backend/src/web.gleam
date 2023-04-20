@@ -10,6 +10,7 @@ import gleam/set.{Set}
 import gleam/string
 import lib
 import lib/report.{Report}
+import lib/result_extra
 
 pub type Error {
   CallError
@@ -45,7 +46,7 @@ pub fn gzip(
   from get_response: fn() -> Response(BitBuilder),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
-  use <- lib.else(response)
+  use <- result_extra.else(response)
 
   let size = bit_builder.byte_size(body)
   use <- bool.guard(when: size < threshold, return: Error(Nil))
