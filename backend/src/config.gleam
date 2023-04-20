@@ -38,13 +38,18 @@ const default_gzip_types = [
 
 pub type Error {
   BadCategory(name: String)
-  BadConfig(name: String, errors: dynamic.DecodeErrors)
+  BadConfig(name: String)
   BadEnvironment(name: String)
-  BadFormat(errors: dynamic.DecodeErrors)
   BadToml(error: Dynamic)
+  DecodeError(errors: dynamic.DecodeErrors)
   FileError(reason: file.Reason)
   MissingConfig(name: String)
   UnknownKeys(keys: List(String))
+}
+
+pub fn error_context(result: Result(_, dynamic.DecodeErrors), context: Error) {
+  report.map_error(result, DecodeError)
+  |> report.error_context(context)
 }
 
 pub fn read(prefix: List(String)) -> Result(Config, Report(Error)) {
@@ -114,7 +119,7 @@ fn config_decoder(
   use map <- result.then(
     data
     |> dynamic_extra.shallow_map(dynamic.string)
-    |> report.map_error(BadFormat)
+    |> error_context(BadCategory("config"))
     |> result.then(check_unknown_keys(_, [config_keys])),
   )
 
@@ -155,7 +160,7 @@ fn app_decoder(
   use map <- result.then(
     data
     |> dynamic_extra.shallow_map(dynamic.string)
-    |> report.map_error(BadConfig("app", _))
+    |> error_context(BadConfig("app"))
     |> result.then(check_unknown_keys(_, [app_keys])),
   )
 
@@ -167,7 +172,7 @@ fn app_decoder(
 
       _env, Ok(value) ->
         dynamic.int(value)
-        |> report.map_error(BadConfig("interval", _))
+        |> error_context(BadConfig("interval"))
 
       _env, _map -> Ok(5000)
     }
@@ -184,7 +189,7 @@ fn app_decoder(
 
       _env, Ok(value) ->
         dynamic.bool(value)
-        |> report.map_error(BadConfig("reload_browser", _))
+        |> error_context(BadConfig("reload_browser"))
 
       _env, _map -> Ok(False)
     }
@@ -207,7 +212,7 @@ fn server_decoder(
   use map <- result.then(
     data
     |> dynamic_extra.shallow_map(dynamic.string)
-    |> report.map_error(BadConfig("server", _))
+    |> error_context(BadConfig("server"))
     |> result.then(check_unknown_keys(_, [server_keys])),
   )
 
@@ -219,7 +224,7 @@ fn server_decoder(
 
       _env, Ok(value) ->
         dynamic.int(value)
-        |> report.map_error(BadConfig("port", _))
+        |> error_context(BadConfig("port"))
 
       _env, _map ->
         MissingConfig("port")
@@ -249,7 +254,7 @@ fn static_decoder(
   use map <- result.then(
     data
     |> dynamic_extra.shallow_map(dynamic.string)
-    |> report.map_error(BadConfig("static", _))
+    |> error_context(BadConfig("static"))
     |> result.then(check_unknown_keys(_, [static_keys])),
   )
 
@@ -259,7 +264,7 @@ fn static_decoder(
 
       _env, Ok(value) ->
         dynamic.string(value)
-        |> report.map_error(BadConfig("base", _))
+        |> error_context(BadConfig("base"))
 
       _env, _map ->
         MissingConfig("base")
@@ -274,7 +279,7 @@ fn static_decoder(
       _env, Ok(value) -> {
         use string <- result.then(
           dynamic.string(value)
-          |> report.map_error(BadConfig("index", _)),
+          |> error_context(BadConfig("index")),
         )
 
         uri.path_segments(string)
@@ -307,7 +312,7 @@ fn static_decoder(
       _env, Ok(value) ->
         value
         |> dynamic.map(dynamic.string, dynamic.string)
-        |> report.map_error(BadConfig("types", _))
+        |> error_context(BadConfig("types"))
 
       _env, _map ->
         map.from_list(default_static_types)
@@ -337,7 +342,7 @@ fn reloader_decoder(
   use map <- result.then(
     data
     |> dynamic_extra.shallow_map(dynamic.string)
-    |> report.map_error(BadConfig("reloader", _))
+    |> error_context(BadConfig("reloader"))
     |> result.then(check_unknown_keys(_, [reloader_keys])),
   )
 
@@ -356,12 +361,12 @@ fn reloader_decoder(
       _env, Ok(value) -> {
         use string <- result.then(
           dynamic.string(value)
-          |> report.map_error(BadConfig("method", _)),
+          |> error_context(BadConfig("method")),
         )
 
         use method <- result.then(
           http.parse_method(string)
-          |> report.replace_error(BadConfig("method", [])),
+          |> report.replace_error(BadConfig("method")),
         )
 
         option.Some(method)
@@ -382,7 +387,7 @@ fn reloader_decoder(
       _env, Ok(value) -> {
         use string <- result.then(
           dynamic.string(value)
-          |> report.map_error(BadConfig("path", _)),
+          |> error_context(BadConfig("path")),
         )
 
         uri.path_segments(string)
@@ -425,7 +430,7 @@ fn gzip_decoder(
   use map <- result.then(
     data
     |> dynamic_extra.shallow_map(dynamic.string)
-    |> report.map_error(BadConfig("gzip", _))
+    |> error_context(BadConfig("gzip"))
     |> result.then(check_unknown_keys(_, [gzip_keys])),
   )
 
@@ -437,7 +442,7 @@ fn gzip_decoder(
 
       _env, Ok(value) ->
         dynamic.int(value)
-        |> report.map_error(BadConfig("threshold", _))
+        |> error_context(BadConfig("threshold"))
 
       _env, _map -> Ok(default_gzip_threshold)
     }
@@ -454,7 +459,7 @@ fn gzip_decoder(
         use list <- result.then(
           value
           |> dynamic.list(dynamic.string)
-          |> report.map_error(BadConfig("types", _)),
+          |> error_context(BadConfig("types")),
         )
 
         set.from_list(list)
