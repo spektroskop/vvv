@@ -1,10 +1,13 @@
 .DEFAULT_GOAL := build
-.PHONY: build docs watch
+.PHONY: build clean docs watch
 
 listen_port := 3210
 config_file := vvv.toml
 
 build:
+
+clean:
+	gleam clean
 
 docs:
 	gleam docs build
