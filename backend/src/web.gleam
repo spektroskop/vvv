@@ -10,7 +10,6 @@ import gleam/set.{Set}
 import gleam/string
 import lib
 import lib/report.{Report}
-import lib/result_extra
 
 pub type Error {
   CallError
@@ -42,23 +41,24 @@ pub fn require_method(
 pub fn gzip(
   request: Request(_),
   above threshold: Int,
-  only kinds: Set(String),
+  only types: Set(String),
   from get_response: fn() -> Response(BitBuilder),
 ) -> Response(BitBuilder) {
   let Response(body: body, ..) as response = get_response()
-  use <- result_extra.else(response)
+  use <- lib.return(result.unwrap(_, response))
 
-  let size = bit_builder.byte_size(body)
-  use <- bool.guard(when: size < threshold, return: Error(Nil))
+  use <- bool.guard(
+    when: bit_builder.byte_size(body) < threshold,
+    return: Error(Nil),
+  )
 
   use accepts <- result.then(request.get_header(request, "accept-encoding"))
   use <- bool.guard(when: !string.contains(accepts, "gzip"), return: Error(Nil))
 
-  use kind <- result.then(response.get_header(response, "content-type"))
-  use <- bool.guard(when: !set.contains(kinds, kind), return: Error(Nil))
+  use content <- result.then(response.get_header(response, "content-type"))
+  use <- bool.guard(when: !set.contains(types, content), return: Error(Nil))
 
   response
-  |> response.set_body(body)
   |> response.map(lib.gzip)
   |> response.prepend_header("content-encoding", "gzip")
   |> Ok

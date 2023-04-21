@@ -15,9 +15,9 @@ pub external fn extension(String) -> String =
 
 pub fn wildcard(from cwd: String, find pattern: String) -> List(String) {
   charlist.from_string(pattern)
-  |> filepath_wildcard(charlist.from_string(cwd))
+  |> filelib_wildcard(charlist.from_string(cwd))
   |> list.map(charlist.to_string)
 }
 
-external fn filepath_wildcard(Charlist, Charlist) -> List(Charlist) =
+external fn filelib_wildcard(Charlist, Charlist) -> List(Charlist) =
   "filelib" "wildcard"

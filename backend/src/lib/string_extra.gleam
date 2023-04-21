@@ -7,7 +7,7 @@ pub fn to_result(string: String) -> Result(String, Nil) {
   }
 }
 
-pub fn non_empty_string(string: String) -> Result(String, Nil) {
+pub fn to_non_empty_string(string: String) -> Result(String, Nil) {
   string.trim(string)
   |> to_result()
 }
