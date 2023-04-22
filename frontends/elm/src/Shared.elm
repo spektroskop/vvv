@@ -223,8 +223,8 @@ background target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes [ "text-stone-900 opacity-60" ]
-        |> Html.classes [ "bg-gradient-to-b from-gray-300 to-gray-400" ]
+        |> Html.classes [ "text-slate-300 dark:text-slate-400" ]
+        |> Html.classes [ "bg-gray-600 dark:bg-gray-700" ]
         |> Html.body body
         |> Html.build
 
