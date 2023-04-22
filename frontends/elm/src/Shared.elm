@@ -23,10 +23,10 @@ import Lib.Cmd as Cmd
 import Lib.Decode as Decode
 import Lib.Html as Html
 import Lib.Html.Builder as Html
-import Lib.Icon.Mini as Mini
 import Lib.List as List
 import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
 import Lib.Return as Return
+import Phosphor exposing (IconWeight(..))
 import Ports
 import Route exposing (Route)
 import Static
@@ -261,5 +261,9 @@ project =
         |> Html.attributes [ target "_blank" ]
         |> Html.wrap label
         |> Html.body [ text "vvv" ]
-        |> Html.body [ Mini.arrowTopRightOnSquare [ "w-5 h-5 translate-y-px" ] ]
+        |> Html.body
+            [ Phosphor.arrowSquareOut Bold
+                |> Phosphor.withClass "w-[20px] h-[20px]"
+                |> Phosphor.toHtml []
+            ]
         |> Html.build
