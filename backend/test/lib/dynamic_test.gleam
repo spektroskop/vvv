@@ -1,6 +1,6 @@
 import gleam/dynamic
 import gleeunit/should
-import lib/dynamic_extra
+import lib/dynamic as dynamic_extra
 
 pub fn decode_non_empty_string_test() {
   dynamic.from("")

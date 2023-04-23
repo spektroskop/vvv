@@ -12,7 +12,7 @@ import gleam/result
 import gleam/set.{Set}
 import gleam/string
 import gleam/uri
-import lib/dynamic_extra
+import lib/dynamic as dynamic_extra
 import lib/report.{Report}
 import lib/toml
 

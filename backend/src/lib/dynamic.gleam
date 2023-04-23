@@ -1,8 +1,8 @@
 import gleam/dynamic.{DecodeErrors, Decoder, Dynamic}
 import gleam/map.{Map}
 import gleam/result
-import lib/list_extra
-import lib/string_extra
+import lib/list as list_extra
+import lib/string as string_extra
 
 pub fn shallow_map(of key: Decoder(a)) -> Decoder(Map(a, Dynamic)) {
   dynamic.map(of: key, to: dynamic.dynamic)
