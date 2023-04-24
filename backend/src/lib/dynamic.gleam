@@ -19,7 +19,7 @@ pub fn optional_list(of inner: Decoder(a)) -> Decoder(List(a)) {
 pub fn non_empty_string(data: Dynamic) -> Result(String, DecodeErrors) {
   use string <- result.then(dynamic.string(data))
 
-  string_extra.to_non_empty_string(string)
+  string_extra.to_non_empty(string)
   |> result.replace_error([
     dynamic.DecodeError(
       expected: "non-empty string",
