@@ -1,5 +1,6 @@
 module Shared exposing
-    ( Model
+    ( App
+    , Model
     , Msg
     , document
     , init
@@ -9,7 +10,6 @@ module Shared exposing
     )
 
 import Browser
-import Browser.Events as Browser
 import Browser.Navigation as Navigation
 import Html exposing (Html, a, button, div, header, nav, span, text)
 import Html.Attributes exposing (href, target)
@@ -24,7 +24,7 @@ import Lib.Decode as Decode
 import Lib.Html as Html
 import Lib.Html.Builder as Html
 import Lib.List as List
-import Lib.Loadable as Loadable exposing (Loadable(..), Status(..))
+import Lib.Loadable as Loadable exposing (Loadable(..))
 import Lib.Return as Return
 import Phosphor exposing (IconWeight(..))
 import Ports

@@ -1,7 +1,9 @@
-module Markdown exposing (..)
+module Markdown exposing
+    ( docs
+    , render
+    )
 
 import Html exposing (Html)
-import Html.Attributes as Attributes exposing (class)
 import Lib.Attributes as Attributes
 import Lib.Html as Html
 import Markdown.Block as Block

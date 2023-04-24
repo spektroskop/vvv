@@ -1,4 +1,9 @@
-port module Ports exposing (..)
+port module Ports exposing
+    ( Outgoing(..)
+    , incoming
+    , outgoing
+    , send
+    )
 
 import Json.Encode as Encode
 
