@@ -1,15 +1,12 @@
 import config
 import gleam/erlang
 import gleam/erlang/process
-import gleam/http/response
 import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option
 import gleam/string
 import mist
-import mist/handler
-import mist/http as mh
 import web/api
 import web/reloader
 import web/router
@@ -72,12 +69,10 @@ pub fn main() {
     mist.serve(
       port: config.server.port,
       handler: {
-        use request <- handler.with_func()
-        let assert Ok(request) = mh.read_body(request)
-
-        router(request)
-        |> response.map(mh.BitBuilderBody)
-        |> handler.Response
+        use request <- mist.handler_func()
+        let assert Ok(request) = mist.read_body(request)
+        let response = router(request)
+        mist.bit_builder_response(response, response.body)
       },
     )
 
