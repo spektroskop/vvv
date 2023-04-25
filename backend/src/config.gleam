@@ -112,16 +112,24 @@ pub type Config {
   Config(app: App, server: Server, static: Static, gzip: Gzip)
 }
 
+fn category_decoder(
+  name: String,
+  from data: Dynamic,
+  with keys: List(String),
+) -> Result(Map(String, Dynamic), Report(Error)) {
+  data
+  |> dynamic_extra.shallow_map(dynamic_extra.non_empty_string)
+  |> error_context(BadCategory(name))
+  |> result.then(check_unknown_keys(_, [keys]))
+}
+
 fn config_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Config, Report(Error)) {
-  use map <- result.then(
-    data
-    |> dynamic_extra.shallow_map(dynamic.string)
-    |> error_context(BadCategory("config"))
-    |> result.then(check_unknown_keys(_, [config_keys])),
-  )
+  use map <- result.then({
+    category_decoder("config", from: data, with: config_keys)
+  })
 
   use app <- result.then({
     app_decoder(["APP", ..prefix], get_section(map, "app"))
@@ -157,12 +165,7 @@ fn app_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(App, Report(Error)) {
-  use map <- result.then(
-    data
-    |> dynamic_extra.shallow_map(dynamic.string)
-    |> error_context(BadConfig("app"))
-    |> result.then(check_unknown_keys(_, [app_keys])),
-  )
+  use map <- result.then({ category_decoder("app", from: data, with: app_keys) })
 
   use interval <- result.then({
     case get_env(["INTERVAL", ..prefix]), map.get(map, "interval") {
@@ -209,12 +212,9 @@ fn server_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Server, Report(Error)) {
-  use map <- result.then(
-    data
-    |> dynamic_extra.shallow_map(dynamic.string)
-    |> error_context(BadConfig("server"))
-    |> result.then(check_unknown_keys(_, [server_keys])),
-  )
+  use map <- result.then({
+    category_decoder("server", from: data, with: server_keys)
+  })
 
   use port <- result.then({
     case get_env(["PORT", ..prefix]), map.get(map, "port") {
@@ -251,12 +251,9 @@ fn static_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Static, Report(Error)) {
-  use map <- result.then(
-    data
-    |> dynamic_extra.shallow_map(dynamic.string)
-    |> error_context(BadConfig("static"))
-    |> result.then(check_unknown_keys(_, [static_keys])),
-  )
+  use map <- result.then({
+    category_decoder("static", from: data, with: static_keys)
+  })
 
   use base <- result.then({
     case get_env(["BASE", ..prefix]), map.get(map, "base") {
@@ -339,12 +336,9 @@ fn reloader_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Option(Reloader), Report(Error)) {
-  use map <- result.then(
-    data
-    |> dynamic_extra.shallow_map(dynamic.string)
-    |> error_context(BadConfig("reloader"))
-    |> result.then(check_unknown_keys(_, [reloader_keys])),
-  )
+  use map <- result.then({
+    category_decoder("reloader", from: data, with: reloader_keys)
+  })
 
   use method <- result.then({
     case get_env(["METHOD", ..prefix]), map.get(map, "method") {
@@ -427,12 +421,9 @@ fn gzip_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Gzip, Report(Error)) {
-  use map <- result.then(
-    data
-    |> dynamic_extra.shallow_map(dynamic.string)
-    |> error_context(BadConfig("gzip"))
-    |> result.then(check_unknown_keys(_, [gzip_keys])),
-  )
+  use map <- result.then({
+    category_decoder("gzip", from: data, with: gzip_keys)
+  })
 
   use threshold <- result.then({
     case get_env(["THRESHOLD", ..prefix]), map.get(map, "threshold") {
