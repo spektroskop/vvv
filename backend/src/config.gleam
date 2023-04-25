@@ -183,8 +183,9 @@ fn app_decoder(
 
   use reload_browser <- result.then({
     case get_env(["RELOAD_BROWSER", ..prefix]), map.get(map, "reload_browser") {
-      Ok("false"), _map -> Ok(False)
-      Ok("true"), _map -> Ok(True)
+      Ok(value), _map ->
+        json.decode(value, dynamic.bool)
+        |> report.replace_error(BadEnvironment("reload_browser"))
 
       Ok(_), _map ->
         BadEnvironment("reload_browser")
