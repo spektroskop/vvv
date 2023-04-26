@@ -23,10 +23,11 @@ const default_static_types = [
   #("html", "text/html"),
   #("ico", "image/x-icon"),
   #("js", "text/javascript"),
-  #("woff", "font/woff"),
-  #("woff2", "font/woff2"),
+  #("mp4", "video/mp4"),
   #("png", "image/png"),
   #("svg", "image/svg+xml"),
+  #("woff", "font/woff"),
+  #("woff2", "font/woff2"),
 ]
 
 const default_gzip_threshold = 350

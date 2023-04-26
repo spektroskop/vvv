@@ -32,10 +32,11 @@ port = 3210
 # "html" = "text/html"
 # "ico" = "image/x-icon"
 # "js" = "text/javascript"
-# "woff" = "font/woff"
-# "woff2" = "font/woff2"
+# "mp4" = "video/mp4"
 # "png" = "image/png"
 # "svg" = "image/svg+xml"
+# "woff" = "font/woff"
+# "woff2" = "font/woff2"
 
 # [static.reloader]
 # HTTP method used to trigger reload
