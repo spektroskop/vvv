@@ -187,10 +187,6 @@ fn app_decoder(
         json.decode(value, dynamic.bool)
         |> report.replace_error(BadEnvironment("reload_browser"))
 
-      Ok(_), _map ->
-        BadEnvironment("reload_browser")
-        |> report.error()
-
       _env, Ok(value) ->
         dynamic.bool(value)
         |> error_context(BadConfig("reload_browser"))
