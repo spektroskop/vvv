@@ -96,7 +96,7 @@ fn get_asset(
 
 pub fn collect_assets(base: String, types: Map(String, String)) -> Assets {
   map.from_list({
-    use relative_path <- list.filter_map(path.wildcard(base, "**"))
+    use relative_path <- list.filter_map(path.wildcard(in: base, find: "**"))
     let full_path = path.join([base, relative_path])
     use <- bool.guard(when: path.is_directory(full_path), return: Error(Nil))
 
