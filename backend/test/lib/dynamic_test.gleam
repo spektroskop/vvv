@@ -2,7 +2,7 @@ import gleam/dynamic
 import gleeunit/should
 import lib/dynamic as dynamic_extra
 
-pub fn decode_non_empty_string_test() {
+pub fn non_empty_string_test() {
   dynamic.from("")
   |> dynamic_extra.non_empty_string()
   |> should.equal(Error([
@@ -24,20 +24,18 @@ pub fn decode_non_empty_string_test() {
   |> should.equal(Ok("string"))
 }
 
-pub fn decode_optional_list_test() {
+pub fn into_list_test() {
   dynamic.from(10)
-  |> dynamic_extra.optional_list(dynamic_extra.non_empty_string)
-  |> should.equal(Error([dynamic.DecodeError("another type", "Int", [])]))
+  |> dynamic_extra.into_list(dynamic.int)
+  |> should.equal(Ok([10]))
+}
+
+pub fn optional_list_test() {
+  dynamic.from(10)
+  |> dynamic_extra.optional_list(dynamic.int)
+  |> should.equal(Ok([10]))
 
   dynamic.from([10])
-  |> dynamic_extra.optional_list(dynamic_extra.non_empty_string)
-  |> should.equal(Error([dynamic.DecodeError("another type", "List", [])]))
-
-  dynamic.from("value")
-  |> dynamic_extra.optional_list(dynamic_extra.non_empty_string)
-  |> should.equal(Ok(["value"]))
-
-  dynamic.from(["value"])
-  |> dynamic_extra.optional_list(dynamic_extra.non_empty_string)
-  |> should.equal(Ok(["value"]))
+  |> dynamic_extra.optional_list(dynamic.int)
+  |> should.equal(Ok([10]))
 }
