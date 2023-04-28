@@ -213,7 +213,6 @@ active target body =
         |> Html.wrap label
         |> Html.classes [ "text-stone-800 text-shadow-white" ]
         |> Html.classes [ "bg-gradient-to-b from-gray-300 to-gray-400" ]
-        |> Html.classes [ "dark:from-gray-300 dark:to-gray-400" ]
         |> Html.body body
         |> Html.build
 
@@ -223,8 +222,8 @@ background target body =
     link
         |> Html.attributes [ Route.href target ]
         |> Html.wrap label
-        |> Html.classes [ "text-slate-300 dark:text-slate-400" ]
-        |> Html.classes [ "bg-gray-600 dark:bg-gray-700" ]
+        |> Html.classes [ "text-neutral-300" ]
+        |> Html.classes [ "bg-gradient-to-b from-neutral-500 to-neutral-600" ]
         |> Html.body body
         |> Html.build
 
