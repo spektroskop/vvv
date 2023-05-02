@@ -37,6 +37,7 @@ port = 3210
 # "svg" = "image/svg+xml"
 # "woff" = "font/woff"
 # "woff2" = "font/woff2"
+# "pdf" = "application/pdf"
 
 # [static.reloader]
 # HTTP method used to trigger reload

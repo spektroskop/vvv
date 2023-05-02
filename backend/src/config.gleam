@@ -28,6 +28,7 @@ const default_static_types = [
   #("svg", "image/svg+xml"),
   #("woff", "font/woff"),
   #("woff2", "font/woff2"),
+  #("pdf", "application/pdf"),
 ]
 
 const default_gzip_threshold = 350
