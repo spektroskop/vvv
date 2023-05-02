@@ -26,7 +26,7 @@ import Lib.Html.Builder as Html
 import Lib.List as List
 import Lib.Loadable as Loadable exposing (Loadable(..))
 import Lib.Return as Return
-import Phosphor exposing (IconWeight(..))
+import Phosphor
 import Ports
 import Route exposing (Route)
 import Static
@@ -261,7 +261,7 @@ project =
         |> Html.wrap label
         |> Html.body [ text "vvv" ]
         |> Html.body
-            [ Phosphor.arrowSquareOut Bold
+            [ Phosphor.arrowSquareOut Phosphor.Bold
                 |> Phosphor.withClass "w-[20px] h-[20px]"
                 |> Phosphor.toHtml []
             ]
