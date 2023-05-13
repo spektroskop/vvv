@@ -52,7 +52,7 @@ fn router(assets: Assets, index: List(String)) {
       |> result.or(map.get(assets, index)),
     )
 
-    use body <- result.then(
+    use body <- result.map(
       file.read_bits(asset.full_path)
       |> result.map(bit_builder.from_bit_string)
       |> report.map_error(web.FileError),
@@ -62,7 +62,6 @@ fn router(assets: Assets, index: List(String)) {
     |> response.set_body(body)
     |> response.prepend_header("content-type", asset.content_type)
     |> response.prepend_header("etag", asset.hash)
-    |> Ok
   }
 }
 
@@ -100,9 +99,8 @@ pub fn collect_assets(base: String, types: Map(String, String)) -> Assets {
     let full_path = path.join([base, relative_path])
     use <- bool.guard(when: path.is_directory(full_path), return: Error(Nil))
 
-    use asset <- result.then(load_asset(relative_path, full_path, types))
-    let segments = uri.path_segments(relative_path)
-    Ok(#(segments, asset))
+    use asset <- result.map(load_asset(relative_path, full_path, types))
+    #(uri.path_segments(relative_path), asset)
   })
 }
 
@@ -111,12 +109,12 @@ fn load_asset(
   full_path: String,
   types: Map(String, String),
 ) -> Result(Asset, Nil) {
-  use content_type <- result.then(
+  use content_type <- result.try(
     string.drop_left(path.extension(full_path), 1)
     |> map.get(types, _),
   )
 
-  use data <- result.then(
+  use data <- result.map(
     file.read_bits(full_path)
     |> result.nil_error(),
   )
@@ -128,7 +126,6 @@ fn load_asset(
     relative_path: relative_path,
     full_path: full_path,
   )
-  |> Ok
 }
 
 pub fn encode_assets(assets: Assets) -> Json {

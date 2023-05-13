@@ -55,12 +55,12 @@ pub fn error_context(result: Result(_, dynamic.DecodeErrors), context: Error) {
 }
 
 pub fn read(prefix: List(String)) -> Result(Config, Report(Error)) {
-  use data <- result.then({
+  use data <- result.try({
     case get_env(["CONFIG", ..prefix]) {
       Error(Nil) -> Ok(dynamic.from(map.new()))
 
       Ok(path) -> {
-        use data <- result.then(
+        use data <- result.try(
           file.read(path)
           |> report.map_error(FileError),
         )
@@ -122,33 +122,33 @@ fn category_decoder(
   data
   |> dynamic_extra.shallow_map(dynamic_extra.non_empty_string)
   |> error_context(BadCategory(name))
-  |> result.then(check_unknown_keys(_, [keys]))
+  |> result.try(check_unknown_keys(_, [keys]))
 }
 
 fn config_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Config, Report(Error)) {
-  use map <- result.then({
+  use map <- result.try({
     category_decoder("config", from: data, with: config_keys)
   })
 
-  use app <- result.then({
+  use app <- result.try({
     app_decoder(["APP", ..prefix], get_section(map, "app"))
     |> report.error_context(BadCategory("app"))
   })
 
-  use server <- result.then({
+  use server <- result.try({
     server_decoder(["SERVER", ..prefix], get_section(map, "server"))
     |> report.error_context(BadCategory("server"))
   })
 
-  use static <- result.then({
+  use static <- result.try({
     static_decoder(["STATIC", ..prefix], get_section(map, "static"))
     |> report.error_context(BadCategory("static"))
   })
 
-  use gzip <- result.then({
+  use gzip <- result.try({
     gzip_decoder(["GZIP", ..prefix], get_section(map, "gzip"))
     |> report.error_context(BadCategory("gzip"))
   })
@@ -167,9 +167,9 @@ fn app_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(App, Report(Error)) {
-  use map <- result.then({ category_decoder("app", from: data, with: app_keys) })
+  use map <- result.try({ category_decoder("app", from: data, with: app_keys) })
 
-  use interval <- result.then({
+  use interval <- result.try({
     case get_env(["INTERVAL", ..prefix]), map.get(map, "interval") {
       Ok(value), _map ->
         int.parse(value)
@@ -183,7 +183,7 @@ fn app_decoder(
     }
   })
 
-  use reload_browser <- result.then({
+  use reload_browser <- result.try({
     case get_env(["RELOAD_BROWSER", ..prefix]), map.get(map, "reload_browser") {
       Ok(value), _map ->
         json.decode(value, dynamic.bool)
@@ -211,11 +211,11 @@ fn server_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Server, Report(Error)) {
-  use map <- result.then({
+  use map <- result.try({
     category_decoder("server", from: data, with: server_keys)
   })
 
-  use port <- result.then({
+  use port <- result.try({
     case get_env(["PORT", ..prefix]), map.get(map, "port") {
       Ok(value), _map ->
         int.parse(value)
@@ -250,11 +250,11 @@ fn static_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Static, Report(Error)) {
-  use map <- result.then({
+  use map <- result.try({
     category_decoder("static", from: data, with: static_keys)
   })
 
-  use base <- result.then({
+  use base <- result.try({
     case get_env(["BASE", ..prefix]), map.get(map, "base") {
       Ok(value), _map -> Ok(value)
 
@@ -268,12 +268,12 @@ fn static_decoder(
     }
   })
 
-  use index <- result.then({
+  use index <- result.try({
     case get_env(["INDEX", ..prefix]), map.get(map, "index") {
       Ok(value), _map -> Ok(uri.path_segments(value))
 
       _env, Ok(value) -> {
-        use string <- result.then(
+        use string <- result.try(
           dynamic.string(value)
           |> error_context(BadConfig("index")),
         )
@@ -286,10 +286,10 @@ fn static_decoder(
     }
   })
 
-  use types <- result.then({
+  use types <- result.try({
     case get_env(["TYPES", ..prefix]), map.get(map, "types") {
       Ok(value), _map -> {
-        use args <- result.then({
+        use args <- result.try({
           use arg <- list.try_map(string.split(value, ","))
 
           case string.split(arg, ":") {
@@ -316,7 +316,7 @@ fn static_decoder(
     }
   })
 
-  use reloader <- result.then({
+  use reloader <- result.try({
     reloader_decoder(["RELOADER", ..prefix], get_section(map, "reloader"))
     |> report.error_context(BadCategory("reloader"))
   })
@@ -335,14 +335,14 @@ fn reloader_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Option(Reloader), Report(Error)) {
-  use map <- result.then({
+  use map <- result.try({
     category_decoder("reloader", from: data, with: reloader_keys)
   })
 
-  use method <- result.then({
+  use method <- result.try({
     case get_env(["METHOD", ..prefix]), map.get(map, "method") {
       Ok(value), _map -> {
-        use method <- result.then(
+        use method <- result.try(
           http.parse_method(value)
           |> report.replace_error(BadEnvironment("method")),
         )
@@ -352,12 +352,12 @@ fn reloader_decoder(
       }
 
       _env, Ok(value) -> {
-        use string <- result.then(
+        use string <- result.try(
           dynamic.string(value)
           |> error_context(BadConfig("method")),
         )
 
-        use method <- result.then(
+        use method <- result.try(
           http.parse_method(string)
           |> report.replace_error(BadConfig("method")),
         )
@@ -370,7 +370,7 @@ fn reloader_decoder(
     }
   })
 
-  use path <- result.then({
+  use path <- result.try({
     case get_env(["PATH", ..prefix]), map.get(map, "path") {
       Ok(value), _map ->
         uri.path_segments(value)
@@ -378,7 +378,7 @@ fn reloader_decoder(
         |> Ok
 
       _env, Ok(value) -> {
-        use string <- result.then(
+        use string <- result.try(
           dynamic.string(value)
           |> error_context(BadConfig("path")),
         )
@@ -420,11 +420,11 @@ fn gzip_decoder(
   prefix: List(String),
   data: Dynamic,
 ) -> Result(Gzip, Report(Error)) {
-  use map <- result.then({
+  use map <- result.try({
     category_decoder("gzip", from: data, with: gzip_keys)
   })
 
-  use threshold <- result.then({
+  use threshold <- result.try({
     case get_env(["THRESHOLD", ..prefix]), map.get(map, "threshold") {
       Ok(value), _map ->
         int.parse(value)
@@ -438,7 +438,7 @@ fn gzip_decoder(
     }
   })
 
-  use types <- result.then({
+  use types <- result.try({
     case get_env(["TYPES", ..prefix]), map.get(map, "types") {
       Ok(value), _map ->
         string.split(value, ",")
@@ -446,7 +446,7 @@ fn gzip_decoder(
         |> Ok
 
       _env, Ok(value) -> {
-        use list <- result.then(
+        use list <- result.try(
           value
           |> dynamic.list(dynamic.string)
           |> error_context(BadConfig("types")),
