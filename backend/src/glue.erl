@@ -19,6 +19,12 @@ hackney_send(Method, Url, Headers, Body, Options) ->
         {ok, _, _, _} ->
             {error, bad_response};
 
+        {error, {options, Error}} ->
+            {error, {bad_option, Error}};
+
+        {error, timeout} ->
+            {error, timeout};
+
         {error, Error} -> 
             {error, {other, Error}}
     end.

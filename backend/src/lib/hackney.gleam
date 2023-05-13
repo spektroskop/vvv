@@ -101,6 +101,8 @@ fn encode_timeout(timeout: Timeout) -> Dynamic {
 
 pub type Error {
   BadResponse
+  BadOption(Dynamic)
+  Timeout
   Other(Dynamic)
 }
 
