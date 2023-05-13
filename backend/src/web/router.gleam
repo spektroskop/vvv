@@ -3,6 +3,9 @@ import gleam/http/request.{Request}
 import gleam/http/response.{Response}
 import gleam/http/service.{Service}
 import gleam/set.{Set}
+import nakai
+import nakai/html
+import nakai/html/attrs
 import web
 import web/static
 
@@ -27,6 +30,23 @@ pub fn service(
             |> response.set_body("500 Internal Server Error")
             |> response.map(bit_builder.from_string)
         }
+
+      ["nakai"] ->
+        response.new(200)
+        |> response.set_body({
+          html.Fragment([
+            html.Head([
+              html.meta([
+                attrs.name("viewport"),
+                attrs.content("width=device-width, initial-scale=1"),
+              ]),
+              html.title("vvv"),
+            ]),
+            html.div([], [html.Text("vvv")]),
+          ])
+        })
+        |> response.map(nakai.to_string_builder)
+        |> response.map(bit_builder.from_string_builder)
 
       segments ->
         case static.router(request, segments) {
