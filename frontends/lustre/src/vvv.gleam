@@ -43,13 +43,15 @@ fn update(model: Model, msg: Msg) {
 }
 
 fn render(model: Model) {
-  div(
-    [class("flex flex-col")],
-    [
-      shared.render(model.shared, option.Some(route.Overview))
-      |> element.map(SharedMsg),
-      pages.render(model.page)
-      |> element.map(PageMsg),
-    ],
-  )
+  let shared = {
+    use <- element.map(_, SharedMsg)
+    shared.render(model.shared, option.Some(route.Overview))
+  }
+
+  let page = {
+    use <- element.map(_, PageMsg)
+    pages.render(model.page)
+  }
+
+  div([class("flex flex-col")], [shared, page])
 }
