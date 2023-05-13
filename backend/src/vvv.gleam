@@ -1,11 +1,15 @@
 import config
+import gleam/bit_builder
 import gleam/erlang
 import gleam/erlang/process
+import gleam/http
+import gleam/http/request
 import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option
 import gleam/string
+import lib/hackney
 import mist
 import web/api
 import web/reloader
@@ -75,6 +79,16 @@ pub fn main() {
         mist.bit_builder_response(response, response.body)
       },
     )
+
+  let assert Ok(response) =
+    request.new()
+    |> request.set_scheme(http.Http)
+    |> request.set_host("localhost")
+    |> request.set_body(bit_builder.new())
+    |> request.set_port(config.server.port)
+    |> hackney.send(with: hackney.options([hackney.WithBody(True)]))
+
+  io.debug(#(response.status, response.body))
 
   process.sleep_forever()
 }
