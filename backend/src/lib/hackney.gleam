@@ -5,13 +5,18 @@ import gleam/erlang/charlist.{Charlist}
 import gleam/http
 import gleam/http/request.{Request}
 import gleam/http/response.{Response}
-import gleam/iterator
 import gleam/list
 import gleam/map
 import gleam/option.{None, Some}
 import gleam/result
 import gleam/string
 import gleam/uri.{Uri}
+
+const default_options = [
+  ConnectTimeout(Millis(5000)),
+  RecvTimeout(Millis(5000)),
+  WithBody(True),
+]
 
 pub type Option {
   Proxy(Uri)
@@ -37,18 +42,21 @@ pub type Config(a) {
 
 pub fn options(keys: List(Option)) -> Config(a) {
   let groups =
-    iterator.from_list(keys)
-    |> iterator.group(by: fn(config) {
-      case config {
-        CACertFile(_) -> Some(SSLConfig)
-        _ -> None
-      }
-    })
+    map.to_list(
+      default_options
+      |> list.group(option_keys)
+      |> map.merge(list.group(keys, option_keys))
+      |> map.values()
+      |> list.flatten()
+      |> list.group(fn(config) {
+        case config {
+          CACertFile(_) -> Some(SSLConfig)
+          _ -> None
+        }
+      }),
+    )
 
-  use config, group <- list.fold(
-    map.to_list(groups),
-    Config(resolved: [], pending: []),
-  )
+  use config, group <- list.fold(groups, Config(resolved: [], pending: []))
 
   case group {
     #(None, keys) -> Config(..config, resolved: list.map(keys, encode_option))
@@ -69,6 +77,17 @@ pub fn options(keys: List(Option)) -> Config(a) {
 
       Config(..config, pending: [ssl_options, ..config.pending])
     }
+  }
+}
+
+fn option_keys(option: Option) -> Int {
+  case option {
+    Proxy(_) -> 1
+    CACertFile(_) -> 2
+    ConnectTimeout(_) -> 3
+    RecvTimeout(_) -> 4
+    MaxRedirect(_) -> 5
+    WithBody(_) -> 6
   }
 }
 

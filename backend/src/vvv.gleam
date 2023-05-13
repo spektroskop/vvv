@@ -86,7 +86,7 @@ pub fn main() {
     |> request.set_host("localhost")
     |> request.set_body(bit_builder.new())
     |> request.set_port(config.server.port)
-    |> hackney.send(with: hackney.options([hackney.WithBody(True)]))
+    |> hackney.send(with: hackney.options([]))
 
   io.debug(#(response.status, response.body))
 
