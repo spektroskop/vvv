@@ -129,7 +129,8 @@ update msg _ _ model =
 
         ( Overview pageModel, OverviewMsg pageMsg ) ->
             Page.Overview.update pageMsg pageModel
-                |> Return.map Overview OverviewMsg
+                |> Return.maybe Overview OverviewMsg
+                |> Return.withDefault model
 
         ( Overview _, _ ) ->
             ( model, Cmd.none )
