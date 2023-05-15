@@ -14,8 +14,8 @@ import gleam/uri.{Uri}
 
 const default_options = [
   ConnectTimeout(Millis(5000)),
+  MaxRedirect(0),
   RecvTimeout(Millis(5000)),
-  WithBody(True),
 ]
 
 pub type Option {
@@ -24,7 +24,6 @@ pub type Option {
   ConnectTimeout(Timeout)
   RecvTimeout(Timeout)
   MaxRedirect(Int)
-  WithBody(Bool)
 }
 
 type OptionGroup {
@@ -36,11 +35,14 @@ pub type Timeout {
   Infinity
 }
 
-pub type Config(a) {
-  Config(resolved: List(Dynamic), pending: List(fn(Request(a)) -> Dynamic))
+pub type Config {
+  Config(
+    resolved: List(Dynamic),
+    pending: List(fn(Request(BitBuilder)) -> Dynamic),
+  )
 }
 
-pub fn options(keys: List(Option)) -> Config(a) {
+pub fn options(keys: List(Option)) -> Config {
   let groups =
     map.to_list(
       default_options
@@ -59,12 +61,13 @@ pub fn options(keys: List(Option)) -> Config(a) {
   use config, group <- list.fold(groups, Config(resolved: [], pending: []))
 
   case group {
-    #(None, keys) -> Config(..config, resolved: list.map(keys, encode_option))
+    #(None, keys) ->
+      Config(..config, resolved: list.flat_map(keys, encode_option))
 
     #(Some(SSLConfig), keys) -> {
       let ssl_options = {
         let atom = atom.create_from_string("ssl_options")
-        let keys = list.map(keys, encode_option)
+        let keys = list.flat_map(keys, encode_option)
 
         fn(request: Request(_)) {
           dynamic.from(#(
@@ -87,22 +90,32 @@ fn option_keys(option: Option) -> Int {
     ConnectTimeout(_) -> 3
     RecvTimeout(_) -> 4
     MaxRedirect(_) -> 5
-    WithBody(_) -> 6
   }
 }
 
 external fn merge_ssl_options(Charlist, List(Dynamic)) -> Dynamic =
   "hackney_connection" "merge_ssl_opts"
 
-fn encode_option(option: Option) -> Dynamic {
+fn encode_option(option: Option) -> List(Dynamic) {
   case option {
-    Proxy(uri) -> encode_pair("proxy", uri.to_string(uri))
-    CACertFile(path) -> encode_pair("cacertfile", path)
-    ConnectTimeout(timeout) ->
-      encode_pair("connect_timeout", encode_timeout(timeout))
-    RecvTimeout(timeout) -> encode_pair("recv_timeout", encode_timeout(timeout))
-    MaxRedirect(limit) -> encode_pair("max_redirect", limit)
-    WithBody(bool) -> encode_pair("with_body", bool)
+    Proxy(uri) -> [encode_pair("proxy", uri.to_string(uri))]
+
+    CACertFile(path) -> [encode_pair("cacertfile", path)]
+
+    ConnectTimeout(timeout) -> [
+      encode_pair("connect_timeout", encode_timeout(timeout)),
+    ]
+
+    RecvTimeout(timeout) -> [
+      encode_pair("recv_timeout", encode_timeout(timeout)),
+    ]
+
+    MaxRedirect(limit) if limit > 0 -> [
+      encode_pair("max_redirect", limit),
+      encode_pair("follow_redirect", True),
+    ]
+
+    MaxRedirect(limit) -> [encode_pair("max_redirect", limit)]
   }
 }
 
@@ -144,7 +157,7 @@ external fn hackney_send(
 
 pub fn send(
   request: Request(BitBuilder),
-  with config: Config(BitBuilder),
+  with config: Config,
 ) -> Result(Response(Body), Error) {
   let uri = uri.to_string(request.to_uri(request))
   let options =
