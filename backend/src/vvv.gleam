@@ -1,16 +1,13 @@
 import config
-import gleam/bit_builder
 import gleam/erlang
 import gleam/erlang/process
-import gleam/http
-import gleam/http/request
+import gleam/http/request.{Request}
+import gleam/http/response.{Response}
 import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option
-import gleam/result
 import gleam/string
-import lib/hackney
 import mist
 import web/api
 import web/reloader
@@ -71,26 +68,15 @@ pub fn main() {
     )
 
   let assert Ok(_) =
-    mist.serve(
-      port: config.server.port,
-      handler: {
-        use request <- mist.handler_func()
-        let assert Ok(request) = mist.read_body(request)
-        let response = router(request)
-        mist.bit_builder_response(response, response.body)
-      },
-    )
-
-  let assert Ok(response) =
-    request.new()
-    |> request.set_scheme(http.Http)
-    |> request.set_host("localhost")
-    |> request.set_body(bit_builder.new())
-    |> request.set_port(config.server.port)
-    |> hackney.send(with: hackney.options([]))
-    |> result.then(hackney.read_body)
-
-  io.debug(#(response.status, response.body))
+    mist.new({
+      fn(request: Request(mist.Connection)) -> Response(mist.ResponseData) {
+        let assert Ok(request) = mist.read_body(request, 0)
+        router(request)
+        |> response.map(mist.Bytes)
+      }
+    })
+    |> mist.port(config.server.port)
+    |> mist.start_http()
 
   process.sleep_forever()
 }
